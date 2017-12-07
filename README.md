@@ -14,7 +14,7 @@ There are various approaches to addressing this issue, most of which involve cac
 
 The Offline Persistence Toolkit simplifies life for application developers by providing a response caching solution that works well across modern browsers.  The toolkit covers common caching cases with a minimal amount of application-specific coding, but provides flexibility to cover non-trivial cases as well.  In addition to providing the ability to cache complete response payloads, the toolkit supports "shredding" of REST response payloads into objects that can be stored, queried and updated on the client while offline.
 
-The following sections provide an introduction to the Offline Persistence Toolkit.  More details can be found in our API JSDoc.  (Todo: link to JSDoc)
+The following sections provide an introduction to the Offline Persistence Toolkit.  More details can be found in our API [JSDoc](https://oracle.github.io/offline-persistence-toolkit/ "JSDoc")
 
 ## Getting Started ##
 
@@ -50,16 +50,16 @@ If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the 
 ```javascript
   requirejs.config({
     paths: {
-      'persist' : 'js/libs/persist/v3.1.0/min'
+      'persist' : 'js/libs/persist/v1.0.0/min'
 
       // Other path mappings here
  }
 ```
-For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v3.1.0/min'` entry to the list of paths.
+For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.0.0/min'` entry to the list of paths.
 
 You can choose the name of the paths prefix. That is, you can use a different value to the ‘persist’ value shown in the examples.
 
-It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v3.1.0/min'`.
+It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.0.0/min'`.
 
 The toolkit makes heavy use of the [Promise API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise API").  If you are targeting environments that do not support the Promise API, you will need to polyfill this feature.  We recommend the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise "es6-promise polyfill").
 
@@ -75,7 +75,7 @@ And again, if you are using RequireJS, you will need to map paths for these pack
     paths: {
       'pouchdb': 'js/libs/pouchdb-6.3.4',
       'pouchfind': 'js/libs/pouchdb.find',
-      'persist' : 'js/libs/persist/v3.1.0/min'
+      'persist' : 'js/libs/persist/v1.0.0/min'
 
       // Other path mappings here
  }
@@ -124,7 +124,7 @@ The worker implementation can listen for fetch events and respond by producing a
 
 ```
 
-The Offline Persistence Toolkit follows a similar pattern.  Each endpoint of interest is identified by a scope that is registered with the persistenceManager API:
+The Offline Persistence Toolkit follows a similar pattern.  Each endpoint of interest is identified by a scope that is registered with the [PersistenceManager API](https://oracle.github.io/offline-persistence-toolkit/PersistenceManager.html "PersistenceManager API"):
 
 ```javascript
 
@@ -155,7 +155,7 @@ The persistenceManager.register() call returns a Promise that resolves to a Pers
 
 ```
 
-While the application could hand-code the fetch event listener, the toolkit provides a convenience API for producing cache-aware listener implementations: the DefaultResponseProxy.
+While the application could hand-code the fetch event listener, the toolkit provides a convenience API for producing cache-aware listener implementations: the [DefaultResponseProxy](https://oracle.github.io/offline-persistence-toolkit/DefaultResponseProxy.html "DefaultResponseProxy API").
 
 The most trivial use of the DefaultResponseProxy looks like this:
 
@@ -184,7 +184,7 @@ This is the simplest form of response caching supported by the Offline Persisten
 
 As mentioned in the previous section, the Offline Persistence Toolkit caches responses to persistence storage locally within the browser/on the device.  The form of this persistence storage is left up to the application developer.  The toolkit supports two choices of storage implementations out of the box: PouchDB or localStorage.  Other storage solutions (e.g. [WebSQL](https://en.wikipedia.org/wiki/Web_SQL_Database "WebSQL") or [file system storage](https://github.com/apache/cordova-plugin-file "file system storage")) could be implemented by providing a custom persistenceStoreFactory.  It is also possible to use a mix of storage solutions - e.g. responses from an endpoint with minimal storage size requirements could be stored in localStorage, whereas a second endpoint with larger storage requirements could be configured to persist to pouchDB.
 
-Since it is important for the application developer to determine the preferred type of storage for each use case, the toolkit does not specify a default storage solution.  The app must explicitly configure the preferred storage implementation via the persistenceStoreManager API.  This preference can be configured globally via a call to persistenceStoreManager.registerDefaultStoreFactory():
+Since it is important for the application developer to determine the preferred type of storage for each use case, the toolkit does not specify a default storage solution.  The app must explicitly configure the preferred storage implementation via the [PersistenceStoreManager API](https://oracle.github.io/offline-persistence-toolkit/PersistenceStoreManager.html "PersistenceStoreManager API").  This preference can be configured globally via a call to persistenceStoreManager.registerDefaultStoreFactory():
 
 ```javascript
 
@@ -281,7 +281,7 @@ var responseProxy = defaultResponseProxy.getResponseProxy({
 });
 ```
 
-The toolkit provides "simple" shredder and unshredder implementations via the simpleJsonShredding module.  This simple shredder requires two pieces of information:
+The toolkit provides "simple" shredder and unshredder implementations via the [simpleJsonShredding](https://oracle.github.io/offline-persistence-toolkit/simpleJsonShredding.html "simpleJsonShredding") module.  This simple shredder requires two pieces of information:
 
 1. The name of the persistent store to which the shredded data should be written (e.g. 'emp').
 2. The name of the property that uniquely identifies each entry (e.g. EmployeeId).
@@ -297,7 +297,7 @@ As the structure of response payloads can vary from endpoint to endpoint, applic
 
 ## Modifications: PUT and DELETE ##
 
-When a PUT or DELETE request occurs while offline, the local shredded data is updated.  As a result, subsequent GET requests that happen while offline will reflect the updates. This is handled automatically by the toolkit if a shredder/unshredder is defined. In terms of the flow when offline, PUT/DELETE requests generated by the application are first shredded and then the corresponding local store is updated. The request is then persisted in the sync log for later replay to the server. All HTTP requests which satisfy a configured scope will be persisted regardless of type.
+When a PUT or DELETE request occurs while offline, the local shredded data is updated.  As a result, subsequent GET requests that happen while offline will reflect the updates. This is handled automatically by the toolkit if a shredder/unshredder is defined. In terms of the flow when offline, PUT/DELETE requests generated by the application are first shredded and then the corresponding local store is updated. The request is then persisted in the sync log for later replay to the server. All HTTP requests which satisfy a configured scope will be persisted regardless of type. The sync log can be accessed via the [PersistenceSyncManager API](https://oracle.github.io/offline-persistence-toolkit/PersistenceSyncManager.html "PersistenceSyncManager API").
 
 ## Creation: POST ##
 
@@ -354,7 +354,7 @@ The following items can be customized:
 
 
 ### fetchStrategy ###
-The fetchStrategy defines the behavior of GET requests. There are a couple of fetchStrategies which are available out of the box which define under what conditions the toolkit will serve GET requests from the cache. The default fetchStrategy is fetchStrategies.getCacheIfOfflineStrategy(). To specify one of the available fetchStrategies or your own custom one, use the fetchStrategy option:
+The fetchStrategy defines the behavior of GET requests. There are a couple of [fetchStrategies](https://oracle.github.io/offline-persistence-toolkit/fetchStrategies.html "fetchStrategies") which are available out of the box which define under what conditions the toolkit will serve GET requests from the cache. The default fetchStrategy is fetchStrategies.getCacheIfOfflineStrategy(). To specify one of the available fetchStrategies or your own custom one, use the fetchStrategy option:
 
 ```javascript
 var responseProxy = defaultResponseProxy.getResponseProxy(
@@ -365,7 +365,7 @@ var responseProxy = defaultResponseProxy.getResponseProxy(
 ```
 
 ### cacheStrategy ###
-The cacheStrategy defines the behavior of what is cached as well as its expiration and eviction.  There is one cacheStrategy available out of the box and it is also the default. The default cacheStrategy is cacheStrategies.getHttpCacheHeaderStrategy() which uses the HTTP cache headers to determine caching and expiration. To specify your own custom cacheStrategy, use the cacheStrategy option:
+The cacheStrategy defines the behavior of what is cached as well as its expiration and eviction.  There is one [cacheStrategy](https://oracle.github.io/offline-persistence-toolkit/cacheStrategies.html "cacheStrategy") available out of the box and it is also the default. The default cacheStrategy is cacheStrategies.getHttpCacheHeaderStrategy() which uses the HTTP cache headers to determine caching and expiration. To specify your own custom cacheStrategy, use the cacheStrategy option:
 
 ```javascript
 var responseProxy = defaultResponseProxy.getResponseProxy(
@@ -376,7 +376,7 @@ var responseProxy = defaultResponseProxy.getResponseProxy(
 ```
 
 ### queryHandler ###
-The queryHandler defines the behavior of how URL query parameters are handled. There are two queryHandlers available out of the box. One is a simple queryHandler which matches URL query parameter name/values with corresponding persistent store field/values. The other queryHandler supports the Oracle REST standard for URL query parameters. To specify one of the available queryHandlers or your own custom one, use the queryHandler option:
+The queryHandler defines the behavior of how URL query parameters are handled. There are two [queryHandlers](https://oracle.github.io/offline-persistence-toolkit/queryHandlers.html "queryHandlers") available out of the box. One is a simple queryHandler which matches URL query parameter name/values with corresponding persistent store field/values. The other queryHandler supports the Oracle REST standard for URL query parameters. To specify one of the available queryHandlers or your own custom one, use the queryHandler option:
 
 ### requestHandlerOverride ###
 Each HTTP request for a registered endpoint is processed by a default HTTP request handler defined in defaultResponseProxy according to the request method. For example, GET requests are handled by a GET request handler which uses the specified fetchStrategy to handle the GET request. To override the default request handlers, please specify the requestHandlerOverride option to use your custom request handler:
