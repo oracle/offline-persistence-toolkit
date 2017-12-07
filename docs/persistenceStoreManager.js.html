@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: persistenceStoreManager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: persistenceStoreManager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Copyright (c) 2017, Oracle and/or its affiliates.
+ * All rights reserved.
+ */
+
+define([], function () {
+  'use strict';
+  
+  /**
+   * @export
+   * @class PersistenceStoreManager
+   * @classdesc PersistenceStoreManager used for offline support
+   */
+
+  var PersistenceStoreManager = function () {
+    Object.defineProperty(this, '_stores', {
+      value: {},
+      writable: true
+    });
+    Object.defineProperty(this, '_factories', {
+      value: {},
+      writable: true
+    });
+    Object.defineProperty(this, '_DEFAULT_STORE_FACTORY_NAME', {
+      value: '_defaultFactory',
+      writable: false
+    });
+  }
+  
+  /**
+   * Register a PersistenceStoreFactory to create PersistenceStore for the
+   * specified name. Only one factory is allowed to be registered per name.
+   * @method
+   * @name registerStoreFactory
+   * @memberof! PersistenceStorageManager
+   * @param {string} name Name of the store the factory is registered under.
+   *                      Must not be null / undefined.
+   * @param {Object} factory The factory instance used to create
+   *                         PersistenceStore. Must not be null / undefined.
+   */
+  PersistenceStoreManager.prototype.registerStoreFactory = function (name, factory) {
+    if (!factory) {
+      throw TypeError("A valid factory must be provided.");
+    }
+    
+    if (!name) {
+      throw TypeError("A valid name must be provided.");
+    }
+
+    var oldFactory = this._factories[name];
+    if (oldFactory &amp;&amp; oldFactory !== factory) {
+      throw TypeError("A factory with the same name has already been registered.");
+    }
+    this._factories[name] = factory;
+  };
+
+  /**
+   * Register the default PersistenceStoreFactory to create PersistenceStore
+   * for stores that don't have any factory registered under.
+   * family.
+   * @method
+   * @name registerDefaultStoreFactory
+   * @memberof! PersistenceStoreManager
+   * @param {Object} factory The factory instance used to create
+   *                         PersistenceStore
+   */
+  PersistenceStoreManager.prototype.registerDefaultStoreFactory = function (factory) {
+    this.registerStoreFactory(this._DEFAULT_STORE_FACTORY_NAME, factory);
+  };
+
+  /**
+   * Get hold of a store for a collection of records of the same type.
+   * Returns a promise that resolves to an instance of PersistenceStore
+   * that's ready to be used.
+   * @method
+   * @name openStore
+   * @memberof! PersistenceStoreManager
+   * @instance
+   * @param {string} name Name of the store.
+   * @param {{index: Array, version: string}|null} options Optional options to
+   *                                               tune the store
+   * &lt;ul>
+   * &lt;li>options.index array of fields to create index for&lt;/li>
+   * &lt;li>options.version The version of this store to open, default to be '0'. &lt;/li>
+   * &lt;/ul>
+   * @return {Promise} Returns an instance of a concrete PersistenceStore.
+   */
+  PersistenceStoreManager.prototype.openStore = function (name, options) {
+
+    var allVersions = this._stores[name];
+    var version = (options &amp;&amp; options.version) || '0';
+
+    if (allVersions &amp;&amp; allVersions[version]) {
+      return Promise.resolve(allVersions[version]);
+    }
+
+    var factory = this._factories[name];
+    if (!factory) {
+      factory = this._factories[this._DEFAULT_STORE_FACTORY_NAME];
+    }
+    if (!factory) {
+      return Promise.reject(new Error("no factory is registered to create the store."));
+    }
+
+    var self = this;
+    return new Promise(function (resolve, reject) {
+      factory.createPersistenceStore(name, options).then(function (store) {
+        allVersions = allVersions || {};
+        allVersions[version] = store;
+        self._stores[name] = allVersions;
+        resolve(store);
+      }, function (err) {
+        reject(err);
+      });
+    });
+  };
+
+  /**
+   * Check whether a specific version of a specific store exists or not.
+   * @method
+   * @name hasStore
+   * @memberof! PersistenceStoreManager
+   * @instance
+   * @param {string} name The name of the store to check for existence
+   * @param {{version: string}|null} options Optional options when perform the
+   *                                 check. 
+   * &lt;ul>
+   * &lt;li>options.version The version of this store to check. If not specified,
+   *                     any version of the store counts.&lt;/li>
+   * &lt;/ul>             
+   * @return {boolean} Returns true if the store with the name exists of the 
+   *                   specific version, false otherwise.
+   */
+  PersistenceStoreManager.prototype.hasStore = function (name, options) {
+    var allVersions = this._stores[name];
+    if (!allVersions) {
+      return false;
+    } else if (!options || !options.version) {
+      return true;
+    } else {
+      return (allVersions[options.version] ? true : false);
+    }
+  };
+
+  /**
+   * Delete the specific store, including all the content stored in the store.
+   * @method
+   * @name deleteStore
+   * @memberof! PersistenceStoreManager
+   * @instance
+   * @param {string} name The name of the store to delete
+   * @param {{version: string}|null} options Optional options when perform the
+   *                                 delete. 
+   * &lt;ul>
+   * &lt;li>options.version The version of this store to delete. If not specified,
+   *                     all versions of the store will be deleted.&lt;/li>
+   * &lt;/ul>  
+   * @return {Promise} Returns a Promise which resolves to true if the store is
+   *                   actually deleted, and false otherwise.
+   */
+  PersistenceStoreManager.prototype.deleteStore = function (name, options) {
+    var allversions = this._stores[name];
+    if (!allversions) {
+      return Promise.resolve(false);
+    } else {
+      var version = options &amp;&amp; options.version;
+      if (version) {
+        var store = allversions[version];
+        if (!store) {
+          return Promise.resolve(false);
+        } else {
+          return new Promise(function (resolve, reject) {
+            store.delete().then(function () {
+              delete allversions[version];
+              resolve(true);
+            }).catch(function (err) {
+              reject(err);
+            });
+          });
+        }
+      } else {
+        var mapcallback = function (origObject) {
+          return function (version) {
+            var value = origObject[version];
+            return value.delete();
+          };
+        };
+        var promises = Object.keys(allversions).map(mapcallback(allversions), this);
+        var self = this;
+        return new Promise(function (resolve, reject) {
+          Promise.all(promises).then(function () {
+            delete self._stores[name];
+            resolve(true);
+          }).catch(function (err) {
+            reject(err);
+          });
+        });
+      }
+    }
+  };
+
+  return new PersistenceStoreManager();
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 06 2017 19:17:04 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
