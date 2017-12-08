@@ -16,6 +16,10 @@ The Offline Persistence Toolkit simplifies life for application developers by pr
 
 The following sections provide an introduction to the Offline Persistence Toolkit.  More details can be found in our API [JSDoc](https://oracle.github.io/offline-persistence-toolkit/ "JSDoc")
 
+The architecture diagram illustrates the major components of the toolkit and how an application interacts with it.
+
+![](https://oracle.github.io/offline-persistence-toolkit/images/arch_diagram.png)
+
 ## Getting Started ##
 
 The Offline Persistence Toolkit is distributed as an [npm](https://www.npmjs.com/ "npm") package consisting of [AMD](https://github.com/amdjs/amdjs-api/blob/master/AMD.md "AMD") modules.

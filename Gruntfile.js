@@ -82,9 +82,10 @@ module.exports = function (grunt) {
     },
     jsdoc : {
         dist : {
-            src: ['<%= paths.src %>/*.js'],
+            src: ['<%= paths.src %>/*.js', 'USAGE.md'],
             options: {
-                destination: '<%= paths.docs %>'
+                destination: '<%= paths.docs %>',
+                config: 'config/conf_jsdoc.json'
             }
         }
     },
