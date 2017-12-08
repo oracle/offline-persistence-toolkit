@@ -13,7 +13,9 @@
     "templates": {
         "cleverLinks": false,
         "monospaceLinks": false,
-        "includeDate": false
+        "default": {
+            "includeDate": false
+        }
     }
 }
 
