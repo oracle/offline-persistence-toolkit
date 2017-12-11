@@ -424,5 +424,46 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
           });
         });
       });
+      asyncTest('blob response', function (assert) {
+        expect(4);
+        generateBlob().then(function(blob) {
+          mockFetch.addRequestReply('GET', '/blobResponse', {
+            status: 200,
+            body: blob
+          }, function () {
+            assert.ok(true, 'Mock Fetch received Request when online');
+          });
+
+      
+          persistenceManager.register({
+            scope: '/blobResponse'
+          }).then(function (registration) {
+            var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+            registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+
+            fetch('/blobResponse').then(function (response) {
+              assert.ok(true, 'Received Response when online');
+              response.blob().then(function(blob) {
+                assert.ok(blob != null, 'body is not empty');
+                registration.unregister().then(function (unregistered) {
+                  assert.ok(unregistered == true, 'unregistered scope');
+                  start();
+                });
+              });
+            });
+          });
+        });
+      });
+      var generateBlob = function () {
+        return new Promise(function(resolve, reject) {
+          var request = new XMLHttpRequest();
+          request.open('GET', 'oracle.png', true);
+          request.responseType = 'blob';
+          request.addEventListener('load', function () {
+            resolve(request.response);
+          });
+          request.send();
+        });
+      };
     });
   });
