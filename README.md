@@ -34,7 +34,7 @@ After you install the toolkit’s npm package, your app will have the following 
 node_modules\offline-persistence-toolkit\dist\debug
 node_modules\offline-persistence-toolkit\dist\min
 ```
-If you are using the Offline Persistence Toolkit as a library in an Oracle JET app, edit `oraclejet-build.js` to include the toolkit as a library in the app that the Oracle JET tooling framework includes by default when Grunt builds your app, as illustrated by the following example:
+If you are using the Offline Persistence Toolkit as a library in an Oracle JET app, edit `oraclejet-build.js` to include the toolkit as a library in the app that the Oracle JET tooling framework includes by default when building your app, as illustrated by the following example:
 
 ```javascript
 
