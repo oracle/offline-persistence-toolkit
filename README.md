@@ -14,7 +14,9 @@ There are various approaches to addressing this issue, most of which involve cac
 
 The Offline Persistence Toolkit simplifies life for application developers by providing a response caching solution that works well across modern browsers.  The toolkit covers common caching cases with a minimal amount of application-specific coding, but provides flexibility to cover non-trivial cases as well.  In addition to providing the ability to cache complete response payloads, the toolkit supports "shredding" of REST response payloads into objects that can be stored, queried and updated on the client while offline.
 
-The following sections provide an introduction to the Offline Persistence Toolkit.  More details can be found in our API [JSDoc](https://oracle.github.io/offline-persistence-toolkit/ "JSDoc")
+The following sections provide an introduction to the Offline Persistence Toolkit.  After reading this document, you can find more information about how to implement a range of common and advanced use cases with the toolkit in the [Usage guide](Usage.md "Usage").
+
+Details of the toolkit's JavaScript API can be found in the [JSDoc](https://oracle.github.io/offline-persistence-toolkit/ "JSDoc").
 
 The architecture diagram illustrates the major components of the toolkit and how an application interacts with it.
 
