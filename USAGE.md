@@ -6,11 +6,11 @@ This document describes how you use the Offline Persistence Toolkit (the toolkit
 
 The document progresses from simple to more complex use cases.
 
-The links to the JSDoc for all classes are available on this page.
+The links to the [JSDoc](https://oracle.github.io/offline-persistence-toolkit/ "JSDoc") for all classes are available on this page.
 
 # Common Use Cases #
 ## Read-Only	
-The simplest read-only use case does not require any extra configuration apart from specifying the scope. This provides simple persisting of requests and responses. When online, all requests go to the server and the responses are persisted. When offline, those persisted responses are returned for matching requests. Requests are also inserted in the sync log for replay later when the application is back online.
+The simplest read-only use case does not require any extra configuration apart from specifying the scope when registering with the [PersistenceManager](https://github.com/oracle/offline-persistence-toolkit/blob/master/docs/PersistenceManager.html "PersistenceManager"). This provides simple persisting of requests and responses. When online, all requests go to the server and the responses are persisted. When offline, those persisted responses are returned for matching requests. Requests are also inserted in the sync log for replay later when the application is back online.
 
 
 ```javascript
