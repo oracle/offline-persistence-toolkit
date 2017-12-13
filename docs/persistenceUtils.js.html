@@ -183,7 +183,7 @@ define([], function () {
         typeof(source.arrayBuffer) === 'function') {
       return new Promise(function (resolve, reject) {
         source.arrayBuffer().then(function (aBuffer) {
-          if (aBuffer.length > 0) {
+          if (aBuffer.byteLength > 0) {
             targetObj.body.arrayBuffer = aBuffer;
           }
           resolve(targetObj);
