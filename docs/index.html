@@ -17,33 +17,11 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
-
-    
-
-
-
-    
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
+    <h1 class="page-title">offline-persistence-toolkit 1.0.0</h1>
     <section>
-        <article><h1>offline-persistence-toolkit 1.0.0</h1><h1>Introduction</h1><p>This document describes how you use the Offline Persistence Toolkit (the toolkit) to implement a range of common and advanced use cases with the toolkit. The document assumes that you have already installed the toolkit in your application and reviewed the toolkit’s <a href="https://github.com/oracle/offline-persistence-toolkit/" title="README">README</a> file which provides an overview of the toolkit’s capabilities. If you have not done so, please see <a href="https://github.com/oracle/offline-persistence-toolkit/" title="README">README</a>.</p>
+        <article>
+            <h2>Introduction</h2>
+            <p>This document describes how you use the Offline Persistence Toolkit (the toolkit) to implement a range of common and advanced use cases with the toolkit. The document assumes that you have already installed the toolkit in your application and reviewed the toolkit’s <a href="https://github.com/oracle/offline-persistence-toolkit/" title="README">README</a> file which provides an overview of the toolkit’s capabilities. If you have not done so, please see <a href="https://github.com/oracle/offline-persistence-toolkit/" title="README">README</a>.</p>
 <p>The document progresses from simple to more complex use cases.</p>
 <p>The links to the JSDoc for all classes are available on this page.</p>
 <h1>Common Use Cases</h1><h2>Read-Only</h2><p>The simplest read-only use case does not require any extra configuration apart from specifying the scope. This provides simple persisting of requests and responses. When online, all requests go to the server and the responses are persisted. When offline, those persisted responses are returned for matching requests. Requests are also inserted in the sync log for replay later when the application is back online.</p>
