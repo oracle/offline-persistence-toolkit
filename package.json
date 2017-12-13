@@ -9,20 +9,21 @@
     "node": ">= 0.10.0"
   },
   "files": [
-      "dist/",
-      "docs/"
+    "dist/",
+    "docs/"
   ],
   "repository": {
-      "type": "git",
-      "url": "https://github.com/oracle/offline-persistence-toolkit"
+    "type": "git",
+    "url": "https://github.com/oracle/offline-persistence-toolkit"
   },
   "keywords": [
-      "offline",
-      "persistence",
-      "mobile"
+    "offline",
+    "persistence",
+    "mobile"
   ],
   "devDependencies": {
     "grunt": "~0.4.5",
+    "eslint-plugin-react": "^6.7.1",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-qunit": "^1.2.0",
