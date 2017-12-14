@@ -30,13 +30,13 @@ The Offline Persistence Toolkit is distributed as an [npm](https://www.npmjs.com
 
 To install the toolkit, enter the following command at a terminal prompt in your app’s top-level directory:
 
-    npm install offline-persistence-toolkit
+    npm install @oracle/offline-persistence-toolkit
 
 After you install the toolkit’s npm package, your app will have the following additional directory structure in the `node_modules` directory:
 
 ```javascript
-node_modules\offline-persistence-toolkit\dist\debug
-node_modules\offline-persistence-toolkit\dist\min
+node_modules\@oracle\offline-persistence-toolkit\dist\debug
+node_modules\@oracle\offline-persistence-toolkit\dist\min
 ```
 If you are using the Offline Persistence Toolkit as a library in an Oracle JET app, edit `oraclejet-build.js` to include the toolkit as a library in the app that the Oracle JET tooling framework includes by default when building your app, as illustrated by the following example:
 
@@ -44,7 +44,7 @@ If you are using the Offline Persistence Toolkit as a library in an Oracle JET a
 
 copyCustomLibsToStaging: {
     fileList: [
-              {cwd:'node_modules/offline-persistence-toolkit/',
+              {cwd:'node_modules/@oracle/offline-persistence-toolkit/',
                src: ['*'],
                dest: 'web/js/libs/persist'	}
               ]
