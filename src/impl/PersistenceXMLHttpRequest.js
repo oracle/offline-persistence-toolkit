@@ -403,7 +403,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
 
   function _getRequestInit(self, data) {
     var requestHeaders = _getRequestHeaders(self);
-    var credentials = self.withCredentials ? 'include' : 'omit';
+    var credentials = self.withCredentials ? 'include' : 'same-origin';
     var requestInit = {
       method: self._method,
       headers: requestHeaders,
