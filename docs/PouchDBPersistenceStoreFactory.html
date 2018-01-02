@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: cacheStrategies</title>
+    <title>JSDoc: Class: PouchDBPersistenceStoreFactory</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: cacheStrategies</h1>
+    <h1 class="page-title">Class: PouchDBPersistenceStoreFactory</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>cacheStrategies</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PouchDBPersistenceStoreFactory<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Contains out of the box Cache Strategies which includes the HTTP Cache Headerstrategy. The cache strategy is applied to GET/HEAD requests by the defaultResponseProxy right after thefetch strategy is applied and the response is obtained. The cache strategy should bea function which takes the request and response as parameter and returns a Promisewhich resolves to the response. In the case the fetch strategy returns a server response.the cache strategy should determine whether the request/response should be cachedand if so, persist the request/response by calling persistenceManager.getCache().put(). Thecache strategy should also handle cached responses returned by the fetch strategy.</div>
+            <div class="class-description">PersistenceStoreFactory that creates PouchDB backed            PersisteneStore instance.</div>
         
     
 </header>
@@ -39,6 +39,16 @@
     <div class="container-overview">
     
         
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="PouchDBPersistenceStoreFactory"><span class="type-signature"></span>new PouchDBPersistenceStoreFactory<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
 
 
 
@@ -83,7 +93,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cacheStrategies.js.html">cacheStrategies.js</a>, <a href="cacheStrategies.js.html#line9">line 9</a>
+        <a href="pouchDBPersistenceStoreFactory.js.html">pouchDBPersistenceStoreFactory.js</a>, <a href="pouchDBPersistenceStoreFactory.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -137,16 +147,12 @@
     
 
     
-    <h4 class="name" id=".getHttpCacheHeaderStrategy"><span class="type-signature">(static) </span>getHttpCacheHeaderStrategy<span class="signature">()</span><span class="type-signature"> &rarr; {function}</span></h4>
+    <h4 class="name" id="createPersistenceStore"><span class="type-signature"></span>##createPersistenceStore<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    Returns the HTTP Cache Header strategy
-</div>
 
 
 
@@ -189,7 +195,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cacheStrategies.js.html">cacheStrategies.js</a>, <a href="cacheStrategies.js.html#line23">line 23</a>
+        <a href="pouchDBPersistenceStoreFactory.js.html">pouchDBPersistenceStoreFactory.js</a>, <a href="pouchDBPersistenceStoreFactory.js.html#line18">line 18</a>
     </li></ul></dd>
     
 
@@ -216,7 +222,7 @@
 
         
 <div class="param-desc">
-    Returns the HTTP Cache Header strategy which conformsto the Cache Strategy API.
+    returns a Promise that is resolved to a PouchDB backedPersistenceStore instance.
 </div>
 
 
@@ -227,7 +233,7 @@
     </dt>
     <dd>
         
-<span class="param-type">function</span>
+<span class="param-type">Promise</span>
 
 
     </dd>

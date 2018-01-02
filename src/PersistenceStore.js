@@ -9,7 +9,9 @@ define([], function () {
   /**
    * @export
    * @class PersistenceStore
-   * @classdesc PersistenceStore constructor
+   * @classdesc Abstract class that all Persistence Store implmenetation extends
+   *            from. Defines the basic operations every persistence store should
+   *            support.
    * @constructor
    */
   var PersistenceStore = function (name) {

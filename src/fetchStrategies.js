@@ -20,14 +20,15 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
      * The Cache If Offline strategy will fetch from the server when online and will
      * fetch from the cache if offline.
      * @export
+     * @hideconstructor
      */
 
     /**
      * Returns the Cache First fetch strategy
      * @method
      * @name getCacheFirstStrategy
-     * @memberof! fetchStrategies
-     * @instance
+     * @memberof fetchStrategies
+     * @static
      * @param {{serverResponseCallback: Function}=} options Options
      * <ul>
      * <li>options.serverResponseCallback The callback which will be called when the server responds. The callback should return a Promise which resolves when complete.</li>
@@ -89,8 +90,8 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
      * Returns the Cache If Offline Fetch Strategy
      * @method
      * @name getCacheIfOfflineStrategy
-     * @memberof! fetchStrategies
-     * @instance
+     * @memberof fetchStrategies
+     * @static
      * @return {Function} Returns the Cache If Offline fetch strategy which conforms
      * to the Fetch Strategy API.
      */

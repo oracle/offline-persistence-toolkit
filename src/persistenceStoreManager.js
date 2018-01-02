@@ -33,6 +33,7 @@ define([], function () {
    * @method
    * @name registerStoreFactory
    * @memberof! PersistenceStorageManager
+   * @instance
    * @param {string} name Name of the store the factory is registered under.
    *                      Must not be null / undefined.
    * @param {Object} factory The factory instance used to create
@@ -57,8 +58,8 @@ define([], function () {
   /**
    * Register the default PersistenceStoreFactory to create PersistenceStore
    * for stores that don't have any factory registered under.
-   * family.
    * @method
+   * @instance
    * @name registerDefaultStoreFactory
    * @memberof! PersistenceStoreManager
    * @param {Object} factory The factory instance used to create
@@ -83,7 +84,7 @@ define([], function () {
    * <li>options.index array of fields to create index for</li>
    * <li>options.version The version of this store to open, default to be '0'. </li>
    * </ul>
-   * @return {Promise} Returns an instance of a concrete PersistenceStore.
+   * @return {Promise} Returns an instance of a PersistenceStore.
    */
   PersistenceStoreManager.prototype.openStore = function (name, options) {
 

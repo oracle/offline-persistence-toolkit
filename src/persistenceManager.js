@@ -73,7 +73,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      * @memberof! PersistenceManager
      * @export
      * @instance
-     * @return {Promise} returns the cache store for the Persistence Framework. Implements the Cache API.
+     * @return {OfflineCache} returns the cache store for the Persistence Framework. Implements the Cache API.
      */
     PersistenceManager.prototype.getCache = function () {
       return this._cache;
@@ -142,7 +142,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      * @instance
      * @param {string} url Url
      * @return {Promise} Returns a Promise which resolves to the
-     * registration object for the URL or null.
+     * registration object for the URL or undefined.
      */
     PersistenceManager.prototype.getRegistration = function (url) {
       var i;
@@ -689,5 +689,207 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      * </ul>
      * @return {Promise} Returns a Promise which resolves when complete
      */
+     
+    /**
+     * @export
+     * @class OfflineCache
+     * @classdesc Offline Persistence Toolkit implementation of the standard
+     * {@link https://developer.mozilla.org/en-US/docs/Web/API/Cache|Cache API}.
+     * In additional to functionalities provided by the standard Cache API, this
+     * OfflineCache also interacts with shredding methods for more fine-grain
+     * caching.
+     * @constructor
+     * @param {String} name name of the cache
+     * @param {Object} persistencestore instance for cache storage
+     */
+      
+    /**
+     * Retrieve the name of the cache object.
+     * @method
+     * @name getName
+     * @memberof! OfflineCache
+     * @instance
+     * @return {string} Returns the name of the cache object.
+     */
+       
+    /**
+     * Takes a request, retrieves it and adds the resulting response
+     * object to the cache.
+     * @method
+     * @name add
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} request The request object to fetch for response
+     *                          and be cached.
+     * @return {Promise} returns a Promise that is resolved when the reponse
+     *                           is retrieved and request/response is cached.
+     */
+    
+    /**
+     * Bulk operation of add.
+     * @method
+     * @name upsertAll
+     * @memberof! OfflineCache
+     * @param {Array} requests An array of Request
+     * @return {Promise} Returns a promise when all the requests in the array are handled.
+     */
+
+    /**
+     * Find the first response in this Cache object that match the request with the options.
+     * @method
+     * @name match
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} a request object to match against
+     * @param {{ignoreSearch: boolean, ignoreMethod: boolean, ignoreVary: boolean}} options Options to control the matching operation
+     * <ul>
+     * <li>options.ignoreSearch A Boolean that specifies whether to ignore
+     *                          the query string in the url.  For example,
+     *                          if set to true the ?value=bar part of
+     *                          http://foo.com/?value=bar would be ignored
+     *                          when performing a match. It defaults to false.</li>
+     * <li>options.ignoreMethod A Boolean that, when set to true, prevents
+     *                          matching operations from validating the
+     *                          Request http method (normally only GET and
+     *                          HEAD are allowed.) It defaults to false.</li>
+     * <li>options.ignoreVary A Boolean that when set to true tells the
+     *                          matching operation not to perform VARY header
+     *                          matching — i.e. if the URL matches you will get
+     *                          a match regardless of whether the Response
+     *                          object has a VARY header. It defaults to false.</li>
+     * </ul>
+     * @return {Promise} Returns a Promise that resolves to the Response associated with the
+     *                           first matching request in the Cache object. If no match is
+     *                           found, the Promise resolves to undefined.
+     */
+
+    /**
+     * Finds all responses whose request matches the passed-in request with the specified
+     * options.
+     * @method
+     * @name matchAll
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} request The request object to match against
+     * @param {{ignoreSearch: boolean, ignoreMethod: boolean, ignoreVary: boolean}} options Options to control the matching operation
+     * <ul>
+     * <li>options.ignoreSearch A Boolean that specifies whether to ignore
+     *                          the query string in the url.  For example,
+     *                          if set to true the ?value=bar part of
+     *                          http://foo.com/?value=bar would be ignored
+     *                          when performing a match. It defaults to false.</li>
+     * <li>options.ignoreMethod A Boolean that, when set to true, prevents
+     *                          matching operations from validating the
+     *                          Request http method (normally only GET and
+     *                          HEAD are allowed.) It defaults to false.</li>
+     * <li>options.ignoreVary A Boolean that when set to true tells the
+     *                          matching operation not to perform VARY header
+     *                          matching — i.e. if the URL matches you will get
+     *                          a match regardless of whether the Response
+     *                          object has a VARY header. It defaults to false.</li>
+     * </ul>
+     * @return {Promise } Returns a Promise that resolves to an array of response objects
+     *                            whose request matches the passed-in request.
+     */
+
+    /**
+     * Add the request/response pair into the cache.
+     * @method
+     * @name put
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} request Request object of the pair
+     * @param {Response} response Response object of the pair
+     * @return {Promise} Returns a promise when the request/response pair is cached.
+     */
+            
+    /**
+     * Delete the all the entries in the cache that matches the passed-in request with
+     * the specified options.
+     * @method
+     * @name delete
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} request The request object to match against
+     * @param {{ignoreSearch: boolean, ignoreMethod: boolean, ignoreVary: boolean}} options Options to control the matching operation
+     * <ul>
+     * <li>options.ignoreSearch A Boolean that specifies whether to ignore
+     *                          the query string in the url.  For example,
+     *                          if set to true the ?value=bar part of
+     *                          http://foo.com/?value=bar would be ignored
+     *                          when performing a match. It defaults to false.</li>
+     * <li>options.ignoreMethod A Boolean that, when set to true, prevents
+     *                          matching operations from validating the
+     *                          Request http method (normally only GET and
+     *                          HEAD are allowed.) It defaults to false.</li>
+     * <li>options.ignoreVary A Boolean that when set to true tells the
+     *                          matching operation not to perform VARY header
+     *                          matching — i.e. if the URL matches you will get
+     *                          a match regardless of whether the Response
+     *                          object has a VARY header. It defaults to false.</li>
+     * </ul>
+     * @return {Promse} Finds the Cache entry whose key is the request, and if found,
+     *                  deletes the Cache entry and returns a Promise that resolves to
+     *                  true. If no Cache entry is found, it returns a Promise that
+     *                  resolves to false.
+     */
+
+    /**
+     * Retrieves all the keys in this cache.
+     * @method
+     * @name keys
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} request The request object to match against
+     * @param {{ignoreSearch: boolean, ignoreMethod: boolean, ignoreVary: boolean}} options Options to control the matching operation
+     * <ul>
+     * <li>options.ignoreSearch A Boolean that specifies whether to ignore
+     *                          the query string in the url.  For example,
+     *                          if set to true the ?value=bar part of
+     *                          http://foo.com/?value=bar would be ignored
+     *                          when performing a match. It defaults to false.</li>
+     * <li>options.ignoreMethod A Boolean that, when set to true, prevents
+     *                          matching operations from validating the
+     *                          Request http method (normally only GET and
+     *                          HEAD are allowed.) It defaults to false.</li>
+     * <li>options.ignoreVary A Boolean that when set to true tells the
+     *                          matching operation not to perform VARY header
+     *                          matching — i.e. if the URL matches you will get
+     *                          a match regardless of whether the Response
+     *                          object has a VARY header. It defaults to false.</li>
+     * </ul>
+     * @return {Promise} Returns a promise that resolves to an array of Cache keys.
+     */            
+
+    /**
+     * Checks if a match to this request with the specified options exist in the
+     * cache or not. This is an optimization over match because we don't need to
+     * query out the shredded data to fill the response body.
+     * @method
+     * @name hasMatch
+     * @memberof! OfflineCache
+     * @instance
+     * @param {Request} request The request object to match against
+     * @param {{ignoreSearch: boolean, ignoreMethod: boolean, ignoreVary: boolean}} options Options to control the matching operation
+     * <ul>
+     * <li>options.ignoreSearch A Boolean that specifies whether to ignore
+     *                          the query string in the url.  For example,
+     *                          if set to true the ?value=bar part of
+     *                          http://foo.com/?value=bar would be ignored
+     *                          when performing a match. It defaults to false.</li>
+     * <li>options.ignoreMethod A Boolean that, when set to true, prevents
+     *                          matching operations from validating the
+     *                          Request http method (normally only GET and
+     *                          HEAD are allowed.) It defaults to false.</li>
+     * <li>options.ignoreVary A Boolean that when set to true tells the
+     *                          matching operation not to perform VARY header
+     *                          matching — i.e. if the URL matches you will get
+     *                          a match regardless of whether the Response
+     *                          object has a VARY header. It defaults to false.</li>
+     * </ul>
+     * @return {Promise} Returns a promise that resolves to true if a match exist
+     *                   while false otherwise.
+     */
+             
   });
 

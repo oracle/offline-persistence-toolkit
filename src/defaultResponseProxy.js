@@ -91,8 +91,8 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
      * </ul>
      * @export
-     * @instance
-     * @memberof! DefaultResponseProxy
+     * @static
+     * @memberof DefaultResponseProxy
      */
     function getResponseProxy(options) {
       return new DefaultResponseProxy(options);

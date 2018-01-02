@@ -17,14 +17,15 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
    * and if so, persist the request/response by calling persistenceManager.getCache().put(). The
    * cache strategy should also handle cached responses returned by the fetch strategy.
    * @export
+   * @hideconstructor
    */
   
   /**
    * Returns the HTTP Cache Header strategy
    * @method
    * @name getHttpCacheHeaderStrategy
-   * @memberof! cacheStrategies
-   * @instance
+   * @memberof cacheStrategies
+   * @static
    * @return {Function} Returns the HTTP Cache Header strategy which conforms
    * to the Cache Strategy API.
    */

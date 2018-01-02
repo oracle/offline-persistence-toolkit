@@ -10,14 +10,15 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    * @export
    * @class oracleRestJsonShredding
    * @classdesc Shredder for REST services which conform to the Oracle REST standard.
+   * @hideconstructor
    */
   
   /**
    * Return the shredder for Oracle REST JSON
    * @method
    * @name getShredder
-   * @memberof! oracleRestJsonShredding
-   * @instance
+   * @memberof oracleRestJsonShredding
+   * @static
    * @param {string} storeName Name of the Persistent Store into which the shredded data should be stored
    * @param {string} idAttr The id field in the JSON data
    * @return {Function} shredder The shredder function takes a Response object as
@@ -79,8 +80,8 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    * Return the unshredder for Oracle REST JSON
    * @method
    * @name getUnshredder
-   * @memberof! oracleRestJsonShredding
-   * @instance
+   * @memberof oracleRestJsonShredding
+   * @static
    * @return {Function} unshredder The unshredder function takes an array of objects 
    * and a response object as parameters. The array of objects has the following
    * structure:

@@ -11,6 +11,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * @class queryHandlers
      * @classdesc Contains out of the box query handlers.
      * @export
+     * @hideconstructor
      */
     
     /**
@@ -25,9 +26,9 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * In addition, the query handler supports the limit and offset query parameters
      * used for paging in the Oracle REST specification.
      * @method
-     * @name getSimpleQueryHandler
-     * @memberof! queryHandlers
-     * @instance
+     * @name getOracleRestQueryHandler
+     * @memberof queryHandlers
+     * @static
      * @param {string} storeName The store name against which queries should be executed
      * @param {function=} createQueryExp Optional function takes URL query parameters
      * and returns a query expression which will be executed against the persistent store.
@@ -269,8 +270,8 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * against the store's field/value pairs.
      * @method
      * @name getSimpleQueryHandler
-     * @memberof! queryHandlers
-     * @instance
+     * @memberof queryHandlers
+     * @static
      * @param {string} storeName The store name against which queries should be executed
      * @param {Array} ignoreUrlParams An array of URL params to be ignored
      * @return {Function} Returns the query handler

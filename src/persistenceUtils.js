@@ -11,14 +11,15 @@ define([], function () {
    * @classdesc Provide various utilities for converting Request/Response objects
    * to JSON.
    * @export
+   * @hideconstructor
    */
   
   /**
    * Return whether the Response is a cached Response
    * @method
    * @name isCachedResponse
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Response} response Response object
    * @return {boolean} Returns whether it's a cached Response
    */
@@ -30,8 +31,8 @@ define([], function () {
    * Return whether the Response has a generated ETag
    * @method
    * @name isGeneratedEtagResponse
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Response} response Response object
    * @return {boolean} Returns whether it has a generated ETag
    */
@@ -63,8 +64,8 @@ define([], function () {
    * Return a JSON object representing the Request object
    * @method
    * @name requestToJSON
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Request} request Request object
    * @return {Promise} Returns a Promise which resolves to the JSON object
    * representing the Request
@@ -218,8 +219,8 @@ define([], function () {
    * Return a JSON object representing the Response object
    * @method
    * @name responseToJSON
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Response} response Response object
    * @param {{excludeBody: boolean}=} options Options
    * <ul>
@@ -247,8 +248,8 @@ define([], function () {
    * requestToJSON
    * @method
    * @name requestFromJSON
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Object} data JSON object returned by requestToJSON
    * @return {Promise} Returns a Promise which resolves to the Request
    */
@@ -303,8 +304,8 @@ define([], function () {
    * responseToJSON
    * @method
    * @name responseFromJSON
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Object} data JSON object returned by responseToJSON
    * @return {Promise} Returns a Promise which resolves to the Response
    */
@@ -337,8 +338,8 @@ define([], function () {
    * will be replaced
    * @method
    * @name setResponsePayload
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {Response} response Response object
    * @param {Object} payload JSON payload data
    * @return {Promise} Returns a Promise which resolves to the updated Response object 
@@ -365,8 +366,8 @@ define([], function () {
    * must be base64 encoded.
    * @method
    * @name parseMultipartFormData
-   * @memberof! persistenceUtils
-   * @instance
+   * @memberof persistenceUtils
+   * @static
    * @param {string} origbody request/response body as text
    * @param {string} contentType content type
    * @return {Array} Array of the parts
@@ -460,21 +461,29 @@ define([], function () {
     return partsPairArray;
   };
 
-  // helper function to build endpoint key to register options under.
-  // The option contains shredder/unshredder needed for cache to shred/unshredd
-  // responses. Ideally, we would like cache to be able to look up such
-  // information in the framework based on scope, but there is no central place
-  // for such information to reside, considering the facts that the framework
-  // should work in service worker case. So the solution is for cache to
-  // lookup the information based on request.url, thus we require
-  // (1) responseProxy needs to register/unregister the options so during which
-  //     time period cache is able to look up shredder/unshredder
-  // (2) because of asynchronous nature, there could be multiple fetch events
-  //     going on from the same url, while we don't want the registered 
-  //     shredder/unshredder to grow out of control, we create a unique key
-  //     so we can use the same key to unreigster the shredder/unshredder
-  // (3) any cache operations needs to happen within defaultResponseProxy
-  //     processRequest scope.
+  /**
+   * helper function to build endpoint key to register options under.
+   * The option contains shredder/unshredder needed for cache to shred/unshredd
+   * responses. Ideally, we would like cache to be able to look up such
+   * information in the framework based on scope, but there is no central place
+   * for such information to reside, considering the facts that the framework
+   * should work in service worker case. So the solution is for cache to
+   * lookup the information based on request.url, thus we require
+   * (1) responseProxy needs to register/unregister the options so during which
+   *     time period cache is able to look up shredder/unshredder
+   * (2) because of asynchronous nature, there could be multiple fetch events
+   *     going on from the same url, while we don't want the registered 
+   *     shredder/unshredder to grow out of control, we create a unique key
+   *     so we can use the same key to unreigster the shredder/unshredder
+   * (3) any cache operations needs to happen within defaultResponseProxy
+   *     processRequest scope.
+   * @method
+   * @name buildEndpointKey
+   * @memberof persistenceUtils
+   * @static
+   * @param {Request} request Request object to build the key for.
+   * @return {string} A unique key that can by used to register option under.
+   */
   function buildEndpointKey (request) {
     var endPointKeyObj = {
       url: request.url,

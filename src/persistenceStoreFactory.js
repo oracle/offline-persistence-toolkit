@@ -8,6 +8,7 @@ define([], function () {
   
   /**
    * @export
+   * @class PersistenceStoreFactory
    * @classdesc Contract for a PersistenceStoreFactory that provides a factory
    * method to create a PersisteneStore instance with the name and options. The
    * options is the same as the one used in
@@ -15,7 +16,18 @@ define([], function () {
    * that implements this contract. Customers can register custom store factory
    * for creating persistence stores of their choice. 
    */
+
   var PersistenceStoreFactory = {
+    
+    /**
+     * @method
+     * @name createPersistenceStore
+     * @memberof! PersistenceStoreFactory
+     * @export
+     * @instance
+     * @return {Promise} returns a Promise that is resolved to a PersistenceStore
+     *                   instance.
+     */
     createPersistenceStore: function (name, options) {}
   };
 

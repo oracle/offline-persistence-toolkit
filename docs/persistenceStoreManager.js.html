@@ -61,6 +61,7 @@ define([], function () {
    * @method
    * @name registerStoreFactory
    * @memberof! PersistenceStorageManager
+   * @instance
    * @param {string} name Name of the store the factory is registered under.
    *                      Must not be null / undefined.
    * @param {Object} factory The factory instance used to create
@@ -85,8 +86,8 @@ define([], function () {
   /**
    * Register the default PersistenceStoreFactory to create PersistenceStore
    * for stores that don't have any factory registered under.
-   * family.
    * @method
+   * @instance
    * @name registerDefaultStoreFactory
    * @memberof! PersistenceStoreManager
    * @param {Object} factory The factory instance used to create
@@ -111,7 +112,7 @@ define([], function () {
    * &lt;li>options.index array of fields to create index for&lt;/li>
    * &lt;li>options.version The version of this store to open, default to be '0'. &lt;/li>
    * &lt;/ul>
-   * @return {Promise} Returns an instance of a concrete PersistenceStore.
+   * @return {Promise} Returns an instance of a PersistenceStore.
    */
   PersistenceStoreManager.prototype.openStore = function (name, options) {
 
@@ -238,7 +239,7 @@ define([], function () {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">

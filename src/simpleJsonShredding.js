@@ -13,14 +13,14 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    * JSON contained in the payload is hierchical the shredder will only process
    * the first level in the hierarchy. The shredder transforms the JSON payload
    * into a flat list of ids and data items.
+   * @hideconstructor
    */
-  
+
   /**
    * Return the shredder for simple JSON
    * @method
    * @name getShredder
-   * @memberof! simpleJsonShredding
-   * @instance
+   * @memberof simpleJsonShredding
    * @param {string} storeName Name of the Persistent Store into which the shredded data should be stored
    * @param {string} idAttr The id field in the JSON data
    * @return {Function} shredder The shredder function takes a Response object as
@@ -78,8 +78,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    * Return the unshredder for simple JSON
    * @method
    * @name getUnshredder
-   * @memberof! simpleJsonShredding
-   * @instance
+   * @memberof simpleJsonShredding
    * @return {Function} unshredder The unshredder function takes an array of objects 
    * and a response object as parameters. The array of objects has the following
    * structure:

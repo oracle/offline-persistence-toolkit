@@ -39,6 +39,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * @class queryHandlers
      * @classdesc Contains out of the box query handlers.
      * @export
+     * @hideconstructor
      */
     
     /**
@@ -53,9 +54,9 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * In addition, the query handler supports the limit and offset query parameters
      * used for paging in the Oracle REST specification.
      * @method
-     * @name getSimpleQueryHandler
-     * @memberof! queryHandlers
-     * @instance
+     * @name getOracleRestQueryHandler
+     * @memberof queryHandlers
+     * @static
      * @param {string} storeName The store name against which queries should be executed
      * @param {function=} createQueryExp Optional function takes URL query parameters
      * and returns a query expression which will be executed against the persistent store.
@@ -297,8 +298,8 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * against the store's field/value pairs.
      * @method
      * @name getSimpleQueryHandler
-     * @memberof! queryHandlers
-     * @instance
+     * @memberof queryHandlers
+     * @static
      * @param {string} storeName The store name against which queries should be executed
      * @param {Array} ignoreUrlParams An array of URL params to be ignored
      * @return {Function} Returns the query handler
@@ -448,7 +449,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">

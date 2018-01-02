@@ -45,14 +45,15 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
    * and if so, persist the request/response by calling persistenceManager.getCache().put(). The
    * cache strategy should also handle cached responses returned by the fetch strategy.
    * @export
+   * @hideconstructor
    */
   
   /**
    * Returns the HTTP Cache Header strategy
    * @method
    * @name getHttpCacheHeaderStrategy
-   * @memberof! cacheStrategies
-   * @instance
+   * @memberof cacheStrategies
+   * @static
    * @return {Function} Returns the HTTP Cache Header strategy which conforms
    * to the Cache Strategy API.
    */
@@ -327,7 +328,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">
