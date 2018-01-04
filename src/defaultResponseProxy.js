@@ -110,15 +110,9 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
     DefaultResponseProxy.prototype.getFetchEventListener = function () {
       var self = this;
       return function (event) {
-        event.respondWith(new Promise(function (resolve, reject) {
-          self.processRequest(event.request).then(function (response) {
-            resolve(response);
-          }, function(err) {
-            reject(err);
-          }).catch(function (err) {
-            reject(err);
-          });
-        }));
+        event.respondWith(
+          self.processRequest(event.request)
+        )
       };
     };
 
@@ -149,7 +143,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
           if (response.ok) {
             return _applyCacheStrategy(self, request, response);
           } else {
-            return Promise.resolve(response);
+            return response;
           }
         }).then(function (response) {
           localVars.response = response;
@@ -157,7 +151,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
             // cache the shredded data
             return _cacheShreddedData(request, response);
           } else {
-            return Promise.resolve(null);
+            return null;
           }
         }).then(function (undoRedoDataArray) {
           return _insertSyncManagerRequest(request, undoRedoDataArray, localVars.isCachedResponse);
@@ -244,13 +238,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
       var self = defaultResponseProxy;
       var fetchStrategy = self._options['fetchStrategy'];
 
-      return new Promise(function (resolve, reject) {
-        fetchStrategy(request, self._options).then(function (fetchResponse) {
-          resolve(fetchResponse);
-        }).catch(function (err) {
-          reject(err);
-        });
-      });
+      return fetchStrategy(request, self._options);
     };
     
     /**
@@ -304,23 +292,15 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
     function _handlePutRequest(defaultResponseProxy, request) {
       var self = defaultResponseProxy;
       if (persistenceManager.isOnline()) {
-        return new Promise(function (resolve, reject) {
-          persistenceManager.browserFetch(request.clone()).then(function (response) {
-            // check for response.ok. That indicates HTTP status in the 200-299 range
-            if (response.ok) {
-              resolve(response);
-            } else {
-              return _handleResponseNotOk(self, request, response, _handleOfflinePutRequest);
-            }
-          }, function (err) {
-            return _handleOfflinePutRequest(self, request);
-          }).then(function (response) {
-            if (response) {
-              resolve(response);
-            }
-          }).catch(function (err) {
-            reject(err);
-          });
+        return persistenceManager.browserFetch(request.clone()).then(function (response) {
+          // check for response.ok. That indicates HTTP status in the 200-299 range
+          if (response.ok) {
+            return response;
+          } else {
+            return _handleResponseNotOk(self, request, response, _handleOfflinePutRequest);
+          }
+        }, function (err) {
+          return _handleOfflinePutRequest(self, request);
         });
       } else {
         return _handleOfflinePutRequest(self, request);
@@ -328,33 +308,29 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
     };
 
     function _handleOfflinePutRequest(defaultResponseProxy, request) {
-      return new Promise(function (resolve, reject) {
-        // first we convert the Request obj to JSON and then we create a
-        // a Response obj from that JSON. Request/Response objs have similar
-        // properties so that is equivalent to creating a Response obj by
-        // copying over Request obj values.
-        persistenceUtils.requestToJSON(request).then(function (requestData) {
-          requestData.status = 200;
-          requestData.statusText = 'OK';
-          requestData.headers['content-type'] = 'application/json';
-          requestData.headers['x-oracle-jscpt-cache-expiration-date'] = '';
+      // first we convert the Request obj to JSON and then we create a
+      // a Response obj from that JSON. Request/Response objs have similar
+      // properties so that is equivalent to creating a Response obj by
+      // copying over Request obj values.
+      return persistenceUtils.requestToJSON(request).then(function (requestData) {
+        requestData.status = 200;
+        requestData.statusText = 'OK';
+        requestData.headers['content-type'] = 'application/json';
+        requestData.headers['x-oracle-jscpt-cache-expiration-date'] = '';
 
-          // if the request contains an ETag then we have to generate a new one
-          var ifMatch = requestData.headers['if-match'];
-          var ifNoneMatch = requestData.headers['if-none-match'];
+        // if the request contains an ETag then we have to generate a new one
+        var ifMatch = requestData.headers['if-match'];
+        var ifNoneMatch = requestData.headers['if-none-match'];
 
-          if (ifMatch || ifNoneMatch) {
-            var randomInt = Math.floor(Math.random() * 1000000);
-            requestData.headers['etag'] = (Date.now() + randomInt).toString();
-            requestData.headers['x-oracle-jscpt-etag-generated'] = requestData.headers['etag'];
-            delete requestData.headers['if-match'];
-            delete requestData.headers['if-none-match'];
-          }
+        if (ifMatch || ifNoneMatch) {
+          var randomInt = Math.floor(Math.random() * 1000000);
+          requestData.headers['etag'] = (Date.now() + randomInt).toString();
+          requestData.headers['x-oracle-jscpt-etag-generated'] = requestData.headers['etag'];
+          delete requestData.headers['if-match'];
+          delete requestData.headers['if-none-match'];
+        }
 
-          persistenceUtils.responseFromJSON(requestData).then(function (response) {
-            resolve(response);
-          });
-        });
+        return persistenceUtils.responseFromJSON(requestData);
       });
     };
 
@@ -393,23 +369,15 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
     function _handleDeleteRequest(defaultResponseProxy, request) {
       var self = defaultResponseProxy;
       if (persistenceManager.isOnline()) {
-        return new Promise(function (resolve, reject) {
-          persistenceManager.browserFetch(request.clone()).then(function (response) {
-            // check for response.ok. That indicates HTTP status in the 200-299 range
-            if (response.ok) {
-              resolve(response);
-            } else {
-              return _handleResponseNotOk(self, request, response, _handleOfflineDeleteRequest);
-            }
-          }, function (err) {
-            return _handleOfflineDeleteRequest(self, request);
-          }).then(function (response) {
-            if (response) {
-              resolve(response);
-            }
-          }).catch(function (err) {
-            reject(err);
-          });
+        return persistenceManager.browserFetch(request.clone()).then(function (response) {
+          // check for response.ok. That indicates HTTP status in the 200-299 range
+          if (response.ok) {
+            return response;
+          } else {
+            return _handleResponseNotOk(self, request, response, _handleOfflineDeleteRequest);
+          }
+        }, function (err) {
+          return _handleOfflineDeleteRequest(self, request);
         });
       } else {
         return _handleOfflineDeleteRequest(self, request);
@@ -418,77 +386,72 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
 
     function _handleOfflineDeleteRequest(defaultResponseProxy, request) {
       var self = defaultResponseProxy;
-      return new Promise(function (resolve, reject) {
-        // first we convert the Request obj to JSON and then we create a
-        // a Response obj from that JSON. Request/Response objs have similar
-        // properties so that is equivalent to creating a Response obj by
-        // copying over Request obj values.
-        persistenceUtils.requestToJSON(request).then(function (requestData) {
-          requestData.status = 200;
-          requestData.statusText = 'OK';
-          requestData.headers['content-type'] = 'application/json';
-          requestData.headers['x-oracle-jscpt-cache-expiration-date'] = '';
-          persistenceUtils.responseFromJSON(requestData).then(function (response) {
-            // for DELETE requests, we don't have data in the payload but
-            // the response does so we have to get the data from the shredded
-            // store to construct a response.
-            // the DELETE key is in the URL
-            var key = _getRequestUrlId(request);
-            // query for the data
-            var jsonShredder = null;
+      // first we convert the Request obj to JSON and then we create a
+      // a Response obj from that JSON. Request/Response objs have similar
+      // properties so that is equivalent to creating a Response obj by
+      // copying over Request obj values.
+      return persistenceUtils.requestToJSON(request).then(function (requestData) {
+        requestData.status = 200;
+        requestData.statusText = 'OK';
+        requestData.headers['content-type'] = 'application/json';
+        requestData.headers['x-oracle-jscpt-cache-expiration-date'] = '';
+        return persistenceUtils.responseFromJSON(requestData).then(function (response) {
+          // for DELETE requests, we don't have data in the payload but
+          // the response does so we have to get the data from the shredded
+          // store to construct a response.
+          // the DELETE key is in the URL
+          var key = _getRequestUrlId(request);
+          // query for the data
+          var jsonShredder = null;
 
-            if (self._options && self._options.jsonProcessor &&
-              self._options.jsonProcessor.shredder) {
-              jsonShredder = self._options.jsonProcessor.shredder;
-            }
+          if (self._options && self._options.jsonProcessor &&
+            self._options.jsonProcessor.shredder) {
+            jsonShredder = self._options.jsonProcessor.shredder;
+          }
 
-            if (jsonShredder) {
-              jsonShredder(response).then(function (shreddedObjArray) {
-                if (shreddedObjArray) {
-                  // only look at the first one
-                  var storeName = shreddedObjArray[0]['name'];
-                  persistenceStoreManager.openStore(storeName).then(function (store) {
-                    store.findByKey(key).then(function (row) {
-                      // set the payload with the data we got from the shredded store
-                      if (row) {
-                        persistenceUtils.responseFromJSON(requestData).then(function (response) {
-                          persistenceUtils.setResponsePayload(response, row).then(function (response) {
-                            resolve(response);
-                            return;
-                          });
+          if (jsonShredder) {
+            return jsonShredder(response).then(function (shreddedObjArray) {
+              if (shreddedObjArray) {
+                // only look at the first one
+                var storeName = shreddedObjArray[0]['name'];
+                return persistenceStoreManager.openStore(storeName).then(function (store) {
+                  return store.findByKey(key).then(function (row) {
+                    // set the payload with the data we got from the shredded store
+                    if (row) {
+                      return persistenceUtils.responseFromJSON(requestData).then(function (response) {
+                        return persistenceUtils.setResponsePayload(response, row).then(function (response) {
+                          return response;
                         });
-                      }
-                    });
+                      });
+                    } else {
+                      return response;
+                    }
                   });
-                }
-              });
-            } else {
-              // if we don't have shredded data then just resolve. The Response obj payload
-              // will be empty but that's the best we can do.
-              resolve(response);
-            }
-          });
+                });
+              } else {
+                return response;
+              }
+            });
+          } else {
+            // if we don't have shredded data then just resolve. The Response obj payload
+            // will be empty but that's the best we can do.
+            return response;
+          }
         });
       });
     };
 
     function _handleResponseNotOk(defaultResponseProxy, request, response, offlineHandler) {
       var self = defaultResponseProxy;
-      return new Promise(function (resolve, reject) {
-        // for 300-499 range, we should not fetch from cache.
-        // 300-399 are redirect errors
-        // 400-499 are client errors which should be handled by the client
-        if (response.status < 500) {
-          resolve(response);
-        } else {
-          // 500-599 are server errors so we can fetch from cache
-          offlineHandler(self, request).then(function (response) {
-            resolve(response);
-          }, function (err) {
-            reject(err)
-          });
-        }
-      });
+      // for 300-499 range, we should not fetch from cache.
+      // 300-399 are redirect errors
+      // 400-499 are client errors which should be handled by the client
+      if (response.status < 500) {
+        return Promise.resolve(response);
+      } else {
+        // 500-599 are server errors so we can fetch from cache
+        return offlineHandler(self, request);
+      }
     };
 
     function _getRequestUrlId(request) {
@@ -516,47 +479,31 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
     };
 
     function _cacheShreddedData(request, response) {
-      return new Promise(function (resolve, reject) {
-        if (request.method == 'GET' ||
-          request.method == 'HEAD') {
-          persistenceManager.getCache().hasMatch(request, {ignoreSearch: true}).then(function (matchExist) {
-            if (matchExist) {
-              // the cache strategy would have cached the response unless
-              // response is not to be stored, e.g. no-store. In that case we don't want
-              // to shred
-              _processShreddedData(request, response).then(function (undoRedoData) {
-                resolve(undoRedoData);
-              }, function (err) {
-                reject(err);
-              });
-            } else {
-              resolve();
-            }
-          });
-        } else {
-          _processShreddedData(request, response).then(function (undoRedoData) {
-            resolve(undoRedoData);
-          }, function (err) {
-            reject(err);
-          });
-        }
-      });
-    };
-
-    function _processShreddedData(request, response) {
-      return new Promise(function (resolve, reject) {
-        cacheHandler.constructShreddedData(request, response).then(function (shreddedData) {
-          if (shreddedData) {
-            // if we have shredded data then update the local store with it
-            return _updateShreddedDataStore(request, shreddedData);
+      if (request.method == 'GET' ||
+        request.method == 'HEAD') {
+        return persistenceManager.getCache().hasMatch(request, {ignoreSearch: true}).then(function (matchExist) {
+          if (matchExist) {
+            // the cache strategy would have cached the response unless
+            // response is not to be stored, e.g. no-store. In that case we don't want
+            // to shred
+            return _processShreddedData(request, response);
           } else {
             return Promise.resolve();
           }
-        }).then(function (undoRedoData) {
-          resolve(undoRedoData);
-        }).catch(function (err) {
-          reject(err);
         });
+      } else {
+        return _processShreddedData(request, response);
+      }
+    };
+
+    function _processShreddedData(request, response) {
+      return cacheHandler.constructShreddedData(request, response).then(function (shreddedData) {
+        if (shreddedData) {
+          // if we have shredded data then update the local store with it
+          return _updateShreddedDataStore(request, shreddedData);
+        } else {
+          return Promise.resolve();
+        }
       });
     };
 
@@ -571,91 +518,75 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
     };
 
     function _updateShreddedDataStoreForItem(request, storename, shreddedDataItem) {
-      return new Promise(function (resolve, reject) {
-        _getUndoRedoDataForShreddedDataItem(request, storename, shreddedDataItem).then(function (undoRedoArray) {
-          if (request.method === 'DELETE') {
-            return _updateShreddedDataStoreForDeleteRequest(storename, shreddedDataItem, undoRedoArray);
-          } else {
-            return _updateShreddedDataStoreForNonDeleteRequest(storename, shreddedDataItem, undoRedoArray);
-          }
-        }).then(function (undoRedoData) {
-          resolve(undoRedoData);
-        }).catch(function (err) {
-          reject(err);
-        });
+      return _getUndoRedoDataForShreddedDataItem(request, storename, shreddedDataItem).then(function (undoRedoArray) {
+        if (request.method === 'DELETE') {
+          return _updateShreddedDataStoreForDeleteRequest(storename, shreddedDataItem, undoRedoArray);
+        } else {
+          return _updateShreddedDataStoreForNonDeleteRequest(storename, shreddedDataItem, undoRedoArray);
+        }
       });
     };
 
     function _getUndoRedoDataForShreddedDataItem(request, storename, shreddedDataItem) {
-      return new Promise(function (resolve, reject) {
-        var undoRedoArray = [];
-        var key;
-        var value;
+      var undoRedoArray = [];
+      var key;
+      var value;
 
-        var undoRedoData = function (i, dataArray) {
-            // we should not have any undoRedo data for GET requests
-            if (i < dataArray.length &&
-              request.method !== 'GET' &&
-              request.method !== 'HEAD') {
-              key = dataArray[i]['key'].toString();
+      var undoRedoData = function (i, dataArray) {
+        // we should not have any undoRedo data for GET requests
+        if (i < dataArray.length &&
+          request.method !== 'GET' &&
+          request.method !== 'HEAD') {
+          key = dataArray[i]['key'].toString();
 
-              if (request.method !== 'DELETE') {
-                value = dataArray[i]['value'];
-              } else {
-                // redo data is null for DELETE
-                value = null;
-              }
+          if (request.method !== 'DELETE') {
+            value = dataArray[i]['value'];
+          } else {
+            // redo data is null for DELETE
+            value = null;
+          }
 
-              // find the existing data so we can get the undo data
-            persistenceStoreManager.openStore(storename).then(function (store) {
-              store.findByKey(key).then(function (undoRow) {
-                undoRedoArray.push({'key': key, 'undo': undoRow, 'redo': value});
-                undoRedoData(++i, dataArray);
-              }, function (error) {
-                // if there is no existing data then undo is null
-                undoRedoArray.push({'key': key, 'undo': null, 'redo': value});
-                undoRedoData(++i, dataArray);
-              });
+          // find the existing data so we can get the undo data
+          return persistenceStoreManager.openStore(storename).then(function (store) {
+            return store.findByKey(key).then(function (undoRow) {
+              undoRedoArray.push({'key': key, 'undo': undoRow, 'redo': value});
+              return undoRedoData(++i, dataArray);
+            }, function (error) {
+              // if there is no existing data then undo is null
+              undoRedoArray.push({'key': key, 'undo': null, 'redo': value});
+              return undoRedoData(++i, dataArray);
             });
-            } else {
-              resolve(undoRedoArray);
-            }
-          };
-            undoRedoData(0, shreddedDataItem);
           });
+        } else {
+          return Promise.resolve(undoRedoArray);
+        }
+      };
+      return undoRedoData(0, shreddedDataItem);
     };
 
     function _updateShreddedDataStoreForNonDeleteRequest(storename, shreddedDataItem, undoRedoArray) {
-      return new Promise(function (resolve, reject) {
-        // for other requests, upsert the shredded data
-        persistenceStoreManager.openStore(storename).then(function (store) {
-          return store.upsertAll(shreddedDataItem);
-        }).then(function () {
-          if (undoRedoArray.length > 0) {
-            resolve({'storeName': storename, 'operation': 'upsert', 'undoRedoData': undoRedoArray});
-          } else {
-            resolve();
-          }
-        }).catch(function (err) {
-          reject(err);
-        });
+      // for other requests, upsert the shredded data
+      return persistenceStoreManager.openStore(storename).then(function (store) {
+        return store.upsertAll(shreddedDataItem);
+      }).then(function () {
+        if (undoRedoArray.length > 0) {
+          return {'storeName': storename, 'operation': 'upsert', 'undoRedoData': undoRedoArray};
+        } else {
+          return null;
+        }
       });
     };
 
     function _updateShreddedDataStoreForDeleteRequest(storename, shreddedDataItem, undoRedoArray) {
-      return new Promise(function (resolve, reject) {
-        // for DELETE requests, simple remove the existing shredded data
-        persistenceStoreManager.openStore(storename).then(function (store) {
-          return store.removeByKey(shreddedDataItem[0]['key']);
-        }).then(function () {
-          if (undoRedoArray.length > 0) {
-            resolve({'storeName': storename, 'operation': 'remove', 'undoRedoData': undoRedoArray});
-          } else {
-            resolve();
-          }
-        }).catch(function (err) {
-          reject(err);
-        });
+      // for DELETE requests, simple remove the existing shredded data
+      return persistenceStoreManager.openStore(storename).then(function (store) {
+        return store.removeByKey(shreddedDataItem[0]['key']);
+      }).then(function () {
+        if (undoRedoArray.length > 0) {
+          return {'storeName': storename, 'operation': 'remove', 'undoRedoData': undoRedoArray};
+        } else {
+          return null;
+        }
       });
     };
 

@@ -38,40 +38,36 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getShredder = function (storeName, idAttr) {
     return function (response) {
-      return new Promise(function (resolve, reject) {
-        var responseClone = response.clone();
-        var resourceIdentifier = responseClone.headers.get('X-ORACLE-DMS-ECID');
-        responseClone.text().then(function (payload) {
-          var idArray = [];
-          var dataArray = [];
-          var resourceType = 'collection';
-          if (payload != null &&
-            payload.length > 0) {
-            try {
-              var payloadJson = JSON.parse(payload);
-              if (payloadJson.items != null) {
-                idArray = payloadJson.items.map(function (jsonEntry) {
-                  return jsonEntry[idAttr];
-                });
-                dataArray = payloadJson.items;
-              } else {
-                idArray[0] = payloadJson[idAttr];
-                dataArray[0] = payloadJson;
-                resourceType = 'single';
-              }
-            } catch (err) {
+      var responseClone = response.clone();
+      var resourceIdentifier = responseClone.headers.get('X-ORACLE-DMS-ECID');
+      return responseClone.text().then(function (payload) {
+        var idArray = [];
+        var dataArray = [];
+        var resourceType = 'collection';
+        if (payload != null &&
+          payload.length > 0) {
+          try {
+            var payloadJson = JSON.parse(payload);
+            if (payloadJson.items != null) {
+              idArray = payloadJson.items.map(function (jsonEntry) {
+                return jsonEntry[idAttr];
+              });
+              dataArray = payloadJson.items;
+            } else {
+              idArray[0] = payloadJson[idAttr];
+              dataArray[0] = payloadJson;
+              resourceType = 'single';
             }
+          } catch (err) {
           }
-          resolve([{
-              'name': storeName,
-              'resourceIdentifier': resourceIdentifier,
-              'keys': idArray,
-              'data': dataArray,
-              'resourceType' : resourceType
-            }]);
-        }).catch(function (err) {
-          reject(err);
-        });
+        }
+        return [{
+            'name': storeName,
+            'resourceIdentifier': resourceIdentifier,
+            'keys': idArray,
+            'data': dataArray,
+            'resourceType' : resourceType
+          }];
       });
     };
   };
@@ -100,12 +96,10 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getUnshredder = function () {
     return function (value, response) {
-      return new Promise(function (resolve, reject) {
-        var payload = _buildPayload(value, response);
-        persistenceUtils.setResponsePayload(response, payload).then(function (response) {
-          response.headers.set('x-oracle-jscpt-cache-expiration-date', '');
-          resolve(response);
-        });
+      var payload = _buildPayload(value, response);
+      return persistenceUtils.setResponsePayload(response, payload).then(function (response) {
+        response.headers.set('x-oracle-jscpt-cache-expiration-date', '');
+        return response;
       });
     };
   }

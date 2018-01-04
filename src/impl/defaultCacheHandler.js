@@ -45,27 +45,21 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
    *                           into our storage.
    */
   DefaultCacheHandler.prototype.constructRequestResponseCacheData = function (request, response) {
-
     var self = this;
-
-    return new Promise(function(resolve, reject){
-      var dataField = {};
-      persistenceUtils.requestToJSON(request).then(function(requestJSONData){
-        dataField.requestData = requestJSONData;
-        // cache the body-less response if shredder/unshreder is configured
-        // for this request. cache the full response otherwise.
-        var excludeBody = self._excludeBody(request);
-        return persistenceUtils.responseToJSON(response, {excludeBody: excludeBody});
-      }).then(function (responseJSONData) {
-        dataField.responseData = responseJSONData;
-        resolve({
-          key: self._constructCacheKey(request, response),
-          metadata: self.constructMetadata(request),
-          value: dataField
-        });
-      }).catch(function (err) {
-        reject(err);
-      });
+    var dataField = {};
+    return persistenceUtils.requestToJSON(request).then(function(requestJSONData){
+      dataField.requestData = requestJSONData;
+      // cache the body-less response if shredder/unshreder is configured
+      // for this request. cache the full response otherwise.
+      var excludeBody = self._excludeBody(request);
+      return persistenceUtils.responseToJSON(response, {excludeBody: excludeBody});
+    }).then(function (responseJSONData) {
+      dataField.responseData = responseJSONData;
+      return {
+        key: self._constructCacheKey(request, response),
+        metadata: self.constructMetadata(request),
+        value: dataField
+      };
     });
   };
 

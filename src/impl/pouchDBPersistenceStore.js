@@ -35,12 +35,8 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
           name: indexName
         }
       };
-      return new Promise(function (resolve, reject) {
-        self._db.createIndex(indexSyntax).then(function () {
-          resolve();
-        }).catch(function(err){
-          reject(err);
-        });
+      return self._db.createIndex(indexSyntax).then(function () {
+        return Promise.resolve();
       });
     }
   };
@@ -52,28 +48,24 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
     var attachmentParts = [];
     this._prepareUpsert(value, attachmentParts);
 
-    return new Promise(function (resolve, reject) {
-      self._db.get(docId).then(function (doc) {
-        // document exists already, update it if its versionIdentifier value
-        // is the same as the expected value. Otherwise, throw conflict error
-        if (!_verifyVersionIdentifier(expectedVersionIdentifier, doc)) {
-          return Promise.reject({status: 409});
-        } else {
-          return Promise.resolve(doc);
-        }
-      }).catch(function (geterr) {
-        if (geterr.status === 404 && geterr.message === 'missing') {
-          return Promise.resolve();
-        } else {
-          return Promise.reject(geterr);
-        }
-      }).then(function (existingDoc) {
-        return self._put(docId, metadata, value, expectedVersionIdentifier, attachmentParts, existingDoc);
-      }).then(function () {
-        resolve();
-      }).catch(function (err) {
-        reject(err);
-      });
+    return self._db.get(docId).then(function (doc) {
+      // document exists already, update it if its versionIdentifier value
+      // is the same as the expected value. Otherwise, throw conflict error
+      if (!_verifyVersionIdentifier(expectedVersionIdentifier, doc)) {
+        return Promise.reject({status: 409});
+      } else {
+        return doc;
+      }
+    }).catch(function (geterr) {
+      if (geterr.status === 404 && geterr.message === 'missing') {
+        return Promise.resolve();
+      } else {
+        return Promise.reject(geterr);
+      }
+    }).then(function (existingDoc) {
+      return self._put(docId, metadata, value, expectedVersionIdentifier, attachmentParts, existingDoc);
+    }).then(function () {
+      return Promise.resolve();
     });
   };
 
@@ -91,36 +83,32 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
     }
 
     var self = this;
-    return new Promise(function (resolve, reject) {
-      self._db.put(dbdoc).then(function (addeddoc) {
-        return Promise.resolve(addeddoc);
-      }).catch(function (puterr) {
-        if (puterr.status === 409) {
-          // because of the asynchroness nature, and the same resource
-          // could be asked to add to the store in multiple paths, it's
-          // valid to have conflict error from pouchDB, we'll verify if
-          // this is a valid conflict or not.
-          self._db.get(docId).then(function (conflictDoc) {
-            if (expectedVersionIdentifier) {
-              if (!_verifyVersionIdentifier(expectedVersionIdentifier, conflictDoc)) {
-                return Promise.reject({status: 409});
-              } else {
-                return Promise.resolve(conflictDoc);
-              }
+    return self._db.put(dbdoc).then(function (addeddoc) {
+      return Promise.resolve(addeddoc);
+    }).catch(function (puterr) {
+      if (puterr.status === 409) {
+        // because of the asynchroness nature, and the same resource
+        // could be asked to add to the store in multiple paths, it's
+        // valid to have conflict error from pouchDB, we'll verify if
+        // this is a valid conflict or not.
+        return self._db.get(docId).then(function (conflictDoc) {
+          if (expectedVersionIdentifier) {
+            if (!_verifyVersionIdentifier(expectedVersionIdentifier, conflictDoc)) {
+              return Promise.reject({status: 409});
             } else {
               return Promise.resolve(conflictDoc);
             }
-          });
-        } else {
-          return Promise.reject(puterr);
-        }
-      }).then(function(finalDoc){
-        return self._addAttachments(finalDoc, attachmentParts);
-      }).then(function () {
-        resolve();
-      }).catch(function (err) {
-        reject(err);
-      });
+          } else {
+            return Promise.resolve(conflictDoc);
+          }
+        });
+      } else {
+        return Promise.reject(puterr);
+      }
+    }).then(function(finalDoc){
+      return self._addAttachments(finalDoc, attachmentParts);
+    }).then(function () {
+      return Promise.resolve();
     });
   };
 
@@ -169,41 +157,31 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
     var self = this;
     var modifiedFind = self._prepareFind(findExpression);
 
-    return new Promise(function (resolve, reject) {
-      self._db.find(modifiedFind).then(function (result) {
-        if (result && result.docs && result.docs.length) {
-          var promises = result.docs.map(self._findResultCallback(modifiedFind.fields), self);
-          return Promise.all(promises);
-        } else {
-          return Promise.resolve([]);
-        }
-      }).catch(function (finderr) {
-        if (finderr.status === 404 && finderr.message === 'missing') {
-          return Promise.resolve([]);
-        } else {
-          return Promise.reject(finderr);
-        }
-      }).then(function (entries) {
-        resolve(entries);
-      }).catch(function (err) {
-        reject(err);
-      });
+    return self._db.find(modifiedFind).then(function (result) {
+      if (result && result.docs && result.docs.length) {
+        var promises = result.docs.map(self._findResultCallback(modifiedFind.fields), self);
+        return Promise.all(promises);
+      } else {
+        return Promise.resolve([]);
+      }
+    }).catch(function (finderr) {
+      if (finderr.status === 404 && finderr.message === 'missing') {
+        return Promise.resolve([]);
+      } else {
+        return Promise.reject(finderr);
+      }
     });
   };
 
   PouchDBPersistenceStore.prototype._findResultCallback = function (useDefaultField) {
     return function (element) {
       var self = this;
-      return new Promise(function (resolve, reject) {
-        self._fixValue(element).then(function (fixedDoc) {
-          if (useDefaultField) {
-            resolve(fixedDoc);
-          } else {
-            resolve(fixedDoc.value);
-          }
-        }).catch(function (err) {
-          reject(err);
-        });
+      return self._fixValue(element).then(function (fixedDoc) {
+        if (useDefaultField) {
+          return fixedDoc;
+        } else {
+          return fixedDoc.value;
+        }
       });
     };
   };
@@ -212,7 +190,6 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   // has binary data in it, we need to retrieve it back as attachments
   // and add it back to the value part.
   PouchDBPersistenceStore.prototype._fixValue = function (doc) {
-
     var docId = doc._id || doc.id || doc.key;
 
     if (docId) {
@@ -225,18 +202,14 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
     } else {
       var self = this;
       var filename = Object.keys(attachments)[0];
-      return new Promise(function (resolve, reject) {
-        self._db.getAttachment(docId, filename).then(function (blob) {
-          var paths = filename.split('.');
-          var targetValue = doc.value;
-          for (var pathIndex = 0; pathIndex < paths.length - 1; pathIndex++) {
-            targetValue = targetValue[paths[pathIndex]];
-          }
-          targetValue[paths[paths.length - 1]] = blob;
-          resolve(doc);
-        }).catch(function (err) {
-          reject(err);
-        });
+      return self._db.getAttachment(docId, filename).then(function (blob) {
+        var paths = filename.split('.');
+        var targetValue = doc.value;
+        for (var pathIndex = 0; pathIndex < paths.length - 1; pathIndex++) {
+          targetValue = targetValue[paths[pathIndex]];
+        }
+        targetValue[paths[paths.length - 1]] = blob;
+        return doc;
       });
     }
   };
@@ -245,34 +218,30 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
     var self = this;
     var docId = key.toString();
 
-    return new Promise(function (resolve, reject) {
-      self._db.get(docId).then(function (doc) {
-        resolve(doc.value);
-      }).catch(function (err) {
-        if (err.status === 404 && err.message === 'missing') {
-          resolve();
-        } else {
-          reject(err);
-        }
-      });
+    return self._db.get(docId).then(function (doc) {
+      return doc.value;
+    }).catch(function (err) {
+      if (err.status === 404 && err.message === 'missing') {
+        return Promise.resolve();
+      } else {
+        return Promise.reject(err);
+      }
     });
   };
 
   PouchDBPersistenceStore.prototype.removeByKey = function (key) {
     var self = this;
     var docId = key.toString();
-    return new Promise(function (resolve, reject) {
-      self._db.get(docId).then(function (doc) {
-        return self._db.remove(doc);
-      }).then(function () {
-        resolve(true);
-      }).catch(function (err) {
-        if (err.status === 404 && err.message === 'missing') {
-          resolve(false);
-        } else {
-          reject(err);
-        }
-      });
+    return self._db.get(docId).then(function (doc) {
+      return self._db.remove(doc);
+    }).then(function () {
+      return true;
+    }).catch(function (err) {
+      if (err.status === 404 && err.message === 'missing') {
+        return Promise.resolve(false);
+      } else {
+        return Promise.reject(err);
+      }
     });
   };
 
@@ -282,38 +251,30 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
     if (deleteExpression) {
       var modifiedExpression = deleteExpression;
       modifiedExpression.fields = ['_id', '_rev'];
-      return new Promise(function (resolve, reject) {
-        self.find(modifiedExpression).then(function (entries) {
-          if (entries && entries.length) {
-             var promisesArray = entries.map(function (element) {
-               return this._db.remove(element._id, element._rev);
-             }, self);
-             return Promise.all(promisesArray);
-           } else {
-             resolve();
-           }
-        }).then(function () {
-          resolve();
-        }).catch(function (err) {
-          reject(err);
-        });
+      return self.find(modifiedExpression).then(function (entries) {
+        if (entries && entries.length) {
+           var promisesArray = entries.map(function (element) {
+             return this._db.remove(element._id, element._rev);
+           }, self);
+           return Promise.all(promisesArray);
+         } else {
+           return Promise.resolve();
+         }
+      }).then(function () {
+        return Promise.resolve();
       });
     } else {
-      return new Promise(function (resolve, reject) {
-        self._db.allDocs({include_docs: true}).then(function (result) {
-          if (result && result.rows && result.rows.length) {
-            var promises = result.rows.map(function (element) {
-              this._db.remove(element.doc);
-            }, self);
-            return Promise.all(promises);
-          } else {
-            return Promise.resolve();
-          }
-        }).then(function () {
-          resolve();
-        }).catch(function (err) {
-          reject(err);
-        });
+      return self._db.allDocs({include_docs: true}).then(function (result) {
+        if (result && result.rows && result.rows.length) {
+          var promises = result.rows.map(function (element) {
+            this._db.remove(element.doc);
+          }, self);
+          return Promise.all(promises);
+        } else {
+          return Promise.resolve();
+        }
+      }).then(function () {
+        return Promise.resolve();
       });
     }
   };
@@ -321,19 +282,15 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   PouchDBPersistenceStore.prototype.keys = function () {
     var self = this;
 
-    return new Promise(function (resolve, reject) {
-      self._db.allDocs().then(function (result) {
-        var rows = result.rows;
-        var keysArray = [];
-        if (rows && rows.length) {
-          keysArray = rows.map(function (element) {
-            return element.id;
-          });
-        }
-        resolve(keysArray);
-      }).catch(function (err) {
-        reject(err);
-      });
+    return self._db.allDocs().then(function (result) {
+      var rows = result.rows;
+      var keysArray = [];
+      if (rows && rows.length) {
+        keysArray = rows.map(function (element) {
+          return element.id;
+        });
+      }
+      return keysArray;
     });
   };
 

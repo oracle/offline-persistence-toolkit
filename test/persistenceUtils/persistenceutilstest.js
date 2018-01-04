@@ -250,6 +250,7 @@ define(['persist/persistenceUtils', 'formData'],
         var request = new XMLHttpRequest();
         request.open('GET', 'oracle.png', true);
         request.responseType = 'blob';
+        request.overrideMimeType('image/png');
         request.addEventListener('load', function () {
           var imageReader = new FileReader();
           imageReader.addEventListener("loadend", function() {
@@ -374,6 +375,7 @@ define(['persist/persistenceUtils', 'formData'],
       var request = new XMLHttpRequest();
       request.open('GET', 'oracle.png', true);
       request.responseType = 'blob';
+      request.overrideMimeType('image/png');
       request.addEventListener('load', function () {
         var boundary = '---Testboundary' + Math.random().toString(36).substring(7);
         var contentType = 'multipart/form-data; boundary=' + boundary;

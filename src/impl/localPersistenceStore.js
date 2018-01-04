@@ -472,21 +472,17 @@ define(["../PersistenceStore"],
         return Promise.resolve();
       }
 
-      return new Promise(function (resolve, reject) {
-        var modExpression = deleteExpression;
-        modExpression.fields = ['key'];
-        self.find(modExpression).then(function (searchResults) {
-          if (searchResults && searchResults.length) {
-            var promises = searchResults.map(self._removeByKeyMapCallback('key'), self);
-            return Promise.all(promises);
-          } else {
-            return Promise.resolve();
-          }
-        }).then(function () {
-          resolve();
-        }).catch(function (err) {
-          reject(err);
-        });
+      var modExpression = deleteExpression;
+      modExpression.fields = ['key'];
+      return self.find(modExpression).then(function (searchResults) {
+        if (searchResults && searchResults.length) {
+          var promises = searchResults.map(self._removeByKeyMapCallback('key'), self);
+          return Promise.all(promises);
+        } else {
+          return Promise.resolve();
+        }
+      }).then(function () {
+        return Promise.resolve();
       });
     };
 

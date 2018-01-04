@@ -390,23 +390,19 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
   OfflineCache.prototype.delete = function (request, options) {
     var self = this;
 
-    return new Promise(function (resolve, reject) {
-      self.keys(request, options).then(function (keysArray) {
-        if (keysArray && keysArray.length) {
-          var promisesArray = keysArray.map(self._store.removeByKey, self._store);
-          return Promise.all(promisesArray);
-        } else {
-          return Promise.resolve(false);
-        }
-      }).then(function (result) {
-        if (result && result.length) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      }).catch(function (error) {
-        reject(error);
-      });
+    return self.keys(request, options).then(function (keysArray) {
+      if (keysArray && keysArray.length) {
+        var promisesArray = keysArray.map(self._store.removeByKey, self._store);
+        return Promise.all(promisesArray);
+      } else {
+        return false;
+      }
+    }).then(function (result) {
+      if (result && result.length) {
+        return true;
+      } else {
+        return false;
+      }
     });
   };
 
@@ -446,29 +442,19 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
 
       var ignoreVary = (options && options.ignoreVary);
 
-      return new Promise(function (resolve, reject) {
-        self._store.find(searchCriteria).then(function (dataArray) {
-          if (dataArray && dataArray.length) {
-            var filteredEntries = dataArray.filter(_filterByVary(ignoreVary, request, 'value'));
-            var keysArray = filteredEntries.map(function (entry) { return entry.key;});
-            resolve(keysArray);
-          } else {
-            resolve([]);
-          }
-        }).catch(function (error) {
-          reject(error);
-        });
+      return self._store.find(searchCriteria).then(function (dataArray) {
+        if (dataArray && dataArray.length) {
+          var filteredEntries = dataArray.filter(_filterByVary(ignoreVary, request, 'value'));
+          var keysArray = filteredEntries.map(function (entry) { return entry.key;});
+          return keysArray;
+        } else {
+          return [];
+        }
       });
     } else {
       // no passed-in request to match, so returns ALL requests objects in
       // the persistence store.
-      return new Promise(function (resolve, reject) {
-        self._store.keys().then(function (keysArray) {
-          resolve(keysArray);
-        }).catch(function (err) {
-          reject(err);
-        });
-      });
+      return self._store.keys();
     }
   };
 
@@ -506,13 +492,9 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
     var searchCriteria = cacheHandler.constructSearchCriteria(request, options);
     var ignoreVary = (options && options.ignoreVary);
 
-    return new Promise(function (resolve, reject) {
-      self._store.find(searchCriteria).then(function (cacheEntries) {
-        var matchEntry = _applyVaryForSingleMatch(ignoreVary, request, cacheEntries);
-        resolve(matchEntry !== null);
-      }).catch(function (error) {
-        reject(error);
-      });
+    return self._store.find(searchCriteria).then(function (cacheEntries) {
+      var matchEntry = _applyVaryForSingleMatch(ignoreVary, request, cacheEntries);
+      return matchEntry !== null;
     });
   };
 

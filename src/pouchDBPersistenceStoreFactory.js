@@ -26,13 +26,9 @@ define(["./impl/pouchDBPersistenceStore"],
      */
      
     function _createPersistenceStore (name, options) {
-      return new Promise(function (resolve, reject) {
-        var store = new PouchDBPersistenceStore(name);
-        store.Init(options).then(function () {
-          resolve(store);
-        }, function (err) {
-          reject(err);
-        });
+      var store = new PouchDBPersistenceStore(name);
+      return store.Init(options).then(function () {
+        return Promise.resolve(store);
       });
     };
 

@@ -36,40 +36,36 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getShredder = function (storeName, idAttr) {
     return function (response) {
-      return new Promise(function (resolve, reject) {
-        var responseClone = response.clone();
-        var resourceIdentifier = responseClone.headers.get('Etag');
-        responseClone.text().then(function (payload) {
-          var idArray = [];
-          var dataArray = [];
-          var resourceType = 'collection';
-          if (payload &&
-            payload.length > 0) {
-            try {
-              var payloadJson = JSON.parse(payload);
-              if (Array.isArray(payloadJson)) {
-                idArray = payloadJson.map(function (jsonEntry) {
-                  return jsonEntry[idAttr];
-                });
-                dataArray = payloadJson;
-              } else {
-                idArray[0] = payloadJson[idAttr];
-                dataArray[0] = payloadJson;
-                resourceType = 'single';
-              }
-            } catch (err) {
+      var responseClone = response.clone();
+      var resourceIdentifier = responseClone.headers.get('Etag');
+      return responseClone.text().then(function (payload) {
+        var idArray = [];
+        var dataArray = [];
+        var resourceType = 'collection';
+        if (payload &&
+          payload.length > 0) {
+          try {
+            var payloadJson = JSON.parse(payload);
+            if (Array.isArray(payloadJson)) {
+              idArray = payloadJson.map(function (jsonEntry) {
+                return jsonEntry[idAttr];
+              });
+              dataArray = payloadJson;
+            } else {
+              idArray[0] = payloadJson[idAttr];
+              dataArray[0] = payloadJson;
+              resourceType = 'single';
             }
+          } catch (err) {
           }
-          resolve([{
-              'name': storeName,
-              'resourceIdentifier': resourceIdentifier,
-              'keys': idArray,
-              'data': dataArray,
-              'resourceType' : resourceType
-            }]);
-        }).catch(function (err) {
-          reject(err);
-        });
+        }
+        return [{
+            'name': storeName,
+            'resourceIdentifier': resourceIdentifier,
+            'keys': idArray,
+            'data': dataArray,
+            'resourceType' : resourceType
+          }];
       });
     };
   };

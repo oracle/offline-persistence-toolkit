@@ -238,14 +238,8 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
           writable: true
         });
         var self = this;
-        return new Promise(function (resolve, reject) {
-          self._browserFetchFunc.call(window, request).then(function (response) {
-            resolve(response);
-          }, function (error) {
-            reject(error);
-          });
-          self._browserFetchRequest = null;
-        });
+        self._browserFetchRequest = null;
+        return self._browserFetchFunc.call(window, request);
       } else {
         return fetch(request);
       }
@@ -319,13 +313,9 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
     function _openOfflineCache(persistenceManager) {
       var self = persistenceManager;
 
-      return new Promise(function (resolve, reject) {
-        offlineCacheManager.open('systemCache').then(function (cache) {
-          self._cache = cache;
-          resolve();
-        }, function (error) {
-          reject(error);
-        });
+      return offlineCacheManager.open('systemCache').then(function (cache) {
+        self._cache = cache;
+        return Promise.resolve();
       });
     };
 
@@ -486,42 +476,31 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
       };
 
       return function (input, init) {
-        return new Promise(function (resolve, reject) {
-          var request;
-          // input can either be a Request object or something
-          // which can be passed to the Request constructor
-          if (Request.prototype.isPrototypeOf(input) &amp;&amp; !init) {
-            request = input
-          } else {
-            request = new Request(input, init)
-          }
+        var request;
+        // input can either be a Request object or something
+        // which can be passed to the Request constructor
+        if (Request.prototype.isPrototypeOf(input) &amp;&amp; !init) {
+          request = input
+        } else {
+          request = new Request(input, init)
+        }
 
-          // check if it's an endpoint we care about
-          persistenceManager.getRegistration(request.url).then(function (registration) {
-            if (registration != null) {
-              // create a Fetch Event
-              var fetchEvent = new PersistenceFetchEvent(request);
-              var promise = _dispatchEvent(persistenceManager, 'fetch', fetchEvent);
-              // if a promise is returned than a fetch listener(s) handled the event
-              if (promise != null &amp;&amp;
-                promise instanceof Promise) {
-                promise.then(function (response) {
-                  resolve(response);
-                }, function (err) {
-                  reject(err);
-                });
-                return;
-              }
+        // check if it's an endpoint we care about
+        return persistenceManager.getRegistration(request.url).then(function (registration) {
+          if (registration != null) {
+            // create a Fetch Event
+            var fetchEvent = new PersistenceFetchEvent(request);
+            var promise = _dispatchEvent(persistenceManager, 'fetch', fetchEvent);
+            // if a promise is returned than a fetch listener(s) handled the event
+            if (promise != null &amp;&amp;
+              promise instanceof Promise) {
+              return promise;
             }
-            // if the endpoint is not registered or the Fetch Event Listener
-            // did not return a Promise then just do a regular browser fetch
-            persistenceManager.browserFetch(request).then(function (response) {
-              resolve(response);
-            }, function (err) {
-              reject(err);
-            });
-          });
-        })
+          }
+          // if the endpoint is not registered or the Fetch Event Listener
+          // did not return a Promise then just do a regular browser fetch
+          return persistenceManager.browserFetch(request);
+        });
       };
     };
 

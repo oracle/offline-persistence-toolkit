@@ -372,7 +372,9 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
     if (URL && URL.prototype) {
       absoluteUrlOrigin = (new URL(url, window.location.href)).origin;
        
-      if (absoluteUrlOrigin != null) {
+      if (absoluteUrlOrigin != null && 
+        absoluteUrlOrigin != "null" &&
+        absoluteUrlOrigin.length > 0) {
         if (absoluteUrlOrigin.toLowerCase().indexOf('file:') === 0){
           return true;
         } else {

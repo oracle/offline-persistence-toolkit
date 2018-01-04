@@ -120,122 +120,111 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
     };
     
     function _processQuery(request, storeName, findQuery, shredder, unshredder, offset, limit) {
-      return new Promise(function (resolve, reject) {
-        // first check of we have a collection query or single row query
-        // collection query will always return true for cache.hasMatch()
-        // single row query will return hasMatch true if that query
-        // was executed before, if not we have to query for it
-        persistenceManager.getCache().hasMatch(request, {ignoreSearch: true}).then(function (hasMatch) {
-          persistenceStoreManager.openStore(storeName).then(function (store) {
-            if (hasMatch) {
-              // query in the shredded data
-              return store.find(findQuery);
-            } else {
-              // this might be a single row query so we need to parse the URL for an id based query
-              var id = _getRequestUrlId(request);
-              if (id) {
-                return store.findByKey(id);
-              }
-              return Promise.resolve([]);
+      // first check of we have a collection query or single row query
+      // collection query will always return true for cache.hasMatch()
+      // single row query will return hasMatch true if that query
+      // was executed before, if not we have to query for it
+      return persistenceManager.getCache().hasMatch(request, {ignoreSearch: true}).then(function (hasMatch) {
+        return persistenceStoreManager.openStore(storeName).then(function (store) {
+          if (hasMatch) {
+            // query in the shredded data
+            return store.find(findQuery);
+          } else {
+            // this might be a single row query so we need to parse the URL for an id based query
+            var id = _getRequestUrlId(request);
+            if (id) {
+              return store.findByKey(id);
             }
-          }).then(function (results) {
-            persistenceManager.getCache().match(request, {ignoreSearch: true}).then(function (response) {
-              if (response) {
-                var hasMore = false;
-                if (results) {
-                  if (offset
-                    && offset > 0) {
-                    if (offset < results.length)
-                    {
-                      hasMore = true;
-                    }
-                    else
-                    {
-                      hasMore = false;
-                    }
-                    results = results.slice(offset, results.length);
+            return Promise.resolve([]);
+          }
+        }).then(function (results) {
+          return persistenceManager.getCache().match(request, {ignoreSearch: true}).then(function (response) {
+            if (response) {
+              var hasMore = false;
+              if (results) {
+                if (offset
+                  && offset > 0) {
+                  if (offset < results.length)
+                  {
+                    hasMore = true;
                   }
-                  if (limit
-                    && limit > 0) {
-                    if (limit <= results.length)
-                    {
-                      hasMore = true;
-                    }
-                    else
-                    {
-                      hasMore = false;
-                    }
-                    results = results.slice(0, limit);
+                  else
+                  {
+                    hasMore = false;
                   }
+                  results = results.slice(offset, results.length);
                 }
-                shredder(response).then(function (dataArray) {
-                  var resourceType = dataArray[0].resourceType;
-                  var transformedResults = {
-                    name: storeName,
-                    data: results,
-                    resourceType: resourceType
-                  };
-                  unshredder([transformedResults], response).then(function (response) {
-                    // add limit and offset
-                    var responseClone = response.clone();
-                    responseClone.text().then(function (payload) {
-                      if (payload != null &&
-                        payload.length > 0) {
-                        try {
-                          var payloadJson = JSON.parse(payload);
-                          if (payloadJson.items != null) {
-                            if (limit) {
-                              payloadJson.limit = parseInt(limit, 10);
-                            }
-                            if (offset) {
-                              payloadJson.offset = parseInt(offset, 10);
-                            }
-                            payloadJson.hasMore = hasMore;
+                if (limit
+                  && limit > 0) {
+                  if (limit <= results.length)
+                  {
+                    hasMore = true;
+                  }
+                  else
+                  {
+                    hasMore = false;
+                  }
+                  results = results.slice(0, limit);
+                }
+              }
+              return shredder(response).then(function (dataArray) {
+                var resourceType = dataArray[0].resourceType;
+                var transformedResults = {
+                  name: storeName,
+                  data: results,
+                  resourceType: resourceType
+                };
+                return unshredder([transformedResults], response).then(function (response) {
+                  // add limit and offset
+                  var responseClone = response.clone();
+                  return responseClone.text().then(function (payload) {
+                    if (payload != null &&
+                      payload.length > 0) {
+                      try {
+                        var payloadJson = JSON.parse(payload);
+                        if (payloadJson.items != null) {
+                          if (limit) {
+                            payloadJson.limit = parseInt(limit, 10);
                           }
-                          persistenceUtils.setResponsePayload(response, payloadJson).then(function (response) {
-                            resolve(response);
-                            return;
-                          });
-                        } catch (err) {
+                          if (offset) {
+                            payloadJson.offset = parseInt(offset, 10);
+                          }
+                          payloadJson.hasMore = hasMore;
                         }
-                      } else {
-                        resolve(response);
-                        return;
+                        return persistenceUtils.setResponsePayload(response, payloadJson);
+                      } catch (err) {
+                      }
+                    } else {
+                      return response;
+                    }
+                  });
+                });
+              });
+            } else if (results && Object.keys(results).length > 0) {
+              // this means have a single query result
+              var collectionUrl = _getRequestCollectionUrl(request);
+              if (collectionUrl) {
+                return persistenceUtils.requestToJSON(request).then(function (requestObj) {
+                  requestObj.url = collectionUrl;
+                  return persistenceUtils.requestFromJSON(requestObj).then(function (collectionRequest) {
+                    return persistenceManager.getCache().match(collectionRequest, {ignoreSearch: true}).then(function (response) {
+                      if (response) {
+                        var transformedResults = {
+                          name: storeName,
+                          data: [results],
+                          resourceType: 'single'
+                        };
+                        return unshredder([transformedResults], response);
                       }
                     });
                   });
                 });
-              } else if (results && Object.keys(results).length > 0) {
-                // this means have a single query result
-                var collectionUrl = _getRequestCollectionUrl(request);
-                if (collectionUrl) {
-                  persistenceUtils.requestToJSON(request).then(function (requestObj) {
-                    requestObj.url = collectionUrl;
-                    persistenceUtils.requestFromJSON(requestObj).then(function (collectionRequest) {
-                      persistenceManager.getCache().match(collectionRequest, {ignoreSearch: true}).then(function (response) {
-                        if (response) {
-                          var transformedResults = {
-                            name: storeName,
-                            data: [results],
-                            resourceType: 'single'
-                          };
-                          unshredder([transformedResults], response).then(function (response) {
-                            resolve(response);
-                            return;
-                          });
-                        }
-                      });
-                    });
-                  });
-                } else {
-                  resolve();
-                }
               } else {
-                resolve();
+                return Promise.resolve();
               }
-            });
-          }).catch(function (err) {
-            reject(err);
+            } else {
+              return Promise.resolve();
+            }
           });
         });
       });

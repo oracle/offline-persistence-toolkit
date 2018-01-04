@@ -31,23 +31,19 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
    */
   function getHttpCacheHeaderStrategy() {
     return function (request, response) {
-      return new Promise(function (resolve, reject) {
-        // process the headers in order. Order matters, you want to
-        // do things like re-validation before you bother persist to
-        // the cache. Also, max-age takes precedence over Expires.
-        _handleExpires(request, response).then(function (response) {
-          return _handleMaxAge(request, response);
-        }).then(function (response) {
-          return _handleIfCondMatch(request, response);
-        }).then(function (response) {
-          return _handleMustRevalidate(request, response);
-        }).then(function (response) {
-          return _handleNoCache(request, response);
-        }).then(function (response) {
-          return _handleNoStore(request, response);
-        }).then(function (response) {
-          resolve(response);
-        });
+      // process the headers in order. Order matters, you want to
+      // do things like re-validation before you bother persist to
+      // the cache. Also, max-age takes precedence over Expires.
+      return _handleExpires(request, response).then(function (response) {
+        return _handleMaxAge(request, response);
+      }).then(function (response) {
+        return _handleIfCondMatch(request, response);
+      }).then(function (response) {
+        return _handleMustRevalidate(request, response);
+      }).then(function (response) {
+        return _handleNoCache(request, response);
+      }).then(function (response) {
+        return _handleNoStore(request, response);
       });
     };
   };
@@ -101,38 +97,24 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
           etag.indexOf(ifMatch) < 0) {
           // If we are offline then we MUST return 412 if no match as per
           // spec
-          return new Promise(function (resolve, reject) {
-            persistenceUtils.responseToJSON(response).then(function (responseData) {
-              responseData.status = 412;
-              responseData.statusText = 'If-Match failed due to no matching ETag while offline';
-              return persistenceUtils.responseFromJSON(responseData);
-            }).then(function (response) {
-              resolve(response);
-            });
+          return persistenceUtils.responseToJSON(response).then(function (responseData) {
+            responseData.status = 412;
+            responseData.statusText = 'If-Match failed due to no matching ETag while offline';
+            return persistenceUtils.responseFromJSON(responseData);
           });
         } else if (ifNoneMatch &&
           etag.indexOf(ifNoneMatch) >= 0) {
           // If we are offline then we MUST return 412 if match as per
           // spec
-          return new Promise(function (resolve, reject) {
-            persistenceUtils.responseToJSON(response).then(function (responseData) {
-              responseData.status = 412;
-              responseData.statusText = 'If-None-Match failed due to matching ETag while offline';
-              return persistenceUtils.responseFromJSON(responseData);
-            }).then(function (response) {
-              resolve(response);
-            });
+          return persistenceUtils.responseToJSON(response).then(function (responseData) {
+            responseData.status = 412;
+            responseData.statusText = 'If-None-Match failed due to matching ETag while offline';
+            return persistenceUtils.responseFromJSON(responseData);
           });
         }
       } else {
-        return new Promise(function (resolve, reject) {
-          // If we are online then we have to revalidate
-          _handleRevalidate(request, response, false).then(function (response) {
-            resolve(response);
-          }, function (err) {
-            reject(err);
-          });
-        });
+        // If we are online then we have to revalidate
+        return _handleRevalidate(request, response, false);
       }
     }
     return Promise.resolve(response);
@@ -235,33 +217,25 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
         // response. If must-revalidate is not set then according to spec it's ok
         // to return a stale response.
         if (mustRevalidate) {
-          return new Promise(function (resolve, reject) {
-            persistenceUtils.responseToJSON(response).then(function (responseData) {
-              responseData.status = 504;
-              responseData.statusText = 'cache-control: must-revalidate failed due to application being offline';
-              return persistenceUtils.responseFromJSON(responseData);
-            }).then(function (response) {
-              resolve(response);
-            });
+          return persistenceUtils.responseToJSON(response).then(function (responseData) {
+            responseData.status = 504;
+            responseData.statusText = 'cache-control: must-revalidate failed due to application being offline';
+            return persistenceUtils.responseFromJSON(responseData);
           });
         } else {
           return Promise.resolve(response);
         }
       } else {
-        return new Promise(function (resolve, reject) {
-          persistenceManager.browserFetch(request).then(function (serverResponse) {
-            if (serverResponse.status == 304) {
-              resolve(response);
-            } else {
-              // revalidation succeeded so we should remove the old entry from the
-              // cache
-              persistenceManager.getCache().delete(request).then(function () {
-                resolve(serverResponse);
-              });
-            }
-          }, function (err) {
-            reject(err);
-          });
+        return persistenceManager.browserFetch(request).then(function (serverResponse) {
+          if (serverResponse.status == 304) {
+            return response;
+          } else {
+            // revalidation succeeded so we should remove the old entry from the
+            // cache
+            return persistenceManager.getCache().delete(request).then(function () {
+              return serverResponse;
+            });
+          }
         });
       }
     }
@@ -271,20 +245,18 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
   };
 
   function _cacheResponse(request, response) {
-    return new Promise(function (resolve, reject) {
-      // persist the Request/Response in our cache
-      if (response != null &&
-        !persistenceUtils.isCachedResponse(response) &&
-        (request.method == 'GET' ||
-        request.method == 'HEAD')) {
-          var responseClone = response.clone();
-          persistenceManager.getCache().put(request, response).then(function () {
-          resolve(responseClone);
-        });
-      } else {
-        resolve(response);
-      }
-    });
+    // persist the Request/Response in our cache
+    if (response != null &&
+      !persistenceUtils.isCachedResponse(response) &&
+      (request.method == 'GET' ||
+      request.method == 'HEAD')) {
+      var responseClone = response.clone();
+      return persistenceManager.getCache().put(request, response).then(function () {
+        return responseClone;
+      });
+    } else {
+      return Promise.resolve(response);
+    }
   };
 
   return {'getHttpCacheHeaderStrategy': getHttpCacheHeaderStrategy};

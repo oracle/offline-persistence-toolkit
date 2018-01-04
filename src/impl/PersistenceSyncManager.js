@@ -49,80 +49,67 @@ define(['require', '../persistenceUtils', '../persistenceStoreManager', './defau
 
     function _getSyncLog(persistenceSyncManager) {
       var self = persistenceSyncManager;
-      return new Promise(function (resolve, reject) {
-        _findSyncLogRecords().then(function (results) {
-          return _generateSyncLog(results);
-        }).then(function (syncLog) {
-          self._readingSyncLog = null;
-          resolve(syncLog);
-        }).catch(function (err) {
-          reject(err);
-        });
+      return _findSyncLogRecords().then(function (results) {
+        return _generateSyncLog(results);
+      }).then(function (syncLog) {
+        self._readingSyncLog = null;
+        return syncLog;
       });
     };
 
     PersistenceSyncManager.prototype.insertRequest = function (request, options) {
-      return new Promise(function (resolve, reject) {
-        var localVars = {};
+      var localVars = {};
+      return _getSyncLogStorage().then(function (store) {
+        localVars.store = store;
+        return persistenceUtils.requestToJSON(request, {'_noClone': true});
+      }).then(function (requestData) {
+        localVars.requestData = requestData;
+        localVars.metadata = cacheHandler.constructMetadata(request);
+        localVars.requestId = localVars.metadata.created.toString();
+        return localVars.store.upsert(localVars.requestId, localVars.metadata, localVars.requestData);
+      }).then(function () {
+        if (options != null) {
+          var undoRedoDataArray = options.undoRedoDataArray;
 
-        _getSyncLogStorage().then(function (store) {
-          localVars.store = store;
-          return persistenceUtils.requestToJSON(request, {'_noClone': true});
-        }).then(function (requestData) {
-          localVars.requestData = requestData;
-          localVars.metadata = cacheHandler.constructMetadata(request);
-          localVars.requestId = localVars.metadata.created.toString();
-          return localVars.store.upsert(localVars.requestId, localVars.metadata, localVars.requestData);
-        }).then(function () {
-          if (options != null) {
-            var undoRedoDataArray = options.undoRedoDataArray;
-
-            if (undoRedoDataArray != null) {
-              _getRedoUndoStorage().then(function (redoUndoStore) {
-                var storeUndoRedoData = function (i) {
-                  if (i < undoRedoDataArray.length &&
-                    undoRedoDataArray[i] != null) {
-                    redoUndoStore.upsert(localVars.requestId, localVars.metadata, undoRedoDataArray[i]).then(function () {
-                      storeUndoRedoData(++i);
-                    });
-                  } else {
-                    resolve();
-                  }
-                };
-                storeUndoRedoData(0);
-              });
-            } else {
-              resolve();
-            }
+          if (undoRedoDataArray != null) {
+            return _getRedoUndoStorage().then(function (redoUndoStore) {
+              var storeUndoRedoData = function (i) {
+                if (i < undoRedoDataArray.length &&
+                  undoRedoDataArray[i] != null) {
+                  return redoUndoStore.upsert(localVars.requestId, localVars.metadata, undoRedoDataArray[i]).then(function () {
+                    return storeUndoRedoData(++i);
+                  });
+                } else {
+                  return Promise.resolve();
+                }
+              };
+              return storeUndoRedoData(0);
+            });
           } else {
-            resolve();
+            return Promise.resolve();
           }
-        }).catch(function (err) {
-          reject(err);
-        });
+        } else {
+          return Promise.resolve();
+        }
       });
     };
 
     PersistenceSyncManager.prototype.removeRequest = function (requestId) {
       var self = this;
-      return new Promise(function (resolve, reject) {
-        var localVars = {};
-        _getSyncLogStorage().then(function (store) {
-          localVars.store = store;
-          return _getRequestFromSyncLog(self, requestId);
-        }).then(function (request) {
-          localVars.request = request;
-          return localVars.store.removeByKey(requestId);
-        }).then(function () {
-          // Also remove the redo/undo data
-          return _getRedoUndoStorage();
-        }).then(function (redoUndoStore) {
-          return redoUndoStore.removeByKey(requestId);
-        }).then(function () {
-          resolve(localVars.request);
-        }).catch(function (err) {
-          reject(err);
-        });
+      var localVars = {};
+      return _getSyncLogStorage().then(function (store) {
+        localVars.store = store;
+        return _getRequestFromSyncLog(self, requestId);
+      }).then(function (request) {
+        localVars.request = request;
+        return localVars.store.removeByKey(requestId);
+      }).then(function () {
+        // Also remove the redo/undo data
+        return _getRedoUndoStorage();
+      }).then(function (redoUndoStore) {
+        return redoUndoStore.removeByKey(requestId);
+      }).then(function () {
+        return localVars.request;
       });
     };
     
@@ -241,20 +228,16 @@ define(['require', '../persistenceUtils', '../persistenceStoreManager', './defau
           } else {
             resolve();
           }
-        }, function (err) {
-          reject(err);
         });
       });
-      return new Promise(function (resolve, reject) {
-        syncPromise.then(function (value) {
-          self._syncing = false;
-          self._pingedURLs = null;
-          resolve(value);
-        }, function (err) {
-          self._syncing = false;
-          self._pingedURLs = null;
-          reject(err);
-        });
+      return syncPromise.then(function (value) {
+        self._syncing = false;
+        self._pingedURLs = null;
+        return value;
+      }, function (err) {
+        self._syncing = false;
+        self._pingedURLs = null;
+        return Promise.reject(err);
       });
     };
     
@@ -353,59 +336,44 @@ define(['require', '../persistenceUtils', '../persistenceStoreManager', './defau
     };
 
     function _findSyncLogRecords() {
-      return new Promise(function (resolve, reject) {
-        _getSyncLogStorage().then(function (store) {
-          return store.find(_getSyncLogFindExpression());
-        }).then(function (results) {
-          resolve(results);
-        }).catch(function (err) {
-          reject(err);
-        });
+      return _getSyncLogStorage().then(function (store) {
+        return store.find(_getSyncLogFindExpression());
       });
     };
 
     function _generateSyncLog(results) {
-      return new Promise(function (resolve, reject) {
-        var syncLogArray = [];
-        var requestId;
-        var requestData;
-        var getRequestArray = function (requestDataArray) {
-          if (!requestDataArray ||
-            requestDataArray.length == 0) {
-            resolve(syncLogArray);
-          } else {
-            requestId = requestDataArray[0].metadata.created.toString();
-            requestData = requestDataArray[0].value;
-            persistenceUtils.requestFromJSON(requestData).then(function (request) {
-              syncLogArray.push(_createSyncLogEntry(requestId, request));
-              requestDataArray.shift();
-              getRequestArray(requestDataArray);
-            }, function (err) {
-              reject(err);
-            });
-          }
-        };
-        getRequestArray(results);
-      });
+      var syncLogArray = [];
+      var requestId;
+      var requestData;
+      var getRequestArray = function (requestDataArray) {
+        if (!requestDataArray ||
+          requestDataArray.length == 0) {
+          return Promise.resolve(syncLogArray);
+        } else {
+          requestId = requestDataArray[0].metadata.created.toString();
+          requestData = requestDataArray[0].value;
+          return persistenceUtils.requestFromJSON(requestData).then(function (request) {
+            syncLogArray.push(_createSyncLogEntry(requestId, request));
+            requestDataArray.shift();
+            return getRequestArray(requestDataArray);
+          });
+        }
+      };
+      return getRequestArray(results);
     };
 
     function _getRequestFromSyncLog(persistenceSyncManager, requestId) {
       var self = persistenceSyncManager;
-      return new Promise(function (resolve, reject) {
-        self.getSyncLog().then(function (syncLog) {
-          var i;
-          var request;
-          var syncLogCount = syncLog.length;
-          for (i = 0; i < syncLogCount; i++) {
-            if (syncLog[i].requestId === requestId) {
-              request = syncLog[i].request;
-              resolve(request);
-              break;
-            }
+      return self.getSyncLog().then(function (syncLog) {
+        var i;
+        var request;
+        var syncLogCount = syncLog.length;
+        for (i = 0; i < syncLogCount; i++) {
+          if (syncLog[i].requestId === requestId) {
+            request = syncLog[i].request;
+            return request;
           }
-        }, function (err) {
-          reject(err);
-        });
+        }
       });
     };
 
@@ -428,96 +396,86 @@ define(['require', '../persistenceUtils', '../persistenceStoreManager', './defau
     };
 
     function _redoLocalStore(requestId) {
-      return new Promise(function (resolve, reject) {
-        _getRedoUndoStorage().then(function (redoUndoStore) {
-          return redoUndoStore.findByKey(requestId);
-        }).then(function (redoUndoDataArray) {
-          if (redoUndoDataArray != null) {
-            _updateLocalStore(redoUndoDataArray, false).then(function () {
-              resolve(true);
-            });
-          } else {
-            resolve(false);
-          }
-        }).catch(function (err) {
-          reject(err);
-        });
+      return _getRedoUndoStorage().then(function (redoUndoStore) {
+        return redoUndoStore.findByKey(requestId);
+      }).then(function (redoUndoDataArray) {
+        if (redoUndoDataArray != null) {
+          return _updateLocalStore(redoUndoDataArray, false).then(function () {
+            return true;
+          });
+        } else {
+          return false;
+        }
       });
     };
 
     function _undoLocalStore(requestId) {
-      return new Promise(function (resolve, reject) {
-        _getRedoUndoStorage().then(function (redoUndoStore) {
-          return redoUndoStore.findByKey(requestId);
-        }).then(function (redoUndoDataArray) {
-          if (redoUndoDataArray != null) {
-            _updateLocalStore(redoUndoDataArray, true).then(function () {
-              resolve(true);
-            });
-          } else {
-            resolve(false);
-          }
-        }).catch(function (err) {
-          reject(err);
-        });
+      return _getRedoUndoStorage().then(function (redoUndoStore) {
+        return redoUndoStore.findByKey(requestId);
+      }).then(function (redoUndoDataArray) {
+        if (redoUndoDataArray != null) {
+          return _updateLocalStore(redoUndoDataArray, true).then(function () {
+            return true;
+          });
+        } else {
+          return false;
+        }
       });
     };
 
     function _updateLocalStore(redoUndoDataArray, isUndo) {
-      return new Promise(function (resolve, reject) {
-        var j, dataArray = [], operation, storeName, undoRedoData, undoRedoDataCount;
-        if (!(redoUndoDataArray instanceof Array)) {
-          redoUndoDataArray = [redoUndoDataArray];
-        }
-        var redoUndoDataArrayCount = redoUndoDataArray.length;
-        var applyUndoRedoItem = function (i) {
-          if (i < redoUndoDataArrayCount) {
-            storeName = redoUndoDataArray[i].storeName;
-            operation = redoUndoDataArray[i].operation;
-            undoRedoData = redoUndoDataArray[i].undoRedoData;
+      var j, dataArray = [], operation, storeName, undoRedoData, undoRedoDataCount;
+      if (!(redoUndoDataArray instanceof Array)) {
+        redoUndoDataArray = [redoUndoDataArray];
+      }
+      var redoUndoDataArrayCount = redoUndoDataArray.length;
+      var applyUndoRedoItem = function (i) {
+        if (i < redoUndoDataArrayCount) {
+          storeName = redoUndoDataArray[i].storeName;
+          operation = redoUndoDataArray[i].operation;
+          undoRedoData = redoUndoDataArray[i].undoRedoData;
 
-            if (operation == 'upsert' || 
-              (operation == 'remove' && isUndo)) {
-              // bunch up the upserts so we can do them in bulk using upsertAll
-              dataArray = [];
-              undoRedoDataCount = undoRedoData.length;
-              for (j = 0; j < undoRedoDataCount; j++) {
-                if (isUndo) {
-                  dataArray.push({'key': undoRedoData[j].key, 'value': undoRedoData[j].undo});
-                } else {
-                  dataArray.push({'key': undoRedoData[j].key, 'value': undoRedoData[j].redo});
-                }
+          if (operation == 'upsert' || 
+            (operation == 'remove' && isUndo)) {
+            // bunch up the upserts so we can do them in bulk using upsertAll
+            dataArray = [];
+            undoRedoDataCount = undoRedoData.length;
+            for (j = 0; j < undoRedoDataCount; j++) {
+              if (isUndo) {
+                dataArray.push({'key': undoRedoData[j].key, 'value': undoRedoData[j].undo});
+              } else {
+                dataArray.push({'key': undoRedoData[j].key, 'value': undoRedoData[j].redo});
               }
-
-              persistenceStoreManager.openStore(storeName).then(function (store) {
-                if (dataArray.length == 1 &&
-                  dataArray[0].value == null &&
-                  dataArray[0].key != null) {
-                  // we need to remove since the actual operation was an insert. That's
-                  // why the undo is null
-                  store.removeByKey(dataArray[0].key).then(function () {
-                    applyUndoRedoItem(++i);
-                  });
-                } else {
-                  store.upsertAll(dataArray).then(function () {
-                    applyUndoRedoItem(++i);
-                  });
-                }
-              });
-            } else if (operation == 'remove') {
-              // remove will only contain one entry in the undoRedoData array
-              persistenceStoreManager.openStore(storeName).then(function (store) {
-                store.removeByKey(undoRedoData[0].key).then(function () {
-                  applyUndoRedoItem(++i);
-                });
-              });
             }
-          } else {
-            resolve();
+
+            return persistenceStoreManager.openStore(storeName).then(function (store) {
+              if (dataArray.length == 1 &&
+                dataArray[0].value == null &&
+                dataArray[0].key != null) {
+                // we need to remove since the actual operation was an insert. That's
+                // why the undo is null
+                return store.removeByKey(dataArray[0].key).then(function () {
+                  return applyUndoRedoItem(++i);
+                });
+              } else {
+                return store.upsertAll(dataArray).then(function () {
+                  return applyUndoRedoItem(++i);
+                });
+              }
+            });
+          } else if (operation == 'remove') {
+            // remove will only contain one entry in the undoRedoData array
+            return persistenceStoreManager.openStore(storeName).then(function (store) {
+              return store.removeByKey(undoRedoData[0].key).then(function () {
+                return applyUndoRedoItem(++i);
+              });
+            });
           }
-        };
-        applyUndoRedoItem(0);
-      });
+        } else {
+          return Promise.resolve();
+        }
+      };
+      return applyUndoRedoItem(0);
     };
 
     function _dispatchEvent(persistenceSyncManager, eventType, event, url) {
@@ -549,14 +507,8 @@ define(['require', '../persistenceUtils', '../persistenceStoreManager', './defau
     };
 
     function _getStorage(name) {
-      return new Promise(function (resolve, reject) {
-        var options = {index: ['metadata.created']};
-        persistenceStoreManager.openStore(name, options).then(function (store) {
-          resolve(store);
-        }).catch(function (err) {
-          reject(err);
-        });
-      });
+      var options = {index: ['metadata.created']};
+      return persistenceStoreManager.openStore(name, options);
     };
 
     function _getSyncLogStorage() {

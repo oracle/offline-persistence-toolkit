@@ -43,17 +43,11 @@ define(['../persistenceStoreManager', './OfflineCache'],
       if (cache) {
         return Promise.resolve(cache);
       } else {
-        return new Promise(function (resolve, reject) {
-          persistenceStoreManager.openStore(self._prefix + cacheName)
-          .then(function (store) {
-             cache = new OfflineCache(cacheName, store);
-             self._caches[cacheName] = cache;
-             self._cachesArray.push(cache);
-             resolve(cache);
-           })
-          .catch(function (err) {
-             reject(err);
-           });
+        return persistenceStoreManager.openStore(self._prefix + cacheName).then(function (store) {
+          cache = new OfflineCache(cacheName, store);
+          self._caches[cacheName] = cache;
+          self._cachesArray.push(cache);
+          return cache;
         });
       }
     };
@@ -88,27 +82,22 @@ define(['../persistenceStoreManager', './OfflineCache'],
      */
     OfflineCacheManager.prototype.match = function (request, options) {
       var self = this;
-
-      return new Promise(function (resolve, reject) {
-        var getFirstMatch = function (cacheArray, currentIndex) {
-          if (currentIndex === cacheArray.length) {
-            // no match is found from all the caches, resolve to undefined.
-            resolve();
-          } else {
-            var currentCache = cacheArray[currentIndex];
-            currentCache.match(request, options).then(function (response) {
-              if (response) {
-                resolve(response.clone());
-              } else {
-                getFirstMatch(cacheArray, currentIndex + 1);
-              }
-            }, function (err) {
-              reject(err);
-            });
-          }
-        };
-        getFirstMatch(self._cachesArray, 0);
-      });
+      var getFirstMatch = function (cacheArray, currentIndex) {
+        if (currentIndex === cacheArray.length) {
+          // no match is found from all the caches, resolve to undefined.
+          return Promise.resolve();
+        } else {
+          var currentCache = cacheArray[currentIndex];
+          return currentCache.match(request, options).then(function (response) {
+            if (response) {
+              return response.clone();
+            } else {
+              return getFirstMatch(cacheArray, currentIndex + 1);
+            }
+          });
+        }
+      };
+      return getFirstMatch(self._cachesArray, 0);
     };
 
     /**
@@ -142,20 +131,16 @@ define(['../persistenceStoreManager', './OfflineCache'],
      */
     OfflineCacheManager.prototype.delete = function (cacheName) {
       var self = this;
-      return new Promise(function (resolve, reject) {
-        var cache = self._caches[cacheName];
-        if (cache) {
-          cache.delete().then(function () {
-            self._cachesArray.splice(self._cachesArray.indexOf(cacheName), 1);
-            delete self._caches[cacheName];
-            resolve(true);
-          }, function (err) {
-            reject(err);
-          });
-        } else {
-          resolve(false);
-        }
-      });
+      var cache = self._caches[cacheName];
+      if (cache) {
+        return cache.delete().then(function () {
+          self._cachesArray.splice(self._cachesArray.indexOf(cacheName), 1);
+          delete self._caches[cacheName];
+          return true;
+        });
+      } else {
+        return Promise.resolve(false);
+      }
     };
 
     /**

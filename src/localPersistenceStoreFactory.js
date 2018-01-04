@@ -26,11 +26,9 @@ define(["./impl/localPersistenceStore"], function (LocalPersistenceStore) {
      */
 
     function _createPersistenceStore (name, options) {
-      return new Promise(function (resolve, reject) {
-        var store = new LocalPersistenceStore(name);
-        store.Init(options).then(function () {
-          resolve(store);
-        });
+      var store = new LocalPersistenceStore(name);
+      return store.Init(options).then(function () {
+        return store;
       });
     };
 

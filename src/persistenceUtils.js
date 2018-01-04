@@ -144,25 +144,19 @@ define([], function () {
 
     if ((source instanceof Request) ||
         _isTextPayload(source.headers)) {
-      return new Promise(function (resolve, reject) {
-        source.text().then(function (text) {
-          targetObj.body.text = text;
-          resolve(targetObj);
-        });
+      return source.text().then(function (text) {
+        targetObj.body.text = text;
+        return targetObj;
       });
     }
 
     if (!(source instanceof Request) && 
         typeof(source.arrayBuffer) === 'function') {
-      return new Promise(function (resolve, reject) {
-        source.arrayBuffer().then(function (aBuffer) {
-          if (aBuffer.byteLength > 0) {
-            targetObj.body.arrayBuffer = aBuffer;
-          }
-          resolve(targetObj);
-        }).catch(function (abError) {
-          reject(abError);
-        });
+      return source.arrayBuffer().then(function (aBuffer) {
+        if (aBuffer.byteLength > 0) {
+          targetObj.body.arrayBuffer = aBuffer;
+        }
+        return targetObj;
       });
     }
 
@@ -171,46 +165,38 @@ define([], function () {
   
   function _copyMultipartPayload(request, targetObj) {
     if (typeof(request.formData) === 'function') {
-      return new Promise(function (resolve, reject) {
-        request.formData().then(function (formData) {
-          var formDataPairObject = {};
-          var formDataIter = formData.entries();
-          var formDataEntry;
-          var formDataEntryValue;
-          var formDataName;
-          var formDataValue;
+      return request.formData().then(function (formData) {
+        var formDataPairObject = {};
+        var formDataIter = formData.entries();
+        var formDataEntry;
+        var formDataEntryValue;
+        var formDataName;
+        var formDataValue;
 
-          do {
-            formDataEntry = formDataIter.next();
-            formDataEntryValue = formDataEntry['value'];
+        do {
+          formDataEntry = formDataIter.next();
+          formDataEntryValue = formDataEntry['value'];
 
-            if (formDataEntryValue) {
-              formDataName = formDataEntryValue[0];
-              formDataValue = formDataEntryValue[1];
-              formDataPairObject[formDataName] = formDataValue;
-            }
-          } while (!formDataEntry['done']);
-          
-          targetObj.body.formData = formDataPairObject;
-          resolve(targetObj);
-        }).catch(function (err) {
-          reject(err);
-        });
+          if (formDataEntryValue) {
+            formDataName = formDataEntryValue[0];
+            formDataValue = formDataEntryValue[1];
+            formDataPairObject[formDataName] = formDataValue;
+          }
+        } while (!formDataEntry['done']);
+
+        targetObj.body.formData = formDataPairObject;
+        return targetObj;
       });
     } else {
       var contentType = request.headers.get('Content-Type');
-      return new Promise(function (resolve, reject) {
-        request.text().then(function (text) {
-          var parts = parseMultipartFormData(text, contentType);
-          var formDataPairObject = {};
-          for (var index = 0; index < parts.length; index++) {
-            formDataPairObject[parts[index].headers.name] = parts[index].data;
-          }
-          targetObj.body.formData = formDataPairObject;
-          resolve(targetObj);
-        }).catch(function (err) {
-          reject(err);
-        });
+      return request.text().then(function (text) {
+        var parts = parseMultipartFormData(text, contentType);
+        var formDataPairObject = {};
+        for (var index = 0; index < parts.length; index++) {
+          formDataPairObject[parts[index].headers.name] = parts[index].data;
+        }
+        targetObj.body.formData = formDataPairObject;
+       return targetObj;
       });
     }
   };

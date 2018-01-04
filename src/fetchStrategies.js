@@ -59,26 +59,24 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
               localVars.resolvedResponse = resolvedResponse;
               return persistenceManager.getCache().hasMatch(request, {ignoreSearch: true});
             }).then(function (matchExist) {
-              return new Promise(function (resolve, reject) {
-                var responseClone = localVars.resolvedResponse.clone();
-                if (matchExist) {
-                  if (localVars.resolvedResponse != null &&
-                    !persistenceUtils.isCachedResponse(localVars.resolvedResponse) &&
-                    (request.method == 'GET' ||
-                      request.method == 'HEAD')) {
-                    return persistenceManager.getCache().put(request, localVars.resolvedResponse).then(function () {
-                      resolve(responseClone);
-                    });
-                  } else {
-                    resolve(responseClone);
-                  }
+              var responseClone = localVars.resolvedResponse.clone();
+              if (matchExist) {
+                if (localVars.resolvedResponse != null &&
+                  !persistenceUtils.isCachedResponse(localVars.resolvedResponse) &&
+                  (request.method == 'GET' ||
+                    request.method == 'HEAD')) {
+                  return persistenceManager.getCache().put(request, localVars.resolvedResponse).then(function () {
+                    return responseClone;
+                  });
                 } else {
-                  resolve(responseClone);
+                  return responseClone;
                 }
-              }).then(function (response) {
-                cacheHandler.unregisterEndpointOptions(endpointKey);
-                return Promise.resolve(response);
-              });
+              } else {
+                return responseClone;
+              }
+            }).then(function (response) {
+              cacheHandler.unregisterEndpointOptions(endpointKey);
+              return Promise.resolve(response);
             });
           }
         }
@@ -98,33 +96,19 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
     function getCacheIfOfflineStrategy() {
       return function (request, options) {
         if (persistenceManager.isOnline()) {
-          return new Promise(function (resolve, reject) {
-            persistenceManager.browserFetch(request).then(function (response) {
-              // check for response.ok. That indicates HTTP status in the 200-299 range
-              if (response.ok) {
-                persistenceUtils._cloneResponse(response).then(function(responseClone) {
-                  resolve(responseClone);
-                });
-              } else {
-                return _handleResponseNotOk(request, response, options);
-              }
-            }, function (err) {
-              // As per MDN, fetch will reject when there is a network error
-              // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
-              // in that case we do want to fetch from cache.
-              logger.log(err);
-              _fetchFromCacheOrServerIfEmpty(request, options).then(function (response) {
-                resolve(response);
-              }, function (err) {
-                reject(err)
-              });
-            }).then(function (response) {
-              if (response) {
-                resolve(response);
-              }
-            }).catch(function (err) {
-              reject(err);
-            });
+          return persistenceManager.browserFetch(request).then(function (response) {
+            // check for response.ok. That indicates HTTP status in the 200-299 range
+            if (response.ok) {
+              return persistenceUtils._cloneResponse(response);
+            } else {
+              return _handleResponseNotOk(request, response, options);
+            }
+          }, function (err) {
+            // As per MDN, fetch will reject when there is a network error
+            // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
+            // in that case we do want to fetch from cache.
+            logger.log(err);
+            return _fetchFromCacheOrServerIfEmpty(request, options);
           });
         } else {
           return _fetchFromCacheOrServerIfEmpty(request, options);
@@ -133,21 +117,15 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
     };
 
     function _handleResponseNotOk(request, response, options) {
-      return new Promise(function (resolve, reject) {
-        // for 300-499 range, we should not fetch from cache.
-        // 300-399 are redirect errors
-        // 400-499 are client errors which should be handled by the client
-        if (response.status < 500) {
-          resolve(response);
-        } else {
-          // 500-599 are server errors so we can fetch from cache
-          _fetchFromCacheOrServerIfEmpty(request, options).then(function (response) {
-            resolve(response);
-          }, function (err) {
-            reject(err)
-          });
-        }
-      });
+      // for 300-499 range, we should not fetch from cache.
+      // 300-399 are redirect errors
+      // 400-499 are client errors which should be handled by the client
+      if (response.status < 500) {
+        return Promise.resolve(response);
+      } else {
+        // 500-599 are server errors so we can fetch from cache
+        return _fetchFromCacheOrServerIfEmpty(request, options);
+      }
     };
 
     function _checkCacheForMatch(request) {

@@ -132,15 +132,11 @@ define([], function () {
     }
 
     var self = this;
-    return new Promise(function (resolve, reject) {
-      factory.createPersistenceStore(name, options).then(function (store) {
-        allVersions = allVersions || {};
-        allVersions[version] = store;
-        self._stores[name] = allVersions;
-        resolve(store);
-      }, function (err) {
-        reject(err);
-      });
+    return factory.createPersistenceStore(name, options).then(function (store) {
+      allVersions = allVersions || {};
+      allVersions[version] = store;
+      self._stores[name] = allVersions;
+      return store;
     });
   };
 
@@ -198,13 +194,9 @@ define([], function () {
         if (!store) {
           return Promise.resolve(false);
         } else {
-          return new Promise(function (resolve, reject) {
-            store.delete().then(function () {
-              delete allversions[version];
-              resolve(true);
-            }).catch(function (err) {
-              reject(err);
-            });
+          return store.delete().then(function () {
+            delete allversions[version];
+            return true;
           });
         }
       } else {
@@ -216,13 +208,9 @@ define([], function () {
         };
         var promises = Object.keys(allversions).map(mapcallback(allversions), this);
         var self = this;
-        return new Promise(function (resolve, reject) {
-          Promise.all(promises).then(function () {
-            delete self._stores[name];
-            resolve(true);
-          }).catch(function (err) {
-            reject(err);
-          });
+        return Promise.all(promises).then(function () {
+          delete self._stores[name];
+          return true;
         });
       }
     }
