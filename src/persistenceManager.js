@@ -210,8 +210,14 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
           writable: true
         });
         var self = this;
-        self._browserFetchRequest = null;
-        return self._browserFetchFunc.call(window, request);
+        return new Promise(function (resolve, reject) {
+          self._browserFetchFunc.call(window, request).then(function (response) {
+            resolve(response);
+          }, function (error) {
+            reject(error);
+          });
+          self._browserFetchRequest = null;
+        });
       } else {
         return fetch(request);
       }
