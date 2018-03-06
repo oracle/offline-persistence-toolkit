@@ -1,4 +1,4 @@
-# offline-persistence-toolkit 1.1.0 #
+# offline-persistence-toolkit 1.1.1 #
 
 offline-persistence-toolkit is a client-side JavaScript library that provides caching and offline support at the HTTP request layer. This support is transparent to the user and is done through the Fetch API and an XHR adapter. HTTP requests made while the client device is offline are captured for replay when connection to the server is restored. Additional capabilities include a persistent storage layer, synchronization manager, binary data support and various configuration APIs for customizing the default behavior. This framework can be used in both ServiceWorker and non-ServiceWorker contexts within web and hybrid mobile apps.
 
@@ -58,16 +58,16 @@ If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the 
 ```javascript
   requirejs.config({
     paths: {
-      'persist' : 'js/libs/persist/v1.1.0/min'
+      'persist' : 'js/libs/persist/v1.1.1/min'
 
       // Other path mappings here
  }
 ```
-For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.1.0/min'` entry to the list of paths.
+For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.1.1/min'` entry to the list of paths.
 
 You can choose the name of the paths prefix. That is, you can use a different value to the ‘persist’ value shown in the examples.
 
-It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.1.0/min'`.
+It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.1.1/min'`.
 
 The toolkit makes heavy use of the [Promise API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise API").  If you are targeting environments that do not support the Promise API, you will need to polyfill this feature.  We recommend the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise "es6-promise polyfill").
 
@@ -83,7 +83,7 @@ And again, if you are using RequireJS, you will need to map paths for these pack
     paths: {
       'pouchdb': 'js/libs/pouchdb-6.3.4',
       'pouchfind': 'js/libs/pouchdb.find',
-      'persist' : 'js/libs/persist/v1.1.0/min'
+      'persist' : 'js/libs/persist/v1.1.1/min'
 
       // Other path mappings here
  }
