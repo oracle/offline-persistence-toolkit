@@ -4,11 +4,11 @@
   requirejs.config({
     paths: {
       'promise': '../lib/es6-promise/es6-promise.min',
-      'persist' : '../../src'
+      'opt': '../../dist/debug'
     },
     shim: {
       'test': {
-        deps: ['promise']
+        deps: ['promise', 'opt/bundles-config']
       }
     }
   });

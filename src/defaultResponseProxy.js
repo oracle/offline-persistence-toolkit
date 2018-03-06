@@ -4,9 +4,9 @@
  */
 
 define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
-  './cacheStrategies', './persistenceStoreManager', './impl/defaultCacheHandler'],
+  './cacheStrategies', './persistenceStoreManager', './impl/defaultCacheHandler', './impl/logger'],
   function (persistenceManager, persistenceUtils, fetchStrategies,
-    cacheStrategies, persistenceStoreManager, cacheHandler) {
+    cacheStrategies, persistenceStoreManager, cacheHandler, logger) {
     'use strict';
 
     /**
@@ -136,21 +136,27 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
         var requestHandler = _getRequestHandler(self, request);
         var localVars = {};
         var requestClone = request.clone();
+        logger.log("Offline Persistence Toolkit DefaultResponseProxy: Calling requestHandler for request with enpointKey: " + endpointKey);
         requestHandler.call(self, request).then(function (response) {
           if (persistenceUtils.isCachedResponse(response)) {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is cached for request with enpointKey: " + endpointKey);
             localVars.isCachedResponse = true;
           }
           if (response.ok) {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is ok for request with enpointKey: " + endpointKey);
             return _applyCacheStrategy(self, request, response);
           } else {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is not ok for request with enpointKey: " + endpointKey);
             return response;
           }
         }).then(function (response) {
           localVars.response = response;
           if (response.ok) {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is ok after cacheStrategy for request with enpointKey: " + endpointKey);
             // cache the shredded data
             return _cacheShreddedData(request, response);
           } else {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is not ok after cacheStrategy for request with enpointKey: " + endpointKey);
             return null;
           }
         }).then(function (undoRedoDataArray) {
@@ -159,6 +165,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
           cacheHandler.unregisterEndpointOptions(endpointKey);
           resolve(localVars.response);
         }).catch(function (err) {
+          logger.log("Offline Persistence Toolkit DefaultResponseProxy: Insert Response in syncManager after error for request with enpointKey: " + endpointKey);
           _insertSyncManagerRequest(requestClone, null, true).then(function() {
             cacheHandler.unregisterEndpointOptions(endpointKey);
             reject(err); 
@@ -206,6 +213,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handlePost = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default POST Handler");
       return _handleRequestWithErrorIfOffline(request);
     };
 
@@ -231,6 +239,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handleGet = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default GET Handler");
       return _handleGetWithFetchStrategy(this, request);
     };
 
@@ -254,6 +263,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handleHead = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default HEAD Handler");
       return _handleGetWithFetchStrategy(this, request);
     };
     
@@ -270,6 +280,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handleOptions = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default OPTIONS Handler");
       return _handleRequestWithErrorIfOffline(request);
     };
 
@@ -286,6 +297,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handlePut = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default PUT Handler");
       return _handlePutRequest(this, request);
     };
 
@@ -295,6 +307,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
         return persistenceManager.browserFetch(request.clone()).then(function (response) {
           // check for response.ok. That indicates HTTP status in the 200-299 range
           if (response.ok) {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is ok for default PUT Handler");
             return response;
           } else {
             return _handleResponseNotOk(self, request, response, _handleOfflinePutRequest);
@@ -312,6 +325,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
       // a Response obj from that JSON. Request/Response objs have similar
       // properties so that is equivalent to creating a Response obj by
       // copying over Request obj values.
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing offline logic for default PUT Handler");
       return persistenceUtils.requestToJSON(request).then(function (requestData) {
         requestData.status = 200;
         requestData.statusText = 'OK';
@@ -323,6 +337,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
         var ifNoneMatch = requestData.headers['if-none-match'];
 
         if (ifMatch || ifNoneMatch) {
+          logger.log("Offline Persistence Toolkit DefaultResponseProxy: Generating ETag for offline Response for default PUT Handler");
           var randomInt = Math.floor(Math.random() * 1000000);
           requestData.headers['etag'] = (Date.now() + randomInt).toString();
           requestData.headers['x-oracle-jscpt-etag-generated'] = requestData.headers['etag'];
@@ -347,6 +362,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handlePatch = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default PATCH Handler");
       return _handleRequestWithErrorIfOffline(request);
     };
 
@@ -363,6 +379,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
      * @memberof! DefaultResponseProxy
      */
     DefaultResponseProxy.prototype.handleDelete = function (request) {
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing Request with default DELETE Handler");
       return _handleDeleteRequest(this, request);
     };
 
@@ -372,6 +389,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
         return persistenceManager.browserFetch(request.clone()).then(function (response) {
           // check for response.ok. That indicates HTTP status in the 200-299 range
           if (response.ok) {
+            logger.log("Offline Persistence Toolkit DefaultResponseProxy: Response is ok for default DELETE Handler");
             return response;
           } else {
             return _handleResponseNotOk(self, request, response, _handleOfflineDeleteRequest);
@@ -390,6 +408,7 @@ define(['./persistenceManager', './persistenceUtils', './fetchStrategies',
       // a Response obj from that JSON. Request/Response objs have similar
       // properties so that is equivalent to creating a Response obj by
       // copying over Request obj values.
+      logger.log("Offline Persistence Toolkit DefaultResponseProxy: Processing offline logic for default DELETE Handler");
       return persistenceUtils.requestToJSON(request).then(function (requestData) {
         requestData.status = 200;
         requestData.statusText = 'OK';

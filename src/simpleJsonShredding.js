@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(['./persistenceUtils'], function (persistenceUtils) {
+define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logger) {
   'use strict';
     
   /**
@@ -36,6 +36,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getShredder = function (storeName, idAttr) {
     return function (response) {
+      logger.log("Offline Persistence Toolkit simpleJsonShredding: Shredding Response");
       var responseClone = response.clone();
       var resourceIdentifier = responseClone.headers.get('Etag');
       return responseClone.text().then(function (payload) {
@@ -57,6 +58,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
               resourceType = 'single';
             }
           } catch (err) {
+            logger.log("Offline Persistence Toolkit simpleRestJsonShredding: Error during shredding: " + err);
           }
         }
         return [{
@@ -89,6 +91,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getUnshredder = function () {
     return function (data, response) {
+      logger.log("Offline Persistence Toolkit simpleJsonShredding: Unshredding Response");
       return Promise.resolve().then(function () {
         var dataContent = _retrieveDataContent(data);
         return persistenceUtils.setResponsePayload(response, dataContent);

@@ -1,6 +1,7 @@
-define(['persist/simpleJsonShredding'],
-  function (simpleJsonShredding) {
+define(['simpleJsonShredding', 'impl/logger'],
+  function (simpleJsonShredding, logger) {
     'use strict';
+    logger.option('level',  logger.LEVEL_LOG);
     module('simpleJsonShredding');
 
     asyncTest('getShredder()', function (assert) {

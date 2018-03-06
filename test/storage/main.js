@@ -4,20 +4,14 @@
   requirejs.config({
     paths: {
       'promise': '../lib/es6-promise/es6-promise.min',
-      'pouchdb': '../../lib/pouchdb-6.3.4',
-      'pouchfind': '../../lib/pouchdb.find',
-      'persist' : '../../src',
+      'opt': '../../dist/debug',
       'object-assign': '../lib/phantomjs-object-assign/object-assign'
     },
     shim: {
       'storagetest': {
-        deps: ['promise', 'object-assign']
+        deps: ['promise', 'object-assign', 'opt/bundles-config']
       }
     }
-  });
-
-  require(['pouchdb'], function (pouchdb) {
-    window.PouchDB = pouchdb;
   });
 
   require(['storagetest'], function () {

@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define([], function () {
+define(['./impl/logger'], function (logger) {
   'use strict';
   
   /**
@@ -87,7 +87,7 @@ define([], function () {
    * @return {Promise} Returns an instance of a PersistenceStore.
    */
   PersistenceStoreManager.prototype.openStore = function (name, options) {
-
+    logger.log("Offline Persistence Toolkit PersistenceStoreManager: openStore() for name: " + name);
     var allVersions = this._stores[name];
     var version = (options && options.version) || '0';
 
@@ -104,6 +104,7 @@ define([], function () {
     }
 
     var self = this;
+    logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling createPersistenceStore on factory");
     return factory.createPersistenceStore(name, options).then(function (store) {
       allVersions = allVersions || {};
       allVersions[version] = store;
@@ -156,6 +157,7 @@ define([], function () {
    *                   actually deleted, and false otherwise.
    */
   PersistenceStoreManager.prototype.deleteStore = function (name, options) {
+    logger.log("Offline Persistence Toolkit PersistenceStoreManager: deleteStore() for name: " + name);
     var allversions = this._stores[name];
     if (!allversions) {
       return Promise.resolve(false);
@@ -166,6 +168,7 @@ define([], function () {
         if (!store) {
           return Promise.resolve(false);
         } else {
+          logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
           return store.delete().then(function () {
             delete allversions[version];
             return true;

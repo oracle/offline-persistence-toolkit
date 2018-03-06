@@ -1,8 +1,9 @@
-define(['pouchdb', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
-        'persist/pouchDBPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persist/persistenceManager'],
-  function(pouchdb, persistenceStoreManager, localPersistenceStoreFactory,
-           pouchDBPersistenceStoreFactory, testPersistenceStoreFactory, persistenceManager){
+define(['persistenceStoreManager', 'localPersistenceStoreFactory',
+        'pouchDBPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persistenceManager', 'impl/logger'],
+  function(persistenceStoreManager, localPersistenceStoreFactory,
+           pouchDBPersistenceStoreFactory, testPersistenceStoreFactory, persistenceManager, logger){
   'use strict';
+  logger.option('level',  logger.LEVEL_LOG);
  
   module('storagetest');
  

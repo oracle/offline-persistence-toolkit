@@ -31,7 +31,7 @@
  * All rights reserved.
  */
 
-define(['./persistenceUtils'], function (persistenceUtils) {
+define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logger) {
   'use strict';
     
   /**
@@ -64,6 +64,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getShredder = function (storeName, idAttr) {
     return function (response) {
+      logger.log("Offline Persistence Toolkit simpleJsonShredding: Shredding Response");
       var responseClone = response.clone();
       var resourceIdentifier = responseClone.headers.get('Etag');
       return responseClone.text().then(function (payload) {
@@ -85,6 +86,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
               resourceType = 'single';
             }
           } catch (err) {
+            logger.log("Offline Persistence Toolkit simpleRestJsonShredding: Error during shredding: " + err);
           }
         }
         return [{
@@ -117,6 +119,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getUnshredder = function () {
     return function (data, response) {
+      logger.log("Offline Persistence Toolkit simpleJsonShredding: Unshredding Response");
       return Promise.resolve().then(function () {
         var dataContent = _retrieveDataContent(data);
         return persistenceUtils.setResponsePayload(response, dataContent);
@@ -159,7 +162,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">

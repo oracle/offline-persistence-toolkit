@@ -4,8 +4,7 @@ requirejs.config({
   paths: {
     'promise': 'es6-promise.min',
     'fetch' : 'fetch',
-    'pouchdb' : 'pouchdb-6.3.4',
-    'pouchfind' : 'pouchdb.find'
+    'pouchdb' : 'pouchdb-browser-6.3.4'
   },
   // Shim configurations for modules that do not expose AMD
   shim: {
@@ -17,9 +16,6 @@ requirejs.config({
         },
         'pouchdb': {
           exports: ['pouchdb']
-        },
-        'pouchfind': {
-          exports: ['pouchfind']
         }
   }
 });

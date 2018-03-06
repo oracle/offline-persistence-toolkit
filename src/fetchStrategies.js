@@ -32,6 +32,7 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
      * @param {{serverResponseCallback: Function}=} options Options
      * <ul>
      * <li>options.serverResponseCallback The callback which will be called when the server responds. The callback should return a Promise which resolves when complete.</li>
+     * <li>options.backgroundFetch Whether to do background fetching to the server when online. 'disabled' will disable background fetching, 'enabled' will enable it. The default is 'enabled'.</li>
      * </ul>
      * @return {Function} Returns the Cache First fetch strategy which conforms
      * to the Fetch Strategy API.
@@ -39,8 +40,14 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
     function getCacheFirstStrategy(options) {
       options = options || {};
       var serverResponseCallback = options['serverResponseCallback'];
+      var backgroundFetch = options['backgroundFetch'];
+      var isBackgroundFetchDisabled = backgroundFetch == 'disabled' ? true : false;
       
-      if (!serverResponseCallback) {
+      if (isBackgroundFetchDisabled) {
+        serverResponseCallback = null;
+      }
+      
+      if (!serverResponseCallback && !isBackgroundFetchDisabled) {
         // dummy callback just so that the local cache is updated
         serverResponseCallback = function(request, response) {
           return Promise.resolve(response);
@@ -48,12 +55,13 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
       }
 
       return function (request, options) {
+        logger.log("Offline Persistence Toolkit fetchStrategies: Processing CacheFirstStrategy");
         if (serverResponseCallback) {
           var wrappedServerResponseCallback = function (request, response) {
             var endpointKey = persistenceUtils.buildEndpointKey(request);
             cacheHandler.registerEndpointOptions(endpointKey, options);
             var localVars = {};
-            return persistenceUtils._cloneResponse(response).then(function(responseClone) {
+            return persistenceUtils._cloneResponse(response, {url: request.url}).then(function(responseClone) {
               return serverResponseCallback(request, responseClone);
             }).then(function (resolvedResponse) {
               localVars.resolvedResponse = resolvedResponse;
@@ -95,11 +103,12 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
      */
     function getCacheIfOfflineStrategy() {
       return function (request, options) {
+        logger.log("Offline Persistence Toolkit fetchStrategies: Processing CacheIfOfflineStrategy");
         if (persistenceManager.isOnline()) {
           return persistenceManager.browserFetch(request).then(function (response) {
             // check for response.ok. That indicates HTTP status in the 200-299 range
             if (response.ok) {
-              return persistenceUtils._cloneResponse(response);
+              return persistenceUtils._cloneResponse(response, {url: request.url});
             } else {
               return _handleResponseNotOk(request, response, options);
             }
@@ -121,6 +130,7 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
       // 300-399 are redirect errors
       // 400-499 are client errors which should be handled by the client
       if (response.status < 500) {
+        logger.log("Offline Persistence Toolkit fetchStrategies: Response is not ok");
         return Promise.resolve(response);
       } else {
         // 500-599 are server errors so we can fetch from cache
@@ -134,13 +144,17 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
 
     function _fetchFromCacheOrServerIfEmpty(request, options, serverResponseCallback) {
       return new Promise(function (resolve, reject) {
+        logger.log("Offline Persistence Toolkit fetchStrategies: Process queryParams for Request");
         _processQueryParams(request, options).then(function (queryResponse) {
           if (!queryResponse) {
+            logger.log("Offline Persistence Toolkit fetchStrategies: Response for queryParams is not null");
             _checkCacheForMatch(request).then(function (cachedResponse) {
               if (cachedResponse) {
+                logger.log("Offline Persistence Toolkit fetchStrategies: Cached Response is not null");
                 resolve(cachedResponse);
                 _fetchForServerResponseCallback(request, serverResponseCallback);
               } else {
+                logger.log("Offline Persistence Toolkit fetchStrategies: Cached Response is null");
                 persistenceManager.browserFetch(request).then(function (response) {
                   var responseClone = response.clone();
                   resolve(responseClone);
@@ -169,8 +183,9 @@ define(['./persistenceManager', './persistenceUtils', './impl/defaultCacheHandle
         // At this point we've already resolved with a response.
         // This fetch is only for the server response callback which
         // may not occur if there is no connectivity or some other issue.
+        logger.log("Offline Persistence Toolkit fetchStrategies: Fetch for ServerResponseCallback");
         persistenceManager.browserFetch(request).then(function (response) {
-          persistenceUtils._cloneResponse(response).then(function(responseClone) {
+          persistenceUtils._cloneResponse(response, {url: request.url}).then(function(responseClone) {
             serverResponseCallback(request, responseClone);
           });
         });

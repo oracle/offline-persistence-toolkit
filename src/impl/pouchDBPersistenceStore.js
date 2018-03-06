@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-define(["../PersistenceStore", "pouchdb", "pouchfind"],
-       function (PersistenceStore, PouchDB) {
+define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
+       function (PersistenceStore, storageUtils, PouchDB, logger) {
   'use strict';
 
   var PouchDBPersistenceStore = function (name) {
@@ -35,13 +35,19 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
           name: indexName
         }
       };
-      return self._db.createIndex(indexSyntax).then(function () {
+      // createIndex if using the find plugin
+      if (self._db.createIndex) {
+        return self._db.createIndex(indexSyntax).then(function () {
+          return Promise.resolve();
+        });
+      } else {
         return Promise.resolve();
-      });
+      }
     }
   };
 
   PouchDBPersistenceStore.prototype.upsert = function (key, metadata, value, expectedVersionIdentifier) {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: upsert() for key: " + key);
     var self = this;
     var docId = key.toString();
 
@@ -143,6 +149,7 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   };
 
   PouchDBPersistenceStore.prototype.upsertAll = function (values) {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: upsertAll()");
     if (!values || !values.length) {
       return Promise.resolve();
     } else {
@@ -154,23 +161,47 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   };
 
   PouchDBPersistenceStore.prototype.find = function (findExpression) {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: find() for expression: " +  JSON.stringify(findExpression));
     var self = this;
     var modifiedFind = self._prepareFind(findExpression);
-
-    return self._db.find(modifiedFind).then(function (result) {
-      if (result && result.docs && result.docs.length) {
-        var promises = result.docs.map(self._findResultCallback(modifiedFind.fields), self);
-        return Promise.all(promises);
-      } else {
-        return Promise.resolve([]);
-      }
-    }).catch(function (finderr) {
-      if (finderr.status === 404 && finderr.message === 'missing') {
-        return Promise.resolve([]);
-      } else {
-        return Promise.reject(finderr);
-      }
-    });
+    
+    // if the find plugin is installed
+    if (self._db.find) {
+      return self._db.find(modifiedFind).then(function (result) {
+        if (result && result.docs && result.docs.length) {
+          var promises = result.docs.map(self._findResultCallback(modifiedFind.fields), self);
+          return Promise.all(promises);
+        } else {
+          return Promise.resolve([]);
+        }
+      }).catch(function (finderr) {
+        if (finderr.status === 404 && finderr.message === 'missing') {
+          return Promise.resolve([]);
+        } else {
+          return Promise.reject(finderr);
+        }
+      });
+    } else {
+      // get all rows and use our own find logic
+      return self._db.allDocs({include_docs: true}).then(function (result) {
+        if (result && result.rows && result.rows.length) {
+          var promises = result.rows.map(function(row) {
+            return self._findResultCallback(modifiedFind.fields).bind(self)(row.doc);
+          });
+          return Promise.all(promises);
+        } else {
+          return Promise.resolve([]);
+        }
+      }).then(function(rows) {
+        var satisfiedRows = rows.filter(function(row) {
+          if (storageUtils.satisfy(findExpression.selector, row)) {
+            return true;
+          }
+          return false;
+        });
+        return satisfiedRows;
+      });
+    }
   };
 
   PouchDBPersistenceStore.prototype._findResultCallback = function (useDefaultField) {
@@ -215,6 +246,7 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   };
 
   PouchDBPersistenceStore.prototype.findByKey = function (key) {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: findByKey() for key: " + key);
     var self = this;
     var docId = key.toString();
 
@@ -230,6 +262,7 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   };
 
   PouchDBPersistenceStore.prototype.removeByKey = function (key) {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: removeByKey() for key: " + key);
     var self = this;
     var docId = key.toString();
     return self._db.get(docId).then(function (doc) {
@@ -246,6 +279,7 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   };
 
   PouchDBPersistenceStore.prototype.delete = function (deleteExpression) {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: delete() for expression: " +  JSON.stringify(deleteExpression));
     var self = this;
 
     if (deleteExpression) {
@@ -280,6 +314,7 @@ define(["../PersistenceStore", "pouchdb", "pouchfind"],
   };
 
   PouchDBPersistenceStore.prototype.keys = function () {
+    logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: keys()");
     var self = this;
 
     return self._db.allDocs().then(function (result) {

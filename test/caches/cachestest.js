@@ -1,7 +1,7 @@
-define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/impl/offlineCacheManager', 'MockFetch'],
-  function(persistenceStoreManager, localPersistenceStoreFactory, offlineCacheManager, MockFetch){
+define(['persistenceStoreManager', 'localPersistenceStoreFactory', 'impl/offlineCacheManager', 'MockFetch', 'impl/logger'],
+  function(persistenceStoreManager, localPersistenceStoreFactory, offlineCacheManager, MockFetch, logger){
   'use strict';
-
+  logger.option('level',  logger.LEVEL_LOG);
   module('cachestest');
 
   persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);

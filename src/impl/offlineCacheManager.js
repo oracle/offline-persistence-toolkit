@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-define(['../persistenceStoreManager', './OfflineCache'],
-  function (persistenceStoreManager, OfflineCache) {
+define(['../persistenceStoreManager', './OfflineCache', './logger'],
+  function (persistenceStoreManager, OfflineCache, logger) {
     'use strict';
 
     /**
@@ -37,6 +37,7 @@ define(['../persistenceStoreManager', './OfflineCache'],
      *                           use for offline support.
      */
     OfflineCacheManager.prototype.open = function (cacheName) {
+      logger.log("Offline Persistence Toolkit OfflineCacheManager: open() with name: " + cacheName);
       var self = this;
 
       var cache = self._caches[cacheName];
@@ -81,6 +82,7 @@ define(['../persistenceStoreManager', './OfflineCache'],
      * @return {Promise} Return a Promise that resolves to the first matching response.
      */
     OfflineCacheManager.prototype.match = function (request, options) {
+      logger.log("Offline Persistence Toolkit OfflineCacheManager: match() for Request with url: " + request.url);
       var self = this;
       var getFirstMatch = function (cacheArray, currentIndex) {
         if (currentIndex === cacheArray.length) {
@@ -111,6 +113,7 @@ define(['../persistenceStoreManager', './OfflineCache'],
      *                           object matches the cacheName.
      */
     OfflineCacheManager.prototype.has = function (cacheName) {
+      logger.log("Offline Persistence Toolkit OfflineCacheManager: has() for name: " + cacheName);
       if (this._caches[cacheName]) {
         return Promise.resolve(true);
       } else {
@@ -130,6 +133,7 @@ define(['../persistenceStoreManager', './OfflineCache'],
      *                   false.
      */
     OfflineCacheManager.prototype.delete = function (cacheName) {
+      logger.log("Offline Persistence Toolkit OfflineCacheManager: delete() for name: " + cacheName);
       var self = this;
       var cache = self._caches[cacheName];
       if (cache) {
@@ -153,6 +157,7 @@ define(['../persistenceStoreManager', './OfflineCache'],
      *                   OfflineCache names managed by this OfflineCacheManager.
      */
     OfflineCacheManager.prototype.keys = function () {
+      logger.log("Offline Persistence Toolkit OfflineCacheManager: keys()");
       var keysArray = [];
       for (var i = 0; i < this._cachesArray.length; i++) {
         keysArray.push(this._cachesArray[i].getName());

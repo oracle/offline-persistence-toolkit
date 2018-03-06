@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: simpleBinaryDataShredding.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: simpleBinaryDataShredding.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Copyright (c) 2017, Oracle and/or its affiliates.
+ * All rights reserved.
+ */
+
+define(['./persistenceUtils'], function (persistenceUtils) {
+  'use strict';
+    
+  /**
+   * @export
+   * @class simpleBinaryDataShredding
+   * @classdesc Shredder for simple binary data GET requests. The URL is used as key.
+   */
+  
+  /**
+   * Return the shredder for simple Binary Data
+   * @method
+   * @name getShredder
+   * @memberof! simpleBinaryDataShredding
+   * @instance
+   * @param {string} storeName Name of the Persistent Store into which the shredded data should be stored
+   * @return {Function} shredder The shredder function takes a Response object as
+   * parameter and returns a Promise which resolves to an array of objects which have the following
+   * structure:
+   * {
+   *  'name': storeName, 
+   *  'resourceIdentifier': resourceIdentifier, 
+   *  'keys': idArray, 
+   *  'data': dataArray,
+   *  'resourceType' : 'single'
+   * }
+   */
+  var getShredder = function (storeName) {
+    return function (response) {
+      var responseClone = response.clone();
+      var resourceIdentifier = responseClone.headers.get('Etag');
+      return responseClone.blob().then(function (blob) {
+        var idArray = [];
+        var dataArray = [];
+        idArray[0] = response.url == null || response.url.length == 0 ? response.headers.get('x-oracle-jscpt-response-url') : response.url;
+        dataArray[0] = blob;
+        return [{
+          'name': storeName,
+          'resourceIdentifier': resourceIdentifier,
+          'keys': idArray,
+          'data': dataArray,
+          'resourceType' : 'single'
+        }];
+      });
+    }
+  };
+
+  /**
+   * Return the unshredder for simple Binary Data
+   * @method
+   * @name getUnshredder
+   * @memberof! simpleBinaryDataShredding
+   * @instance
+   * @return {Function} unshredder The unshredder function takes an array of objects 
+   * and a response object as parameters. The array of objects has the following
+   * structure:
+   * {
+   *  'name': storeName, 
+   *  'resourceIdentifier': resourceIdentifier, 
+   *  'keys': idArray, 
+   *  'data': dataArray,
+   *  'resourceType' : 'single'
+   * }
+   * The unshredder returns a Promise which resolves to a Response object.
+   */
+  var getUnshredder = function () {
+    return function (data, response) {
+      var dataContent = _retrieveDataContent(data);
+      return persistenceUtils.setResponsePayload(response, dataContent).then(function (response) {
+        response.headers.set('x-oracle-jscpt-cache-expiration-date', '');
+        return Promise.resolve(response);
+      });
+    };
+  };
+
+  // helper method to retrieve the data content from the valueArray. In general,
+  // valueArray is an array where each element contains an object where the 
+  // key is the name of the store while the value is the shredded data from 
+  // that store. For simple json shredder/unshredder, the valueArray should 
+  // contain only one entry.
+  function _retrieveDataContent(valueArray) {
+    if (!valueArray || valueArray.length !== 1) {
+      throw new Error({message: 'shredded data is not in the correct format.'});
+    }
+    var data = valueArray[0].data;
+    if (data &amp;&amp; data.length === 1 &amp;&amp; valueArray[0].resourceType === 'single') {
+      return data[0];
+    }
+    return data;
+  };
+
+  return {
+    getShredder: getShredder,
+    getUnshredder: getUnshredder
+  };
+});
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

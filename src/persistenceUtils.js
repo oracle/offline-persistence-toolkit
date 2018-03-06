@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define([], function () {
+define(['./impl/logger'], function (logger) {
   'use strict';
   
   /**
@@ -71,6 +71,7 @@ define([], function () {
    * representing the Request
    */
   function requestToJSON(request, options) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: requestToJSON()");
     if (!options || !options._noClone) {
       request = request.clone();
     }
@@ -129,6 +130,7 @@ define([], function () {
     var date = headersData['date'];
 
     if (!date) {
+      logger.log("Offline Persistence Toolkit persistenceUtils: Setting HTTP date header since it's null or not exposed");
       date = (new Date()).toUTCString();
       headersData['date'] = date;
     }
@@ -164,6 +166,7 @@ define([], function () {
   };
   
   function _copyMultipartPayload(request, targetObj) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: Copying multipart payload");
     if (typeof(request.formData) === 'function') {
       return request.formData().then(function (formData) {
         var formDataPairObject = {};
@@ -216,6 +219,7 @@ define([], function () {
    * representing the Response
    */
   function responseToJSON(response, options) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: responseToJSON()");
     if (!options || !options._noClone) {
       response = response.clone();
     }
@@ -240,6 +244,7 @@ define([], function () {
    * @return {Promise} Returns a Promise which resolves to the Request
    */
   function requestFromJSON(data) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: requestFromJSON()");
     var initFromData = {};
     _copyProperties(data, initFromData, ['headers', 'body', 'signal']);
     var skipContentType = _copyPayloadFromJsonObj(data, initFromData);
@@ -296,6 +301,7 @@ define([], function () {
    * @return {Promise} Returns a Promise which resolves to the Response
    */
   function responseFromJSON(data) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: responseFromJSON()");
     var initFromData = {};
     _copyProperties(data, initFromData, ['headers', 'body']);
     initFromData.headers = _createHeadersFromJsonObj(data, false);
@@ -312,6 +318,9 @@ define([], function () {
     } else if (body && body.arrayBuffer) {
       initFromData.responseType = 'blob';
       response = new Response(body.arrayBuffer, initFromData);
+    } else if (body && body.blob) {
+      initFromData.responseType = 'blob';
+      response = new Response(body.blob, initFromData);
     } else {
       response = new Response(null, initFromData);
     }
@@ -331,6 +340,7 @@ define([], function () {
    * @return {Promise} Returns a Promise which resolves to the updated Response object 
    */
   function setResponsePayload(response, payload) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: setResponsePayload()");
     return responseToJSON(response).then(function (responseObject) {
       var body = responseObject.body;
 
@@ -340,6 +350,8 @@ define([], function () {
         } else {
           throw new Error({message: 'unexpected payload'});
         }
+      } else if (payload instanceof Blob) { 
+        body.blob = payload;
       } else {
         body.text = JSON.stringify(payload);
       }
@@ -359,6 +371,7 @@ define([], function () {
    * @return {Array} Array of the parts
    */
   function parseMultipartFormData(origbody, contentType) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: parseMultipartFormData()");
     var contentTypePrased = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
     if (!contentTypePrased) {
       throw new Error("not a valid multipart form data value.");
@@ -471,6 +484,7 @@ define([], function () {
    * @return {string} A unique key that can by used to register option under.
    */
   function buildEndpointKey (request) {
+    logger.log("Offline Persistence Toolkit persistenceUtils: buildEndpointKey() for Request with url: " + request.url);
     var endPointKeyObj = {
       url: request.url,
       id : Math.random().toString(36).replace(/[^a-z]+/g, '')
@@ -486,9 +500,15 @@ define([], function () {
     });
   };
   
-  function _cloneResponse(response) {
+  function _cloneResponse(response, options) {
+    options = options || {};
     return responseToJSON(response, {_noClone: true}).then(function (responseJson) {
       return responseFromJSON(responseJson).then(function (responseClone) {
+        if (options.url != null &&
+          options.url.length > 0 &&
+          responseClone.headers.get('x-oracle-jscpt-response-url') == null) {
+          responseClone.headers.set('x-oracle-jscpt-response-url', options.url);
+        }
         return responseClone;
       });
     });

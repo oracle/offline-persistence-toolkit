@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(['./persistenceManager', './persistenceUtils'], function (persistenceManager, persistenceUtils) {
+define(['./persistenceManager', './persistenceUtils', './impl/logger'], function (persistenceManager, persistenceUtils, logger) {
   'use strict';
   
   /**
@@ -59,6 +59,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
       persistenceUtils.isCachedResponse(response) &&
       (!cacheExpirationDate || cacheExpirationDate.length == 0)) {
       response.headers.set('x-oracle-jscpt-cache-expiration-date', expiresDate);
+      logger.log("Offline Persistence Toolkit cacheStrategies: Set x-oracle-jscpt-cache-expiration-date header based on HTTP Expires header");
     }
     return Promise.resolve(response);
   };
@@ -79,6 +80,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
         var expirationTime = requestTime + 1000 * cacheControlMaxAge;
         var expirationDate = new Date(expirationTime);
         response.headers.set('x-oracle-jscpt-cache-expiration-date', expirationDate.toUTCString());
+        logger.log("Offline Persistence Toolkit cacheStrategies: Set x-oracle-jscpt-cache-expiration-date header based on HTTP max-age header");
       }
     }
     return Promise.resolve(response);
@@ -100,6 +102,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
           return persistenceUtils.responseToJSON(response).then(function (responseData) {
             responseData.status = 412;
             responseData.statusText = 'If-Match failed due to no matching ETag while offline';
+            logger.log("Offline Persistence Toolkit cacheStrategies: Returning Response status 412 based on ETag and HTTP If-Match header");
             return persistenceUtils.responseFromJSON(responseData);
           });
         } else if (ifNoneMatch &&
@@ -109,6 +112,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
           return persistenceUtils.responseToJSON(response).then(function (responseData) {
             responseData.status = 412;
             responseData.statusText = 'If-None-Match failed due to matching ETag while offline';
+            logger.log("Offline Persistence Toolkit cacheStrategies: Returning Response status 412 based on ETag and HTTP If-None-Match header");
             return persistenceUtils.responseFromJSON(responseData);
           });
         }
@@ -132,6 +136,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
         var currentTime = (new Date()).getTime();
 
         if (currentTime > cacheExpirationTime) {
+          logger.log("Offline Persistence Toolkit cacheStrategies: Handling revalidation HTTP must-revalidate header");
           return _handleRevalidate(request, response, true);
         }
       }
@@ -150,11 +155,17 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
   
   function _isNoCache(request, response) {
     if (_getCacheControlDirective(response.headers, 'no-cache')) {
+      logger.log("Offline Persistence Toolkit cacheStrategies: Has HTTP no-cache header");
       return true;
     }
     // pragma: no-cache in the request header has the same effect
     var pragmaNoCache = request.headers.get('Pragma');
-    return pragmaNoCache && (pragmaNoCache.trim() === 'no-cache');
+    var isPragmeNoCache = pragmaNoCache && (pragmaNoCache.trim() === 'no-cache');
+    
+    if (isPragmeNoCache) {
+      logger.log("Offline Persistence Toolkit cacheStrategies: Has HTTP Pragma no-cache header");
+    }
+    return isPragmeNoCache;
   };
   
   function _handleNoStore(request, response) {
@@ -167,6 +178,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
       if (persistenceUtils.isCachedResponse(response)) {
         response.headers.delete('x-oracle-jscpt-cache-expiration-date');
       }
+      logger.log("Offline Persistence Toolkit cacheStrategies: Has HTTP no-store header");
       return Promise.resolve(response);
     } else {
       return _cacheResponse(request, response);
@@ -220,6 +232,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
           return persistenceUtils.responseToJSON(response).then(function (responseData) {
             responseData.status = 504;
             responseData.statusText = 'cache-control: must-revalidate failed due to application being offline';
+            logger.log("Offline Persistence Toolkit cacheStrategies: Returning Response status 504 based HTTP revalidation");
             return persistenceUtils.responseFromJSON(responseData);
           });
         } else {
@@ -233,6 +246,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
             // revalidation succeeded so we should remove the old entry from the
             // cache
             return persistenceManager.getCache().delete(request).then(function () {
+              logger.log("Offline Persistence Toolkit cacheStrategies: Removing old entry based on HTTP revalidation");
               return serverResponse;
             });
           }
@@ -252,6 +266,7 @@ define(['./persistenceManager', './persistenceUtils'], function (persistenceMana
       request.method == 'HEAD')) {
       var responseClone = response.clone();
       return persistenceManager.getCache().put(request, response).then(function () {
+        logger.log("Offline Persistence Toolkit cacheStrategies: Cached Request/Response");
         return responseClone;
       });
     } else {

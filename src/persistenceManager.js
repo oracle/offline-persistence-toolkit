@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './impl/offlineCacheManager', './impl/fetch'],
-  function (PersistenceXMLHttpRequest, PersistenceSyncManager, offlineCacheManager) {
+define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './impl/offlineCacheManager', './impl/logger', './impl/fetch'],
+  function (PersistenceXMLHttpRequest, PersistenceSyncManager, offlineCacheManager, logger) {
     'use strict';
 
     /**
@@ -64,6 +64,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      * @param {boolean} offline If true, sets the PersistenceManager offline
      */
     PersistenceManager.prototype.forceOffline = function (offline) {
+      logger.log("Offline Persistence Toolkit PersistenceManager: forceOffline is called with value: " + offline);
       this._forceOffline = offline;
     };
 
@@ -107,6 +108,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
         navigator.network.connection &&
         navigator.network.connection.type == Connection.NONE) {
         online = false;
+        logger.log("Offline Persistence Toolkit PersistenceManager: Cordova network info plugin is returning online value: " + online);
       }
       return online && !this._isOffline && !this._forceOffline;
     };
@@ -199,6 +201,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      * @return {Promise} Resolves to the Response when complete
      */
     PersistenceManager.prototype.browserFetch = function (request) {
+      logger.log("Offline Persistence Toolkit PersistenceManager: browserFetch() for Request with url: " + request.url);
       // only do special processing in browser context. In service worker context
       // just call regular fetch.
       if (_isBrowserContext()) {
@@ -211,6 +214,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
         });
         var self = this;
         return new Promise(function (resolve, reject) {
+          logger.log("Offline Persistence Toolkit PersistenceManager: Calling browser fetch function for Request with url: " + request.url);
           self._browserFetchFunc.call(window, request).then(function (response) {
             resolve(response);
           }, function (error) {
@@ -229,6 +233,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
       // Don't do it for Service Workers
       if (_isBrowserContext() &&
         !self._addedBrowserEventListeners) {
+        logger.log("Offline Persistence Toolkit PersistenceManager: Adding browser event listeners");
         window.addEventListener('offline', function (e) {
           self._isOffline = true;
         }, false);
@@ -268,8 +273,10 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
                     event._setPromiseCallbacks(resolve, reject);
                   });
                 }
+                logger.log("Offline Persistence Toolkit PersistenceManager: Calling fetch event listener");
                 registration._eventListeners[j]['listener'](event);
               } else {
+                logger.log("Offline Persistence Toolkit PersistenceManager: Calling event listener");
                 returnValue = registration._eventListeners[j]['listener'](event);
 
                 if (returnValue === false) {
@@ -307,6 +314,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
         !self._browserXMLHttpRequest) {
         // browser context
         // _browserFetchFunc is always non-null because we polyfill it
+        logger.log("Offline Persistence Toolkit PersistenceManager: Replacing browser APIs");
         Object.defineProperty(self, '_browserFetchFunc', {
           value: window.fetch,
           writable: false

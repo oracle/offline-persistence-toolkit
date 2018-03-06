@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(["./defaultCacheHandler"], function (cacheHandler) {
+define(["./defaultCacheHandler", "./logger"], function (cacheHandler, logger) {
   'use strict';
 
   /**
@@ -62,6 +62,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    *                           is retrieved and request/response is cached.
    */
   OfflineCache.prototype.add = function (request) {
+    logger.log("Offline Persistence Toolkit OfflineCache: add()");
     var self = this;
     return fetch(request).then(function (response) {
       var responseClone = response.clone();
@@ -80,6 +81,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    * @return {Promise} Returns a promise when all the requests in the array are handled.
    */
   OfflineCache.prototype.addAll = function (requests) {
+    logger.log("Offline Persistence Toolkit OfflineCache: addAll()");
     var promises = requests.map(this.add, this);
     return Promise.all(promises);
   };
@@ -114,6 +116,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    *                           found, the Promise resolves to undefined.
    */
   OfflineCache.prototype.match = function (request, options) {
+    logger.log("Offline Persistence Toolkit OfflineCache: match() for Request with url: " + request.url);
     var self = this;
 
     var searchCriteria = cacheHandler.constructSearchCriteria(request, options);
@@ -162,6 +165,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    *                            whose request matches the passed-in request.
    */
   OfflineCache.prototype.matchAll = function (request, options) {
+    logger.log("Offline Persistence Toolkit OfflineCache: matchAll() for Request with url: " + request.url);
     var self = this;
 
     var searchCriteria = cacheHandler.constructSearchCriteria(request, options);
@@ -251,6 +255,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
     var requestHeaders = request.headers;
     var varyValue = cacheResponseHeaders.vary;
 
+    logger.log("Offline Persistence Toolkit OfflineCache: Processing HTTP Vary header");
     if (!varyValue) {
       return true;
     } else if (varyValue.trim() === '*') {
@@ -261,6 +266,9 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
         var varyHeaderName = varyArray[index].toLowerCase();
         var requestVaryHeaderValue = requestHeaders.get(varyHeaderName);
         var cachedRequestVaryHeaderValue = cacheRequestHeaders[varyHeaderName];
+        logger.log("Offline Persistence Toolkit OfflineCache: HTTP Vary header name: " + varyHeaderName);
+        logger.log("Offline Persistence Toolkit OfflineCache: Request HTTP Vary header value: " + requestVaryHeaderValue);
+        logger.log("Offline Persistence Toolkit OfflineCache: Cached HTTP Vary header value: " + cachedRequestVaryHeaderValue);
         if ((!cachedRequestVaryHeaderValue && !requestVaryHeaderValue) ||
             (cachedRequestVaryHeaderValue && requestVaryHeaderValue &&
              cachedRequestVaryHeaderValue === requestVaryHeaderValue)) {
@@ -284,6 +292,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    */
   function _cacheEntryToResponse (responseData) {
     if (responseData) {
+      logger.log("Offline Persistence Toolkit OfflineCache: Converting cached entry to Response object");
       var promises = [];
       var bodyAbstract = responseData.bodyAbstract;
       if (bodyAbstract) {
@@ -321,6 +330,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    * @return {Promise} Returns a promise when the request/response pair is cached.
    */
   OfflineCache.prototype.put = function (request, response) {
+    logger.log("Offline Persistence Toolkit OfflineCache: put() for Request with url: " + request.url);
     var self = this;
     var promises = [];
     promises.push(cacheHandler.constructRequestResponseCacheData(request, response));
@@ -388,6 +398,11 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    *                  resolves to false.
    */
   OfflineCache.prototype.delete = function (request, options) {
+    if (request) {
+      logger.log("Offline Persistence Toolkit OfflineCache: delete() for Request with url: " + request.url);
+    } else {
+      logger.log("Offline Persistence Toolkit OfflineCache: delete()");
+    }
     var self = this;
 
     return self.keys(request, options).then(function (keysArray) {
@@ -433,6 +448,11 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    * @return {Promise} Returns a promise that resolves to an array of Cache keys.
    */
   OfflineCache.prototype.keys = function (request, options) {
+    if (request) {
+      logger.log("Offline Persistence Toolkit OfflineCache: keys() for Request with url: " + request.url);
+    } else {
+      logger.log("Offline Persistence Toolkit OfflineCache: keys()");
+    }
     var self = this;
 
     if (request) {
@@ -488,6 +508,7 @@ define(["./defaultCacheHandler"], function (cacheHandler) {
    *                   while false otherwise.
    */
   OfflineCache.prototype.hasMatch = function (request, options) {
+    logger.log("Offline Persistence Toolkit OfflineCache: hasMatch() for Request with url: " + request.url);
     var self = this;
     var searchCriteria = cacheHandler.constructSearchCriteria(request, options);
     var ignoreVary = (options && options.ignoreVary);

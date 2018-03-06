@@ -1,6 +1,7 @@
-define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/impl/PersistenceSyncManager', 'persist/persistenceUtils', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'MockFetch'],
-  function (persistenceManager, defaultResponseProxy, PersistenceSyncManager, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, MockFetch) {
+define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'MockFetch', 'impl/logger'],
+  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
+    logger.option('level',  logger.LEVEL_LOG);
     module('persistenceManager', {
       teardown: function () {
         stop();

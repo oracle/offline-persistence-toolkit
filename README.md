@@ -1,4 +1,4 @@
-# offline-persistence-toolkit 1.0.0 #
+# offline-persistence-toolkit 1.1.0 #
 
 offline-persistence-toolkit is a client-side JavaScript library that provides caching and offline support at the HTTP request layer. This support is transparent to the user and is done through the Fetch API and an XHR adapter. HTTP requests made while the client device is offline are captured for replay when connection to the server is restored. Additional capabilities include a persistent storage layer, synchronization manager, binary data support and various configuration APIs for customizing the default behavior. This framework can be used in both ServiceWorker and non-ServiceWorker contexts within web and hybrid mobile apps.
 
@@ -58,16 +58,16 @@ If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the 
 ```javascript
   requirejs.config({
     paths: {
-      'persist' : 'js/libs/persist/v1.0.0/min'
+      'persist' : 'js/libs/persist/v1.1.0/min'
 
       // Other path mappings here
  }
 ```
-For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.0.0/min'` entry to the list of paths.
+For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.1.0/min'` entry to the list of paths.
 
 You can choose the name of the paths prefix. That is, you can use a different value to the ‘persist’ value shown in the examples.
 
-It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.0.0/min'`.
+It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.1.0/min'`.
 
 The toolkit makes heavy use of the [Promise API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise API").  If you are targeting environments that do not support the Promise API, you will need to polyfill this feature.  We recommend the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise "es6-promise polyfill").
 
@@ -83,13 +83,13 @@ And again, if you are using RequireJS, you will need to map paths for these pack
     paths: {
       'pouchdb': 'js/libs/pouchdb-6.3.4',
       'pouchfind': 'js/libs/pouchdb.find',
-      'persist' : 'js/libs/persist/v1.0.0/min'
+      'persist' : 'js/libs/persist/v1.1.0/min'
 
       // Other path mappings here
  }
 
 ```
-pouchdb-find version 3.4 requires PouchDB to be avaialble as a global variable. So if you are using RequireJS, please ensure to add PouchDB to global scope in your main.js. Something like below,
+pouchdb-find version 3.4 requires PouchDB to be available as a global variable. So if you are using RequireJS, please ensure to add PouchDB to global scope in your main.js. Something like below,
 
 ```javascript
 
@@ -105,6 +105,8 @@ pouchdb-find version 3.4 requires PouchDB to be avaialble as a global variable. 
 Repeat the steps shown previously for the `offline-persistence-toolkit` for each of the packages that you have installed (`pouchdb` and `pouchdb-find`). That is, update `oraclejet-build.js` and `appDir/src/js/main-release-paths.json` with corresponding entries.
 
 Unlike the 'persist' path prefix, the path prefixes for the PouchDB packages must be specified as shown above - i.e. these names must be 'pouchdb' and 'pouchfind'.
+
+The toolkit also supports persisting to the device filesystem which requires the [cordova-file-plugin](https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-file/ "cordova-file-plugin").
 
 Note that RequireJS is not a requirement for using the Offline Persistence Toolkit.  The toolkit should be compatible with any JavaScript bundlers/loaders that are capable of processing AMD modules.
 
@@ -169,13 +171,9 @@ The most trivial use of the DefaultResponseProxy looks like this:
 
 ```javascript
 
-  registration.addEventListener('fetch', function() {
-    var responseProxy = defaultResponseProxy.getResponseProxy();
-    var fetchListener = responseProxy.getFetchEventListener();
-    registration.addEventListener('fetch', fetchListener);
-  });
-
-
+  var responseProxy = defaultResponseProxy.getResponseProxy();
+  var fetchListener = responseProxy.getFetchEventListener();
+  registration.addEventListener('fetch', fetchListener);
 
 ```
 
@@ -190,7 +188,7 @@ This is the simplest form of response caching supported by the Offline Persisten
 
 ### What Storage? ###
 
-As mentioned in the previous section, the Offline Persistence Toolkit caches responses to persistence storage locally within the browser/on the device.  The form of this persistence storage is left up to the application developer.  The toolkit supports two choices of storage implementations out of the box: PouchDB or localStorage.  Other storage solutions (e.g. [WebSQL](https://en.wikipedia.org/wiki/Web_SQL_Database "WebSQL") or [file system storage](https://github.com/apache/cordova-plugin-file "file system storage")) could be implemented by providing a custom persistenceStoreFactory.  It is also possible to use a mix of storage solutions - e.g. responses from an endpoint with minimal storage size requirements could be stored in localStorage, whereas a second endpoint with larger storage requirements could be configured to persist to pouchDB.
+As mentioned in the previous section, the Offline Persistence Toolkit caches responses to persistence storage locally within the browser/on the device.  The form of this persistence storage is left up to the application developer.  The toolkit supports three choices of storage implementations out of the box: PouchDB, localStorage, or filesystem storage.  Other storage solutions (e.g. [WebSQL](https://en.wikipedia.org/wiki/Web_SQL_Database "WebSQL")) could be implemented by providing a custom persistenceStoreFactory.  It is also possible to use a mix of storage solutions - e.g. responses from an endpoint with minimal storage size requirements could be stored in localStorage, whereas a second endpoint with larger storage requirements could be configured to persist to pouchDB. If storage of large binary file data is required, then the filesystem storage could be used.
 
 Since it is important for the application developer to determine the preferred type of storage for each use case, the toolkit does not specify a default storage solution.  The app must explicitly configure the preferred storage implementation via the [PersistenceStoreManager API](https://oracle.github.io/offline-persistence-toolkit/PersistenceStoreManager.html "PersistenceStoreManager API").  This preference can be configured globally via a call to persistenceStoreManager.registerDefaultStoreFactory():
 
@@ -397,6 +395,17 @@ var responseProxy = defaultResponseProxy.getResponseProxy(
                 requestHandlerOverride.handleGet: customGetHandler,
                 requestHandlerOverride.handlePost: customPostHandler,
 			  });
+ 
+
+```
+
+### logger ###
+To enable detailed logging information, please set the log level on the toolkit logger:
+
+```javascript
+
+
+logger.option('level',  logger.LEVEL_LOG);
  
 
 ```

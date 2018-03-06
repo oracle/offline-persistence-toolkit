@@ -1,6 +1,7 @@
-define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'persist/persistenceUtils', 'MockFetch'],
-  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, persistenceUtils, MockFetch) {
+define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'simpleJsonShredding', 'persistenceUtils', 'MockFetch', 'impl/logger'],
+  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, persistenceUtils, MockFetch, logger) {
     'use strict';
+    logger.option('level',  logger.LEVEL_LOG);
     module('persistenceSyncManager', {
       setup: function() {
         stop();

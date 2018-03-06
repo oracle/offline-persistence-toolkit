@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils'],
-  function (persistenceManager, persistenceStoreManager, persistenceUtils) {
+define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils', './impl/logger'],
+  function (persistenceManager, persistenceStoreManager, persistenceUtils, logger) {
     'use strict';
   
     /**
@@ -42,6 +42,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
       return function (request, options) {
         if (request.method == 'GET' ||
           request.method == 'HEAD') {
+          logger.log("Offline Persistence Toolkit queryHandlers: OracleRestQueryHandler processing request");
           var urlParams = request.url.split('?');
           var findQuery = {};
           var queryParams;
@@ -269,6 +270,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
       return function (request, options) {
         if (request.method == 'GET' ||
           request.method == 'HEAD') {
+          logger.log("Offline Persistence Toolkit queryHandlers: SimpleQueryHandler processing request");
           // applies to all GET requests. If there are any URL query params
           // then the keys in the parameter are directly mapped to the shredded
           // data fields and values to the shredded data values

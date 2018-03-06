@@ -1,6 +1,7 @@
-define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'MockFetch'],
-  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, MockFetch) {
+define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'MockFetch', 'impl/logger'],
+  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
+    logger.option('level',  logger.LEVEL_LOG);
     module('PersistenceXMLHttpRequest', {
       teardown: function () {
         stop();
@@ -50,7 +51,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             if (this.readyState == 1) {
               ok(this.response === '', 'response is empty');
               ok(!this.responseText, 'responseText is empty');
-              ok(!this.responseType, 'responseType is empty');
+              ok(this.responseType == '', 'responseType is empty');
               ok(this.responseURL === '', 'responseURL is empty');
               ok(this.responseXML === null, 'responseXML is null');
               ok(this.status === 0, 'status is 0');
@@ -62,7 +63,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             } else if (this.readyState == 2) {
               ok(this.response === '', 'response is empty');
               ok(!this.responseText, 'responseText is empty');
-              ok(!this.responseType, 'responseType is empty');
+              ok(this.responseType == '', 'responseType is empty');
               ok(this.responseURL === '', 'responseURL is empty');
               ok(this.responseXML === null, 'responseXML is null');
               ok(this.status === 0, 'status is 0');

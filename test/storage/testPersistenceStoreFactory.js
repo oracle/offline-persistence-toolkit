@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(["persist/PersistenceStore"],
+define(["PersistenceStore"],
        function(PersistenceStore) {
   'use strict';
   

@@ -31,7 +31,7 @@
  * All rights reserved.
  */
 
-define([], function () {
+define(['./impl/logger'], function (logger) {
   'use strict';
   
   /**
@@ -115,7 +115,7 @@ define([], function () {
    * @return {Promise} Returns an instance of a PersistenceStore.
    */
   PersistenceStoreManager.prototype.openStore = function (name, options) {
-
+    logger.log("Offline Persistence Toolkit PersistenceStoreManager: openStore() for name: " + name);
     var allVersions = this._stores[name];
     var version = (options &amp;&amp; options.version) || '0';
 
@@ -132,6 +132,7 @@ define([], function () {
     }
 
     var self = this;
+    logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling createPersistenceStore on factory");
     return factory.createPersistenceStore(name, options).then(function (store) {
       allVersions = allVersions || {};
       allVersions[version] = store;
@@ -184,6 +185,7 @@ define([], function () {
    *                   actually deleted, and false otherwise.
    */
   PersistenceStoreManager.prototype.deleteStore = function (name, options) {
+    logger.log("Offline Persistence Toolkit PersistenceStoreManager: deleteStore() for name: " + name);
     var allversions = this._stores[name];
     if (!allversions) {
       return Promise.resolve(false);
@@ -194,6 +196,7 @@ define([], function () {
         if (!store) {
           return Promise.resolve(false);
         } else {
+          logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
           return store.delete().then(function () {
             delete allversions[version];
             return true;
@@ -227,7 +230,7 @@ define([], function () {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">

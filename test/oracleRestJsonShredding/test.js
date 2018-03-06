@@ -1,6 +1,7 @@
-define(['persist/oracleRestJsonShredding'],
-  function (oracleRestJsonShredding) {
+define(['oracleRestJsonShredding', 'impl/logger'],
+  function (oracleRestJsonShredding, logger) {
     'use strict';
+    logger.option('level',  logger.LEVEL_LOG);
     module('oracleRestJsonShredding');
 
     asyncTest('getShredder()', function (assert) {

@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-define(['../persistenceUtils', '../persistenceStoreManager'],
-  function (persistenceUtils, persistenceStoreManager) {
+define(['../persistenceUtils', '../persistenceStoreManager', './logger'],
+  function (persistenceUtils, persistenceStoreManager, logger) {
   'use strict';
 
   /**
@@ -47,6 +47,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
   DefaultCacheHandler.prototype.constructRequestResponseCacheData = function (request, response) {
     var self = this;
     var dataField = {};
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: constructRequestResponseCacheData()");
     return persistenceUtils.requestToJSON(request).then(function(requestJSONData){
       dataField.requestData = requestJSONData;
       // cache the body-less response if shredder/unshreder is configured
@@ -82,6 +83,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
    *                           {storename: [{key, metadata, value}]}.
    */
   DefaultCacheHandler.prototype.constructShreddedData = function (request, response) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: constructShreddedData()");
     var shredder = this._getShredder(request);
 
     if (!shredder) {
@@ -95,6 +97,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
   };
 
   DefaultCacheHandler.prototype.shredResponse = function (request, response) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: shredResponse()");
     var shredder = this._getShredder(request);
 
     if (!shredder) {
@@ -105,6 +108,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
   };
 
   DefaultCacheHandler.prototype.cacheShreddedData = function(shreddedObjArray) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: cacheShreddedData()");
     var shreddedData = shreddedObjArray.map(_convertShreddedData);
     return _updateShreddedDataStore(shreddedData);
   };
@@ -125,6 +129,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
   };
 
   function _updateShreddedDataForStore(storeName, storeData) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: Updating store with shredded data");
     return  persistenceStoreManager.openStore(storeName).then(function (store) {
       return store.upsertAll(storeData);
     });
@@ -228,6 +233,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
    *                           out from the persisted data.
    */
   DefaultCacheHandler.prototype.constructResponse = function (data) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: constructResponse()");
     return  persistenceUtils.responseFromJSON(data).then(function (response) {
       if (!persistenceUtils.isCachedResponse(response)) {
         // this means the cached response data does not contain the header
@@ -269,6 +275,7 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
    *                           expressions to query out cached request/response.
    */
   DefaultCacheHandler.prototype.constructSearchCriteria = function (request, options) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: constructSearchCriteria()");
     var ignoreSearch = false;
     if (options && options.ignoreSearch !== undefined) {
       ignoreSearch = options.ignoreSearch;
@@ -395,6 +402,12 @@ define(['../persistenceUtils', '../persistenceStoreManager'],
    *                   is filled with content from shredded store.
    */
   DefaultCacheHandler.prototype.fillResponseBodyWithShreddedData = function (request, bodyAbstract, response) {
+    logger.log("Offline Persistence Toolkit DefaultCacheHandler: fillResponseBodyWithShreddedData()");
+    if (request.url != null &&
+      request.url.length > 0 &&
+      response.headers.get('x-oracle-jscpt-response-url') == null) {
+      response.headers.set('x-oracle-jscpt-response-url', request.url);
+    }
     var unshredder = this._getUnshredder(request);
     var shredder = this._getShredder(request);
     if (!unshredder || !shredder || !response || !bodyAbstract || !bodyAbstract.length) {

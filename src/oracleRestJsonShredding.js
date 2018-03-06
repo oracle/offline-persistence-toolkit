@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(['./persistenceUtils'], function (persistenceUtils) {
+define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logger) {
   'use strict';
   
   /**
@@ -38,6 +38,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getShredder = function (storeName, idAttr) {
     return function (response) {
+      logger.log("Offline Persistence Toolkit oracleRestJsonShredding: Shredding Response");
       var responseClone = response.clone();
       var resourceIdentifier = responseClone.headers.get('X-ORACLE-DMS-ECID');
       return responseClone.text().then(function (payload) {
@@ -59,6 +60,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
               resourceType = 'single';
             }
           } catch (err) {
+            logger.log("Offline Persistence Toolkit oracleRestJsonShredding: Error during shredding: " + err);
           }
         }
         return [{
@@ -96,6 +98,7 @@ define(['./persistenceUtils'], function (persistenceUtils) {
    */
   var getUnshredder = function () {
     return function (value, response) {
+      logger.log("Offline Persistence Toolkit oracleRestJsonShredding: Unshredding Response");
       var payload = _buildPayload(value, response);
       return persistenceUtils.setResponsePayload(response, payload).then(function (response) {
         response.headers.set('x-oracle-jscpt-cache-expiration-date', '');

@@ -84,7 +84,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
       }
     });
     Object.defineProperty(this, 'responseType', {
-      value: null,
+      value: '',
       enumerable: true,
       writable: true
     });
@@ -176,6 +176,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
    Duplicates the behavior of native XMLHttpRequest's open function
    */
   PersistenceXMLHttpRequest.prototype.open = function (method, url, async, username, password) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: open() for method: ' + method + ", url: " + url);
     if (typeof async == 'boolean' &&
       !async) {
       throw new Error("InvalidAccessError: Failed to execute 'open' on 'XMLHttpRequest': Synchronous requests are disabled on the XHR Adapter");
@@ -187,6 +188,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
     var isFile = _isFileRequest(url);
 
     if (isFile) {
+      logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: open called for a File url');
       var self = this;
       this._passthroughXHR = new self._browserXMLHttpRequest();
       this._passthroughXHR.onreadystatechange = function () {
@@ -198,11 +200,13 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
           self._responseHeaders = self._passthroughXHR.responseHeaders;
           self._responseType = self._passthroughXHR.responseType;
           if (self._responseType == null ||
+            self._responseType == '' ||
             self._responseType == 'text') {
             self._responseText = self._passthroughXHR.responseText;
           }
           self._responseURL = self._passthroughXHR.responseURL;
           if (self._responseType == null ||
+            self._responseType == '' ||
             self._responseType == 'document') {
             self._responseXML = self._passthroughXHR.responseXML;
           }
@@ -227,6 +231,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
    Duplicates the behavior of native XMLHttpRequest's setRequestHeader function
    */
   PersistenceXMLHttpRequest.prototype.setRequestHeader = function (header, value) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: setRequestHeader() with header: ' + header + ' ,value: ' + value);
     _verifyState(this);
 
     var oldValue = this._requestHeaders[header];
@@ -239,6 +244,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
    Duplicates the behavior of native XMLHttpRequest's send function
    */
   PersistenceXMLHttpRequest.prototype.send = function (data) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: send()');
     if (this._passthroughXHR) {
       if (this.responseType != null) {
         this._passthroughXHR.responseType = this.responseType;
@@ -264,13 +270,14 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
    Duplicates the behavior of native XMLHttpRequest's abort function
    */
   PersistenceXMLHttpRequest.prototype.abort = function () {
-    logger.log('abort() is not supported by the XHR Adapter');
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: abort() is not supported by the XHR Adapter');
   };
 
   /*
    Duplicates the behavior of native XMLHttpRequest's getResponseHeader function
    */
   PersistenceXMLHttpRequest.prototype.getResponseHeader = function (header) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: getResponseHeader() for header: ' + header);
     if (this._readyState < PersistenceXMLHttpRequest.HEADERS_RECEIVED) {
       return null;
     }
@@ -290,6 +297,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
    Duplicates the behavior of native XMLHttpRequest's getAllResponseHeaders function
    */
   PersistenceXMLHttpRequest.prototype.getAllResponseHeaders = function () {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: getAllResponseHeaders()');
     var self = this;
 
     if (this._readyState < PersistenceXMLHttpRequest.HEADERS_RECEIVED) {
@@ -309,18 +317,21 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
    Duplicates the behavior of native XMLHttpRequest's overrideMimeType function
    */
   PersistenceXMLHttpRequest.prototype.overrideMimeType = function (mimeType) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: overrideMimeType() for mimeType: ' + mimeType);
     if (typeof mimeType === 'string') {
       this._forceMimeType = mimeType.toLowerCase();
     }
   };
 
-  PersistenceXMLHttpRequest.prototype.addEventListener = function (event, listener) {
-    this._eventListeners[event] = this._eventListeners[event] || [];
-    this._eventListeners[event].push(listener);
+  PersistenceXMLHttpRequest.prototype.addEventListener = function (eventType, listener) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: addEventListener() for event type: ' + eventType);
+    this._eventListeners[eventType] = this._eventListeners[eventType] || [];
+    this._eventListeners[eventType].push(listener);
   };
 
-  PersistenceXMLHttpRequest.prototype.removeEventListener = function (event, listener) {
-    var listeners = this._eventListeners[event] || [];
+  PersistenceXMLHttpRequest.prototype.removeEventListener = function (eventType, listener) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: removeEventListener() for event type: ' + eventType);
+    var listeners = this._eventListeners[eventType] || [];
     var i;
     var listenersCount = listeners.length;
     for (i = 0; i < listenersCount; i++) {
@@ -331,6 +342,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
   };
 
   PersistenceXMLHttpRequest.prototype.dispatchEvent = function (event) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: dispatchEvent() for event type: ' + event.type);
     var self = this;
     var type = event.type;
     var listeners = this._eventListeners[type] || [];
@@ -423,6 +435,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
   };
 
   function _processResponse(self, request, response) {
+    logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: Processing Response');
     _setResponseHeaders(self, response.headers);
 
     var contentType = response.headers.get('Content-Type');
@@ -435,6 +448,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
       // above is temp workaround before we figure out when to invoke blob()
       // when to invoke arrayBuffer from the response object.
       // ideally we should get the information from request.responseType
+      logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: Calling response.blob()');
       response.blob().then(function (blobData) {
         self._responseType = 'blob';
         self._response = blobData;
@@ -447,6 +461,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
       });
     } else if (contentType &&
       contentType.indexOf('image/') !== -1) {
+      logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: Calling response.arrayBuffer()');
       response.arrayBuffer().then(function (aBuffer) {
         self._responseType = 'arrayBuffer';
         self._response = aBuffer;
@@ -460,6 +475,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
       });
     } else {
       response.text().then(function (data) {
+        logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: Calling response.text()');
         self._responseType = '';
         self._response = data;
         self._responseText = data;

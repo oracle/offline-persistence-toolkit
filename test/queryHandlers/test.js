@@ -1,6 +1,7 @@
-define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/queryHandlers', 'persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'MockFetch'],
-  function (persistenceManager, defaultResponseProxy, queryHandlers, simpleJsonShredding, oracleRestJsonShredding, persistenceStoreManager, localPersistenceStoreFactory, MockFetch) {
+define(['persistenceManager', 'defaultResponseProxy', 'queryHandlers', 'simpleJsonShredding', 'oracleRestJsonShredding', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'MockFetch', 'impl/logger'],
+  function (persistenceManager, defaultResponseProxy, queryHandlers, simpleJsonShredding, oracleRestJsonShredding, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
+    logger.option('level',  logger.LEVEL_LOG);
     module('queryHandlers', {
       teardown: function () {
         stop();
