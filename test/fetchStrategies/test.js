@@ -27,10 +27,17 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
     persistenceManager.init().then(function () {
 
       asyncTest('getCacheFirstStrategy()', function (assert) {
-        expect(6);
+        expect(8);
         mockFetch.addRequestReply('GET', '/testCacheFirst', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}])
+        }, function () {
+        });
+        mockFetch.addRequestReply('GET', '/testCacheFirst?offset=1', {
+          status: 200,
+          body: JSON.stringify([
             {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
             {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}])
         }, function () {
@@ -49,19 +56,27 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
           fetch('/testCacheFirst').then(function (response) {
             assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response');
             assert.ok(true, 'Received Response when online');
-            fetch('/testCacheFirst').then(function (response) {
-              assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
-              assert.ok(true, 'Received Cached Response when online');
-              persistenceManager.forceOffline(true);
-              fetch('/testCacheFirst').then(function (response) {
-                assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
-                assert.ok(true, 'Received Cached Response when offline');
-                registration.unregister().then(function (unregistered) {
-                  mockFetch.clearAllRequestReplies();
-                  start();
-                });
-              });
-            });
+            return fetch('/testCacheFirst');
+          }).then(function (response) {
+            assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
+            assert.ok(true, 'Received Cached Response when online');
+            persistenceManager.forceOffline(true);
+            return fetch('/testCacheFirst');
+          }).then(function (response) {
+            assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
+            assert.ok(true, 'Received Cached Response when offline');
+            persistenceManager.forceOffline(false);
+            return fetch('/testCacheFirst?offset=1');
+          }).then(function (response) {
+            assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response'); 
+            persistenceManager.forceOffline(true);
+            return fetch('/testCacheFirst?offset=1');
+          }).then(function (response) {
+            assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
+            return registration.unregister();
+          }).then(function (unregistered) {
+            mockFetch.clearAllRequestReplies();
+            start();
           });
         });
       });
