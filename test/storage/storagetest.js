@@ -104,7 +104,7 @@ define(['persistenceStoreManager', 'localPersistenceStoreFactory',
                {name:'pouchDB',factory:pouchDBPersistenceStoreFactory}])
     .test('basic storage test ', function (testParam, assert) {
     console.log('testing ' + testParam.name);
-    var testStoreName = 'testStore-' + testParam.name;
+    var testStoreName = 'http://' + testParam.name;
     var testStore;
     persistenceStoreManager.registerStoreFactory(testStoreName, testParam.factory);
     return new Promise(function (resolve, reject) {

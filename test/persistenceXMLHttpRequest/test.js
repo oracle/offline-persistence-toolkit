@@ -27,7 +27,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager',
     persistenceManager.init().then(function () {
 
       asyncTest('open()/send()', function (assert) {
-        expect(76);
+        expect(108);
         mockFetch.addRequestReply('GET', '/testOpen', {
           status: 200,
           statusText: 'OK',
@@ -49,6 +49,14 @@ define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager',
             ok(event.type == 'readystatechange', 'readystatechange event');
             
             if (this.readyState == 1) {
+              ok(this.onabort === null, 'onabort is null');
+              ok(this.onerror === null, 'onerror is null');
+              ok(this.onabort === null, 'onabort is null');
+              ok(this.onload === null, 'onload is null');
+              ok(this.onloadend === null, 'onloadend is null');
+              ok(this.onloadstart === null, 'onloadstart is null');
+              ok(this.onprogress === null, 'onprogress is null');
+              ok(this.ontimeout === null, 'ontimeout is null');
               ok(this.response === '', 'response is empty');
               ok(!this.responseText, 'responseText is empty');
               ok(this.responseType == '', 'responseType is empty');
