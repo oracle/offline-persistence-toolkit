@@ -1,4 +1,4 @@
-# offline-persistence-toolkit 1.1.3 #
+# offline-persistence-toolkit 1.1.4 #
 
 ## Introduction ##
 
