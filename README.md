@@ -69,6 +69,14 @@ You can choose the name of the paths prefix. That is, you can use a different va
 
 It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.1.4/min'`.
 
+Versions of the toolkit are also available on CDN under the latest JET release. e.g. 
+
+https://static.oracle.com/cdn/jet/v5.1.0/3rdparty/opt/debug
+
+or
+
+https://static.oracle.com/cdn/jet/v5.1.0/3rdparty/opt/min
+
 The toolkit makes heavy use of the [Promise API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise API").  If you are targeting environments that do not support the Promise API, you will need to polyfill this feature.  We recommend the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise "es6-promise polyfill").
 
 The toolkit does not have a dependency on a specific client-side storage solution, but does include a PouchDB adapter.  If you plan to use PouchDB for your persistent store, you will need to install the following PouchDB packages (This version of the toolkit is certified with version 6.3.4 of pouchdb and requires apps to use this version):
