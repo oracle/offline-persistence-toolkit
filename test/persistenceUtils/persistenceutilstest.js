@@ -1,4 +1,4 @@
-define(['persistenceUtils', 'formData', 'impl/logger'],
+define(['persist/persistenceUtils', 'formData', 'persist/impl/logger'],
   function(persistenceUtils, formData, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);

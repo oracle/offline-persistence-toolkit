@@ -1,4 +1,4 @@
-define(['persistenceManager', 'defaultResponseProxy', 'queryHandlers', 'simpleJsonShredding', 'oracleRestJsonShredding', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/queryHandlers', 'persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'MockFetch', 'persist/impl/logger'],
   function (persistenceManager, defaultResponseProxy, queryHandlers, simpleJsonShredding, oracleRestJsonShredding, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
@@ -29,7 +29,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'queryHandlers', 'simpleJs
         });
       }
     });
-    
+
     var versionedLocalPersistenceStoreFactory = (function () {
       return {
         'createPersistenceStore': function (name, options) {

@@ -1,4 +1,4 @@
-define(['oracleRestJsonShredding', 'impl/logger'],
+define(['persist/oracleRestJsonShredding', 'persist/impl/logger'],
   function (oracleRestJsonShredding, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);

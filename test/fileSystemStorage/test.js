@@ -1,8 +1,8 @@
-define(['persistenceManager', 'defaultResponseProxy', 'impl/PersistenceSyncManager', 'persistenceUtils', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'fileSystemPersistenceStoreFactory', 'simpleBinaryDataShredding', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/impl/PersistenceSyncManager', 'persist/persistenceUtils', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/fileSystemPersistenceStoreFactory', 'persist/simpleBinaryDataShredding', 'MockFetch', 'persist/impl/logger'],
   function (persistenceManager, defaultResponseProxy, PersistenceSyncManager, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, fileSystemPersistenceStoreFactory, simpleBinaryDataShredding, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('persistenceManager', {
+    module('persist/persistenceManager', {
       teardown: function () {
         stop();
         persistenceManager.forceOffline(false);
@@ -98,7 +98,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'impl/PersistenceSyncManag
           });
         }
       });
-      
+
       var generateBlob = function () {
         return new Promise(function(resolve, reject) {
           var request = new XMLHttpRequest();

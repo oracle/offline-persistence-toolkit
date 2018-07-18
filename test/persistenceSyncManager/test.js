@@ -1,4 +1,4 @@
-define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'simpleJsonShredding', 'persistenceUtils', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'persist/persistenceUtils', 'MockFetch', 'persist/impl/logger'],
   function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, persistenceUtils, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
@@ -24,7 +24,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager',
         });
       }
     });
-    
+
     var versionedLocalPersistenceStoreFactory = (function () {
       return {
         'createPersistenceStore': function (name, options) {
@@ -32,7 +32,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager',
         }
       };
     }());
-    
+
     var mockFetch = new MockFetch();
     persistenceStoreManager.registerDefaultStoreFactory(versionedLocalPersistenceStoreFactory);
     persistenceManager.init().then(function () {
@@ -475,7 +475,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager',
           var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
           registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
 
-          fetch('/testFetchError').then(function (response) {  
+          fetch('/testFetchError').then(function (response) {
             }, function(error) {
             persistenceManager.getSyncManager().getSyncLog().then(function (syncLog) {
               assert.ok(syncLog.length == 1, 'SyncLog contains one item');
@@ -600,13 +600,13 @@ define(['persistenceManager', 'defaultResponseProxy', 'persistenceStoreManager',
               });
               persistenceManager.forceOffline(false);
               return persistenceManager.getSyncManager().sync();
-            }).then(function () {}, 
+            }).then(function () {},
             function(err) {
               assert.ok(true, 'Rejected on server error');
               mockFetch.clearAllRequestReplies();
               mockFetch.addRequestReply('GET', '/testServerError', new Promise.reject('fetch rejected'));
               return persistenceManager.getSyncManager().sync();
-            }).then(function () {}, 
+            }).then(function () {},
             function(err) {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');

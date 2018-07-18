@@ -2,48 +2,48 @@
   requirejs.config({
     bundles:
     {
-      'opt/offline-persistence-toolkit-core-{pkg.version}': [
-        'persistenceUtils',
-        'impl/logger',
-        'impl/PersistenceXMLHttpRequest',
-        'persistenceStoreManager',
-        'impl/defaultCacheHandler',
-        'impl/PersistenceSyncManager',
-        'impl/OfflineCache',
-        'impl/offlineCacheManager',
-        'impl/fetch',
-        'persistenceManager'
+      'persist/offline-persistence-toolkit-core-{pkg.version}': [
+        'persist/persistenceUtils',
+        'persist/impl/logger',
+        'persist/impl/PersistenceXMLHttpRequest',
+        'persist/persistenceStoreManager',
+        'persist/impl/defaultCacheHandler',
+        'persist/impl/PersistenceSyncManager',
+        'persist/impl/OfflineCache',
+        'persist/impl/offlineCacheManager',
+        'persist/impl/fetch',
+        'persist/persistenceManager'
       ],
-      'opt/offline-persistence-toolkit-pouchdbstore-{pkg.version}': [
-        'PersistenceStore',
-        'impl/storageUtils',
-        'pouchdb-browser-6.3.4',
-        'impl/pouchDBPersistenceStore',
-        'pouchDBPersistenceStoreFactory',
-        'persistenceStoreFactory'
+      'persist/offline-persistence-toolkit-pouchdbstore-{pkg.version}': [
+        'persist/PersistenceStore',
+        'persist/impl/storageUtils',
+        'persist/pouchdb-browser-6.3.4',
+        'persist/impl/pouchDBPersistenceStore',
+        'persist/pouchDBPersistenceStoreFactory',
+        'persist/persistenceStoreFactory'
       ],
-      'opt/offline-persistence-toolkit-localstore-{pkg.version}': [
-        'PersistenceStore',
-        'impl/storageUtils',
-        'impl/keyValuePersistenceStore',
-        'impl/localPersistenceStore',
-        'localPersistenceStoreFactory',
-        'persistenceStoreFactory'
+      'persist/offline-persistence-toolkit-localstore-{pkg.version}': [
+        'persist/PersistenceStore',
+        'persist/impl/storageUtils',
+        'persist/impl/keyValuePersistenceStore',
+        'persist/impl/localPersistenceStore',
+        'persist/localPersistenceStoreFactory',
+        'persist/persistenceStoreFactory'
       ],
-      'opt/offline-persistence-toolkit-filesystemstore-{pkg.version}': [
-        'impl/storageUtils',
-        'impl/keyValuePersistenceStore',
-        'impl/fileSystemPersistenceStore',
-        'fileSystemPersistenceStoreFactory'
+      'persist/offline-persistence-toolkit-filesystemstore-{pkg.version}': [
+        'persist/impl/storageUtils',
+        'persist/impl/keyValuePersistenceStore',
+        'persist/impl/fileSystemPersistenceStore',
+        'persist/fileSystemPersistenceStoreFactory'
       ],
-      'opt/offline-persistence-toolkit-responseproxy-{pkg.version}': [
-        'fetchStrategies',
-        'cacheStrategies',
-        'defaultResponseProxy',
-        'simpleJsonShredding',
-        'oracleRestJsonShredding',
-        'simpleBinaryDataShredding',
-        'queryHandlers'
+      'persist/offline-persistence-toolkit-responseproxy-{pkg.version}': [
+        'persist/fetchStrategies',
+        'persist/cacheStrategies',
+        'persist/defaultResponseProxy',
+        'persist/simpleJsonShredding',
+        'persist/oracleRestJsonShredding',
+        'persist/simpleBinaryDataShredding',
+        'persist/queryHandlers'
       ]
     }
   })

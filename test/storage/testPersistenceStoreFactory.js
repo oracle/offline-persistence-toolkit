@@ -3,10 +3,10 @@
  * All rights reserved.
  */
 
-define(["PersistenceStore"],
+define(["persist/PersistenceStore"],
        function(PersistenceStore) {
   'use strict';
-  
+
   var TestPersistenceStoreFactory = (function () {
 
     function _createPersistenceStore (name, options) {

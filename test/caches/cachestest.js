@@ -1,4 +1,4 @@
-define(['persistenceStoreManager', 'localPersistenceStoreFactory', 'impl/offlineCacheManager', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/impl/offlineCacheManager', 'MockFetch', 'persist/impl/logger'],
   function(persistenceStoreManager, localPersistenceStoreFactory, offlineCacheManager, MockFetch, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);

@@ -1,4 +1,4 @@
-define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persistenceUtils', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/fetchStrategies', 'persist/persistenceUtils', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'MockFetch', 'persist/impl/logger'],
   function (persistenceManager, defaultResponseProxy, fetchStrategies, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
@@ -21,7 +21,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
         });
       }
     });
-    
+
     var versionedLocalPersistenceStoreFactory = (function () {
       return {
         'createPersistenceStore': function (name, options) {
@@ -62,7 +62,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
           start();
         });
       });
-      
+
       asyncTest('getHttpCacheHeaderStrategy: max-age', function (assert) {
         expect(5);
         mockFetch.addRequestReply('GET', '/testMaxAge', {
@@ -94,7 +94,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
           start();
         });
       });
-      
+
       asyncTest('getHttpCacheHeaderStrategy: If-Match', function (assert) {
         expect(10);
         mockFetch.addRequestReply('GET', '/testIfMatch', {
@@ -150,7 +150,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
           start();
         });
       });
-      
+
       asyncTest('getHttpCacheHeaderStrategy: must-revalidate', function (assert) {
         expect(4);
         mockFetch.addRequestReply('GET', '/testMustRevalidate', {
@@ -179,8 +179,8 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
           start();
         });
       });
-      
-      asyncTest('getHttpCacheHeaderStrategy: no-cache', function (assert) { 
+
+      asyncTest('getHttpCacheHeaderStrategy: no-cache', function (assert) {
         expect(5);
         mockFetch.addRequestReply('GET', '/testNoCache', {
           status: 200,
@@ -206,8 +206,8 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
           start();
         });
       });
-      
-      asyncTest('getHttpCacheHeaderStrategy: no-store', function (assert) { 
+
+      asyncTest('getHttpCacheHeaderStrategy: no-store', function (assert) {
         expect(5);
         mockFetch.addRequestReply('GET', '/testNoStore', {
           status: 200,
@@ -237,4 +237,4 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
     });
   });
 
- 
+

@@ -4,12 +4,12 @@
   requirejs.config({
     paths: {
       'promise': '../lib/es6-promise/es6-promise.min',
-      'opt': '../../dist/debug',
+      'persist': '../../dist/debug',
       'object-assign': '../lib/phantomjs-object-assign/object-assign'
     },
     shim: {
       'storagetest': {
-        deps: ['promise', 'object-assign', 'opt/bundles-config']
+        deps: ['promise', 'object-assign', 'persist/bundles-config']
       }
     }
   });

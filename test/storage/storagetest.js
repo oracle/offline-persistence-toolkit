@@ -1,16 +1,16 @@
-define(['persistenceStoreManager', 'localPersistenceStoreFactory',
-        'pouchDBPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persistenceManager', 'impl/logger'],
+define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
+        'persist/pouchDBPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persist/persistenceManager', 'persist/impl/logger'],
   function(persistenceStoreManager, localPersistenceStoreFactory,
            pouchDBPersistenceStoreFactory, testPersistenceStoreFactory, persistenceManager, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
- 
+
   module('storagetest');
- 
+
   // helper function that compares expected result set with the actual result
   // set. Return true if they match, false otherwise. The expected/actual
-  // result set are both arrays. They should contain the same number of 
-  // element, and each element should match. The order of the element in the 
+  // result set are both arrays. They should contain the same number of
+  // element, and each element should match. The order of the element in the
   // array does not matters.
   var matchResultSetIgnoreOrder = function (expected, actual) {
     if (!expected && !actual) {
@@ -655,7 +655,7 @@ define(['persistenceStoreManager', 'localPersistenceStoreFactory',
       valueToInsert: {
         key: 'testVerDetKey1',
         metadata: {
-          versionIdentifier: 'v1' 
+          versionIdentifier: 'v1'
         },
         value: {
           myValue: 'value1'
@@ -804,7 +804,7 @@ define(['persistenceStoreManager', 'localPersistenceStoreFactory',
       });
     });
   });
-  
+
   QUnit.cases([{name:'local',factory:localPersistenceStoreFactory},
                {name:'pouchDB',factory:pouchDBPersistenceStoreFactory}])
   .test('test store version detection', function (testParam, assert) {
@@ -905,7 +905,7 @@ define(['persistenceStoreManager', 'localPersistenceStoreFactory',
     var options2 = {index: ['fullName']};
     persistenceStoreManager.registerStoreFactory(testStoreName, testParam.factory);
     console.log('test store index on ' + testParam.name);
-    
+
     return new Promise(function (resolve, reject) {
       persistenceStoreManager.deleteStore(testStoreName).then(function () {
         return persistenceStoreManager.openStore(testStoreName, options1);

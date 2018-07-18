@@ -1,8 +1,8 @@
-define(['persistenceManager', 'persistenceUtils', 'defaultResponseProxy', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'simpleJsonShredding', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'MockFetch', 'persist/impl/logger'],
   function (persistenceManager, persistenceUtils, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('defaultResponseProxy', {
+    module('persist/defaultResponseProxy', {
       teardown: function () {
         stop();
         persistenceManager.forceOffline(false);
@@ -236,8 +236,8 @@ define(['persistenceManager', 'persistenceUtils', 'defaultResponseProxy', 'persi
           };
           var options = {requestHandlerOverride: {handleGet: handleGet,
                                                   handlePost: handlePost,
-                                                  handlePatch: handlePatch, 
-                                                  handlePut: handlePut, 
+                                                  handlePatch: handlePatch,
+                                                  handlePut: handlePut,
                                                   handleDelete: handleDelete,
                                                   handleOptions: handleOptions}};
           var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
@@ -285,7 +285,7 @@ define(['persistenceManager', 'persistenceUtils', 'defaultResponseProxy', 'persi
           var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
           registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
           var updateBody = JSON.stringify({DepartmentId: 10, DepartmentName: 'Administration123', LocationId: 200, ManagerId: 300});
-          
+
           fetch('/testDefaultHandler').then(function (response) {
             persistenceManager.forceOffline(true);
             var request = new Request('/testDefaultHandler', {method: 'POST'});
@@ -435,7 +435,7 @@ define(['persistenceManager', 'persistenceUtils', 'defaultResponseProxy', 'persi
             assert.ok(true, 'Mock Fetch received Request when online');
           });
 
-      
+
           persistenceManager.register({
             scope: '/blobResponse'
           }).then(function (registration) {

@@ -1,4 +1,4 @@
-define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persistenceUtils', 'persistenceStoreManager', 'localPersistenceStoreFactory', 'MockFetch', 'impl/logger'],
+define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/fetchStrategies', 'persist/persistenceUtils', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'MockFetch', 'persist/impl/logger'],
   function (persistenceManager, defaultResponseProxy, fetchStrategies, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
@@ -42,7 +42,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
             {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}])
         }, function () {
         });
-        
+
         var serverCallback = function(request, response) {
           return Promise.resolve(response);
         };
@@ -68,7 +68,7 @@ define(['persistenceManager', 'defaultResponseProxy', 'fetchStrategies', 'persis
             persistenceManager.forceOffline(false);
             return fetch('/testCacheFirst?offset=1');
           }).then(function (response) {
-            assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response'); 
+            assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response');
             persistenceManager.forceOffline(true);
             return fetch('/testCacheFirst?offset=1');
           }).then(function (response) {

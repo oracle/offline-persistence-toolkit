@@ -1,4 +1,4 @@
-define(['impl/logger'],
+define(['persist/impl/logger'],
   function (logger) {
     'use strict';
     module('logger');

@@ -1,4 +1,4 @@
-define(['simpleJsonShredding', 'impl/logger'],
+define(['persist/simpleJsonShredding', 'persist/impl/logger'],
   function (simpleJsonShredding, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
