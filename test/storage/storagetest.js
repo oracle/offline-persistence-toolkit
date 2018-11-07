@@ -979,6 +979,20 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
           return Promise.reject({message: 'cannot find the inserted value.'});
         } else {
           assert.ok(true, 'first row is found.');
+          var findExpression = {
+            selector: {key: {$eq: 'testBinaryKey1'}},
+            fields: ['value.logo']
+          }
+          return testStore.find(findExpression);
+        }
+      }).then(function (valueFound) {
+        valueFound = valueFound[0].value;
+        if (!valueFound || !valueFound.logo ||
+            blobFromStringSize !== valueFound.logo.size) {
+          assert.ok(false, 'first row cannot be found.');
+          return Promise.reject({message: 'cannot find the inserted value.'});
+        } else {
+          assert.ok(true, 'first row is found.');
           return testStore.upsert('testBinaryKey2',
                                   {created: 98943434},
                                   {logo: blobFromArray});

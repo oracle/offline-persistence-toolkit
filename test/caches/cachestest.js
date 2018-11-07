@@ -185,7 +185,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       response: new Response('response body for all departments compressed with gzip random', {
                       headers: new Headers({
                         'Content-Encoding': 'gzip random',
-                        Vary: 'test-accept-encoding'
+                        Vary: 'test-accept-encoding, test-accept-encoding1'
                       })
                     })
     }];

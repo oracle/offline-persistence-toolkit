@@ -189,6 +189,7 @@ define(['../persistenceUtils', '../persistenceStoreManager', './logger'],
             var varyFields = varyValue.split(',');
             for (var index = 0; index < varyFields.length; index++) {
               var varyField = varyFields[index];
+              varyField = varyField.trim();
               var varyValue = requestHeaders ? requestHeaders.get(varyField) : 'undefined';
               key += varyField + '=' + varyValue;
             }
