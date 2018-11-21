@@ -433,7 +433,7 @@ define(['../persistenceUtils', '../persistenceStoreManager', './logger'],
           return store.findByKey(storeEntry.keys[0]);
         } else {
           var transformedKeys = storeEntry.keys.map(function (keyValue) {
-            return {key: keyValue};
+            return {key: {$eq: keyValue}};
           });
           var findExpression = {
             selector: {
