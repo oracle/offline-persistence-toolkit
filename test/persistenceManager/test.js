@@ -19,9 +19,70 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
     });
 
     var mockFetch = new MockFetch();
-    persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
     persistenceManager.init().then(function () {
-
+      asyncTest('getRegistration()', function (assert) {
+        expect(2);
+        persistenceManager.register({
+          scope: '/testRegistration'
+        }).then(function (registration) {
+          persistenceManager.getRegistration('/testRegistration').then(function (regObj) {
+            assert.ok(registration === regObj, 'getRegistration() returned the registration object');
+            registration.unregister().then(function (unregistered) {
+              assert.ok(unregistered == true, 'unregistered scope');
+              start();
+            });
+          });
+        });
+      });
+      asyncTest('getRegistrations()', function (assert) {
+        expect(3);
+        persistenceManager.register({
+          scope: '/testRegistrations'
+        }).then(function (registration) {
+          persistenceManager.getRegistrations().then(function (regObjArray) {
+            assert.ok(regObjArray.length == 1, 'getRegistrations() returned an array of one registration obj');
+            assert.ok(registration === regObjArray[0], 'getRegistrations() array contains the registration object');
+            registration.unregister().then(function (unregistered) {
+              assert.ok(unregistered == true, 'unregistered scope');
+              start();
+            });
+          });
+        });
+      });
+      asyncTest('Remove all registrations', function (assert) {
+        expect(1);
+        persistenceManager.register({
+          scope: '/testRegistration1'
+        }).then(function () {
+          return persistenceManager.register({
+            scope: '/testRegistration2'
+          });
+        }).then(function () {
+          return persistenceManager.register({
+            scope: '/testRegistration3'
+          });
+        }).then(function () {
+          return persistenceManager.register({
+            scope: '/testRegistration4'
+          });
+        }).then(function () {
+          persistenceManager.getRegistrations().then(function (regObjArray) {
+            var unregisterPromiseArray = [];
+            for (var i = 0; i < regObjArray.length; i++) {
+              unregisterPromiseArray.push(regObjArray[i].unregister());
+            }
+            return Promise.all(unregisterPromiseArray).then(function (resp) {
+              persistenceManager.getRegistrations().then(function (regObjArray) {
+                assert.ok(regObjArray.length == 0, 'Unregistered all registrations');
+                start();
+                return Promise.resolve();
+              });
+            });
+          });
+        });
+      });
+      
+      persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
       asyncTest('forceOffline()', function (assert) {
         expect(6);
         mockFetch.addRequestReply('GET', '/testOnline', {
@@ -112,67 +173,6 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
                   assert.ok(response instanceof Response, 'Received Response when not registered');
                   start();
                 });
-              });
-            });
-          });
-        });
-      });
-      asyncTest('getRegistration()', function (assert) {
-        expect(2);
-        persistenceManager.register({
-          scope: '/testRegistration'
-        }).then(function (registration) {
-          persistenceManager.getRegistration('/testRegistration').then(function (regObj) {
-            assert.ok(registration === regObj, 'getRegistration() returned the registration object');
-            registration.unregister().then(function (unregistered) {
-              assert.ok(unregistered == true, 'unregistered scope');
-              start();
-            });
-          });
-        });
-      });
-      asyncTest('getRegistrations()', function (assert) {
-        expect(3);
-        persistenceManager.register({
-          scope: '/testRegistrations'
-        }).then(function (registration) {
-          persistenceManager.getRegistrations().then(function (regObjArray) {
-            assert.ok(regObjArray.length == 1, 'getRegistrations() returned an array of one registration obj');
-            assert.ok(registration === regObjArray[0], 'getRegistrations() array contains the registration object');
-            registration.unregister().then(function (unregistered) {
-              assert.ok(unregistered == true, 'unregistered scope');
-              start();
-            });
-          });
-        });
-      });
-      asyncTest('Remove all registrations', function (assert) {
-        expect(1);
-        persistenceManager.register({
-          scope: '/testRegistration1'
-        }).then(function () {
-          return persistenceManager.register({
-            scope: '/testRegistration2'
-          });
-        }).then(function () {
-          return persistenceManager.register({
-            scope: '/testRegistration3'
-          });
-        }).then(function () {
-          return persistenceManager.register({
-            scope: '/testRegistration4'
-          });
-        }).then(function () {
-          persistenceManager.getRegistrations().then(function (regObjArray) {
-            var unregisterPromiseArray = [];
-            for (var i = 0; i < regObjArray.length; i++) {
-              unregisterPromiseArray.push(regObjArray[i].unregister());
-            }
-            return Promise.all(unregisterPromiseArray).then(function (resp) {
-              persistenceManager.getRegistrations().then(function (regObjArray) {
-                assert.ok(regObjArray.length == 0, 'Unregistered all registrations');
-                start();
-                return Promise.resolve();
               });
             });
           });

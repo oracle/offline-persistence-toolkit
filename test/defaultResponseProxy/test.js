@@ -35,7 +35,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
     persistenceManager.init().then(function () {
 
       asyncTest('getResponseProxy() shredder/unshredder', function (assert) {
-        expect(7);
+        expect(6);
         mockFetch.addRequestReply('GET', '/testShredder', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},

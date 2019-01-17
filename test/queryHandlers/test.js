@@ -105,7 +105,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
         });
       });
       asyncTest('getOracleRestQueryHandler', function (assert) {
-        expect(23);
+        expect(25);
         mockFetch.addRequestReply('GET', '/testOracleRestQuery', {
           status: 200,
           body: JSON.stringify({items: [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -151,6 +151,12 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
             }).then(function (responseData) {
               assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
               return fetch('/testOracleRestQuery/556');
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.DepartmentName == 'BB', 'Returned the correct department');
+              return fetch('/testOracleRestQuery/556?');
             }).then(function (response) {
               assert.ok(true, 'Received Response when offline');
               return response.json();

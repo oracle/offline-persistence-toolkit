@@ -412,7 +412,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
     function _getRequestUrlId(request) {
       var urlTokens = request.url.split('/');
       if (urlTokens.length > 1) {
-        return urlTokens[urlTokens.length - 1];
+        return urlTokens[urlTokens.length - 1].split('?')[0];
       }
       return null;
     };
@@ -420,8 +420,8 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
     function _getRequestCollectionUrl(request) {
       var urlTokens = request.url.split('/');
       if (urlTokens.length > 1) {
-        var id = _getRequestUrlId(request);
-        return request.url.substring(0, request.url.length - id.length - 1);
+        urlTokens.pop();
+        return urlTokens.join('/');
       }
       return null;
     };
