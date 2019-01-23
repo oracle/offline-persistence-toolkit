@@ -5,11 +5,13 @@
     paths: {
       'promise': '../lib/es6-promise/es6-promise.min',
       'persist': '../../dist/debug',
-      'MockFetch': '../lib/mockfetch/MockFetch'
+      'MockFetch': '../lib/mockfetch/MockFetch',
+      'object-assign': '../lib/phantomjs-object-assign/object-assign',
+      'get-own-property-symbols': '../lib/phantomjs-get-own-property-symbols/get-own-property-symbols'
     },
     shim: {
       'test': {
-        deps: ['promise', 'persist/bundles-config']
+        deps: ['promise', 'object-assign', 'get-own-property-symbols', 'persist/bundles-config']
       }
     }
   });

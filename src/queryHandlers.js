@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils', './impl/logger'],
-  function (persistenceManager, persistenceStoreManager, persistenceUtils, logger) {
+define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils', './impl/logger', './impl/sql-where-parser.min'],
+  function (persistenceManager, persistenceStoreManager, persistenceUtils, logger, sqlWhereParser) {
     'use strict';
   
     /**
@@ -142,7 +142,9 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
           return persistenceManager.getCache().match(request, {ignoreSearch: true}).then(function (response) {
             if (response) {
               var hasMore = false;
+              var totalResults = 0;
               if (results) {
+                totalResults = results.length;
                 if (offset
                   && offset > 0) {
                   if (offset < results.length)
@@ -191,6 +193,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
                             payloadJson.offset = parseInt(offset, 10);
                           }
                           payloadJson.hasMore = hasMore;
+                          payloadJson.totalResults = totalResults;
                         }
                         return persistenceUtils.setResponsePayload(response, payloadJson);
                       } catch (err) {
@@ -235,23 +238,89 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
       var findQuery = {};
 
       if (value) {
+        var parser = new sqlWhereParser();
         var queryExpArray = value.split(';');
         var i;
-        var queryKey;
         var selectorQuery = {};
-        for (i = 0; i < queryExpArray.length; i++) {
-          queryKey = queryExpArray[i].split('=')[0];
-
-          if (queryKey) {
-            var queryVal = queryExpArray[i].split('=')[1].replace(/^"|'(.*)'|"$/, '$1');
-            selectorQuery["value." + queryKey] = queryVal;
+        
+          for (i = 0; i < queryExpArray.length; i++) {
+            
+            selectorQuery = parser.parse(queryExpArray[i], function(operatorValue, operands)
+              {
+                operatorValue = operatorValue.toUpperCase();
+                // the LHS operand is always a value operand
+                if (operatorValue != 'AND' &&
+                  operatorValue != 'OR') {
+                  operands[0] = 'value.' + operands[0];
+                }
+                var lhsOp = operands[0];
+                var rhsOp = operands[1];
+                var returnExp = {};
+                switch (operatorValue) {
+                  case '>':
+                    returnExp[lhsOp] = {
+                      $gt: rhsOp
+                    };
+                    break;
+                  case '<':
+                    returnExp[lhsOp] = {
+                      $lt: rhsOp
+                    };
+                    break;
+                  case '>=':
+                    returnExp[lhsOp] = {
+                      $gte: rhsOp
+                    };
+                    break;
+                  case '<=':
+                    returnExp[lhsOp] = {
+                      $lte: rhsOp
+                    };
+                    break;
+                  case '=':
+                    returnExp[lhsOp] = {
+                      $eq: rhsOp
+                    };
+                    break;
+                  case '!=':
+                    returnExp[lhsOp] = {
+                      $ne: rhsOp
+                    };
+                    break;
+                  case 'AND':
+                    returnExp = {
+                      $and: operands
+                    };
+                    break;
+                  case 'OR':
+                    returnExp = {
+                      $or: operands
+                    };
+                    break;
+                  case 'LIKE':
+                    rhsOp = rhsOp.replace('%', '.+');
+                    returnExp[lhsOp] = {
+                      $regex: rhsOp
+                    };
+                    break;
+                  case 'BETWEEN':
+                    var betweenOperands = [];
+                    betweenOperands[0] = {};
+                    betweenOperands[1] = {};
+                    betweenOperands[0][lhsOp] = {$gte: operands[1]};
+                    betweenOperands[1][lhsOp] = {$lte: operands[2]};
+                    returnExp = {
+                      $and: betweenOperands
+                    };
+                    break;
+                }
+                return returnExp;
+              });
+          }
+          if (Object.keys(selectorQuery).length > 0) {
+            findQuery.selector = selectorQuery;
           }
         }
-
-        if (Object.keys(selectorQuery).length > 0) {
-          findQuery.selector = selectorQuery;
-        }
-      }
       return findQuery;
     };
   

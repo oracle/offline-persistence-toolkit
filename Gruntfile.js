@@ -236,7 +236,11 @@ module.exports = function (grunt) {
           {expand: true,
            cwd: '<%= paths.ext_lib %>',
            src: ['*.js'],
-           dest: '<%= paths.dist_debug %>'}
+           dest: '<%= paths.dist_debug %>'},
+         {expand: true,
+           cwd: 'node_modules/sql-where-parser',
+           src: ['sql-where-parser.min.js'],
+           dest: '<%= paths.dist_debug %>/impl'}
         ]
       },
       config_coverage: {
