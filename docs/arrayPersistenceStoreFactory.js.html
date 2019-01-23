@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: localPersistenceStoreFactory.js</title>
+    <title>JSDoc: Source: arrayPersistenceStoreFactory.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: localPersistenceStoreFactory.js</h1>
+    <h1 class="page-title">Source: arrayPersistenceStoreFactory.js</h1>
 
     
 
@@ -31,30 +31,30 @@
  * All rights reserved.
  */
 
-define(["./impl/localPersistenceStore"], function (LocalPersistenceStore) {
+define(["./impl/arrayPersistenceStore"], function (ArrayPersistenceStore) {
   'use strict';
   
   /**
    * @export
-   * @class LocalPersistenceStoreFactory
-   * @classdesc PersistenceStoreFactory that creates localStorage backed 
+   * @class ArrayPersistenceStoreFactory
+   * @classdesc PersistenceStoreFactory that creates an in-memory array backed 
    *            PersisteneStore instance.
    */
 
-  var LocalPersistenceStoreFactory = (function () {
+  var ArrayPersistenceStoreFactory = (function () {
 
     /**
      * @method
      * @name createPersistenceStore
-     * @memberof! LocalPersistenceStoreFactory
+     * @memberof! ArrayPersistenceStoreFactory
      * @export
      * @instance
-     * @return {Promise} returns a Promise that is resolved to a localStorage
+     * @return {Promise} returns a Promise that is resolved to an array
      * backed PersistenceStore instance.
      */
 
     function _createPersistenceStore (name, options) {
-      var store = new LocalPersistenceStore(name);
+      var store = new ArrayPersistenceStore(name);
       return store.Init(options).then(function () {
         return store;
       });
@@ -67,7 +67,7 @@ define(["./impl/localPersistenceStore"], function (LocalPersistenceStore) {
     };
   }());
 
-  return LocalPersistenceStoreFactory;
+  return ArrayPersistenceStoreFactory;
 });</code></pre>
         </article>
     </section>

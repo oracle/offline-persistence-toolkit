@@ -60,6 +60,11 @@ module.exports = function (grunt) {
               name: 'persist/persistenceManager'
             },
             {
+              name: 'persist/arrayPersistenceStoreFactory',
+              include: ['persist/persistenceStoreFactory'],
+              excludeShallow: ['persist/impl/logger', 'persist/persistenceStoreManager']
+            },
+            {
               name: 'persist/pouchDBPersistenceStoreFactory',
               include: ['persist/persistenceStoreFactory'],
               excludeShallow: ['persist/impl/logger']
@@ -102,6 +107,11 @@ module.exports = function (grunt) {
               name: 'persist/persistenceManager'
             },
             {
+              name: 'persist/arrayPersistenceStoreFactory',
+              include: ['persist/persistenceStoreFactory'],
+              excludeShallow: ['persist/impl/logger', 'persist/persistenceStoreManager']
+            },
+            {
               name: 'persist/pouchDBPersistenceStoreFactory',
               include: ['persist/persistenceStoreFactory'],
               excludeShallow: ['persist/impl/logger']
@@ -142,6 +152,10 @@ module.exports = function (grunt) {
           {
             src: '<%= paths.dist_bundles %>/persist/persistenceManager.js', 
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-core-<%= pkg.version %>.js'
+          },
+          {
+            src: '<%= paths.dist_bundles %>/persist/arrayPersistenceStoreFactory.js', 
+            dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-arraystore-<%= pkg.version %>.js'
           },
           {
             src: '<%= paths.dist_bundles %>/persist/localPersistenceStoreFactory.js', 

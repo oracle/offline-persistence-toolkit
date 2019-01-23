@@ -1,7 +1,7 @@
 define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
-        'persist/pouchDBPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persist/persistenceManager', 'persist/impl/logger'],
+        'persist/pouchDBPersistenceStoreFactory', 'persist/arrayPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persist/persistenceManager', 'persist/impl/logger'],
   function(persistenceStoreManager, localPersistenceStoreFactory,
-           pouchDBPersistenceStoreFactory, testPersistenceStoreFactory, persistenceManager, logger){
+           pouchDBPersistenceStoreFactory, arrayPersistenceStoreFactory, testPersistenceStoreFactory, persistenceManager, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
 
@@ -101,7 +101,8 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
   };
 
   QUnit.cases([{name:'local',factory:localPersistenceStoreFactory},
-               {name:'pouchDB',factory:pouchDBPersistenceStoreFactory}])
+               {name:'pouchDB',factory:pouchDBPersistenceStoreFactory},
+               {name:'array',factory:arrayPersistenceStoreFactory}])
     .test('basic storage test ', function (testParam, assert) {
     console.log('testing ' + testParam.name);
     var testStoreName = 'http://' + testParam.name;

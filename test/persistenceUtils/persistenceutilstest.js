@@ -185,6 +185,19 @@ define(['persist/persistenceUtils', 'formData', 'persist/impl/logger'],
         status: 200,
         bodyUsed: false
       }
+    }, {
+      response: new Response(loadArrayBuffer(16), {
+                  status: 200
+                }),
+      payload: 'new payload.',
+      jsonObj: {
+        url: '',
+        status: 200,
+        bodyUsed: false,
+        body: {
+          text: 'new payload.'
+        }
+      }
     }];
 
     return new Promise(function (resolve, reject) {

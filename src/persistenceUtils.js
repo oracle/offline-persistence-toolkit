@@ -343,13 +343,13 @@ define(['./impl/logger'], function (logger) {
     logger.log("Offline Persistence Toolkit persistenceUtils: setResponsePayload()");
     return responseToJSON(response).then(function (responseObject) {
       var body = responseObject.body;
-
-      if (body.arrayBuffer) {
-        if (payload instanceof ArrayBuffer) {
-          body.arrayBuffer = payload;
-        } else {
-          throw new Error({message: 'unexpected payload'});
-        }
+      
+      body.arrayBuffer = null;
+      body.blob = null;
+      body.text = null;
+      
+      if (payload instanceof ArrayBuffer) {
+        body.arrayBuffer = payload;
       } else if (payload instanceof Blob) { 
         body.blob = payload;
       } else {
