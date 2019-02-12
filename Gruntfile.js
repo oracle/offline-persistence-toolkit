@@ -82,9 +82,9 @@ module.exports = function (grunt) {
             {
               name: 'persist/defaultResponseProxy',
               include: ['persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 'persist/simpleBinaryDataShredding', 'persist/queryHandlers'],
-              excludeShallow: ['persist/persistenceUtils', 
-                              'persist/impl/logger', 
-                              'persist/impl/PersistenceXMLHttpRequest', 
+              excludeShallow: ['persist/persistenceUtils',
+                              'persist/impl/logger',
+                              'persist/impl/PersistenceXMLHttpRequest',
                               'persist/persistenceStoreManager',
                               'persist/impl/defaultCacheHandler',
                               'persist/impl/PersistenceSyncManager',
@@ -129,9 +129,9 @@ module.exports = function (grunt) {
             {
               name: 'persist/defaultResponseProxy',
               include: ['persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 'persist/simpleBinaryDataShredding', 'persist/queryHandlers'],
-              excludeShallow: ['persist/persistenceUtils', 
-                              'persist/impl/logger', 
-                              'persist/impl/PersistenceXMLHttpRequest', 
+              excludeShallow: ['persist/persistenceUtils',
+                              'persist/impl/logger',
+                              'persist/impl/PersistenceXMLHttpRequest',
                               'persist/persistenceStoreManager',
                               'persist/impl/defaultCacheHandler',
                               'persist/impl/PersistenceSyncManager',
@@ -150,51 +150,55 @@ module.exports = function (grunt) {
       main: {
         files: [
           {
-            src: '<%= paths.dist_bundles %>/persist/persistenceManager.js', 
+            src: '<%= paths.dist_bundles %>/persist/persistenceManager.js',
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-core-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles %>/persist/arrayPersistenceStoreFactory.js', 
+            src: '<%= paths.dist_bundles %>/persist/arrayPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-arraystore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles %>/persist/localPersistenceStoreFactory.js', 
+            src: '<%= paths.dist_bundles %>/persist/localPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-localstore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles %>/persist/pouchDBPersistenceStoreFactory.js', 
+            src: '<%= paths.dist_bundles %>/persist/pouchDBPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-pouchdbstore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles %>/persist/fileSystemPersistenceStoreFactory.js', 
+            src: '<%= paths.dist_bundles %>/persist/fileSystemPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-filesystemstore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles %>/persist/defaultResponseProxy.js', 
+            src: '<%= paths.dist_bundles %>/persist/defaultResponseProxy.js',
             dest: '<%= paths.dist_bundles %>/persist/offline-persistence-toolkit-responseproxy-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles_debug %>/persist/persistenceManager.js', 
+            src: '<%= paths.dist_bundles_debug %>/persist/persistenceManager.js',
             dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-core-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles_debug %>/persist/localPersistenceStoreFactory.js', 
+		    src: '<%= paths.dist_bundles_debug %>/persist/arrayPersistenceStoreFactory.js',
+		    dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-arraystore-<%= pkg.version %>.js'
+          },
+          {
+            src: '<%= paths.dist_bundles_debug %>/persist/localPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-localstore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles_debug %>/persist/pouchDBPersistenceStoreFactory.js', 
+            src: '<%= paths.dist_bundles_debug %>/persist/pouchDBPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-pouchdbstore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles_debug %>/persist/fileSystemPersistenceStoreFactory.js', 
+            src: '<%= paths.dist_bundles_debug %>/persist/fileSystemPersistenceStoreFactory.js',
             dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-filesystemstore-<%= pkg.version %>.js'
           },
           {
-            src: '<%= paths.dist_bundles_debug %>/persist/defaultResponseProxy.js', 
+            src: '<%= paths.dist_bundles_debug %>/persist/defaultResponseProxy.js',
             dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-responseproxy-<%= pkg.version %>.js'
           },
           {
-            src: 'coverage/dist/debug/require-config-coverage.js', 
+            src: 'coverage/dist/debug/require-config-coverage.js',
             dest: 'coverage/dist/debug/bundles-config.js'
           }
         ]

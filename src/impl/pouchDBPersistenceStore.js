@@ -182,24 +182,32 @@ define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
       // get all rows and use our own find logic
       return self._db.allDocs({include_docs: true}).then(function (result) {
         if (result && result.rows && result.rows.length) {
-          var fixedDocPromises = result.rows.map(function(row) {
-            return self._fixValue(row.doc);
-          });
-          return Promise.all(fixedDocPromises).then(function(docs) {
-            var satisfiedRows = result.rows.filter(function(row) {
-              if (storageUtils.satisfy(findExpression.selector, row.doc)) {
-                return true;
-              }
-              return false;
+          // filter on the rows first before _fixBinaryValue which adds binary
+          // back to the document. This assumes the search criteria should
+          // not have any operator against the binary data. 
+          var satisfiedRows = result.rows.filter(function(row) {
+            var doc = row.doc;
+            self._fixKey(doc);
+            if (storageUtils.satisfy(findExpression.selector, doc)) {
+              return true;
+            }
+            return false;
+           });
+
+          if (satisfiedRows.length) {
+            var fixDocPromises = satisfiedRows.map(function(row) {
+              return self._fixBinaryValue(row.doc);
             });
-            var promises = satisfiedRows.map(function(row) {
-              return self._findResultCallback(modifiedFind.fields).bind(self)(row.doc);
-            });
-            return Promise.all(promises);
-          });
+            return Promise.all(fixDocPromises);
+          } else {
+            return [];
+          }
         } else {
-          return Promise.resolve([]);
+          return [];
         }
+      }).catch(function(err) {
+        logger.log("error retrieving all documents from pouch db, returns empty list as find operation.", err);
+        return [];
       });
     }
   };
@@ -217,16 +225,18 @@ define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
     };
   };
 
-  // invoked after document is retrieved. If the original value
-  // has binary data in it, we need to retrieve it back as attachments
-  // and add it back to the value part.
+  // invoked after document is retrieved. Fix the key and binary
+  // part of the value.
   PouchDBPersistenceStore.prototype._fixValue = function (doc) {
+    this._fixKey(doc);
+    return this._fixBinaryValue(doc);
+  };
+
+  // If the original value has binary data in it,
+  // we need to retrieve it back as attachments
+  // and add it back to the value part.
+  PouchDBPersistenceStore.prototype._fixBinaryValue = function (doc) {
     var docId = doc._id || doc.id || doc.key;
-
-    if (docId) {
-      doc.key = docId;
-    }
-
     var attachments = doc._attachments;
     if (!attachments) {
       return Promise.resolve(doc);
@@ -242,6 +252,14 @@ define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
         targetValue[paths[paths.length - 1]] = blob;
         return doc;
       });
+    }
+  };
+
+  PouchDBPersistenceStore.prototype._fixKey = function (doc) {
+    var docId = doc._id || doc.id || doc.key;
+
+    if (docId) {
+      doc.key = docId;
     }
   };
 
