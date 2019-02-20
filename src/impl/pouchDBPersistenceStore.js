@@ -160,22 +160,24 @@ define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
   PouchDBPersistenceStore.prototype.find = function (findExpression) {
     logger.log("Offline Persistence Toolkit pouchDBPersistenceStore: find() for expression: " +  JSON.stringify(findExpression));
     var self = this;
-    var modifiedFind = self._prepareFind(findExpression);
     
+    findExpression = findExpression || {};
+
     // if the find plugin is installed
     if (self._db.find) {
+      var modifiedFind = self._prepareFind(findExpression);
       return self._db.find(modifiedFind).then(function (result) {
         if (result && result.docs && result.docs.length) {
           var promises = result.docs.map(self._findResultCallback(modifiedFind.fields), self);
           return Promise.all(promises);
         } else {
-          return Promise.resolve([]);
+          return [];
         }
       }).catch(function (finderr) {
         if (finderr.status === 404 && finderr.message === 'missing') {
-          return Promise.resolve([]);
+          return [];
         } else {
-          return Promise.reject(finderr);
+          throw finderr;
         }
       });
     } else {
@@ -196,7 +198,13 @@ define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
 
           if (satisfiedRows.length) {
             var fixDocPromises = satisfiedRows.map(function(row) {
-              return self._fixBinaryValue(row.doc);
+              return self._fixBinaryValue(row.doc).then(function(fixedDoc){
+                if (findExpression.fields) {
+                  return storageUtils.assembleObject(fixedDoc, findExpression.fields);
+                } else {
+                  return fixedDoc.value;
+                }
+              });
             });
             return Promise.all(fixDocPromises);
           } else {
@@ -344,27 +352,26 @@ define(["../PersistenceStore", "../impl/storageUtils", "pouchdb", "./logger"],
   // understood by pouchdb find plugin.
   PouchDBPersistenceStore.prototype._prepareFind = function (findExpression) {
 
-    var modifiedExpression = findExpression || {};
+    var modifiedExpression = {};
 
     // ideally we should allow sort, but PouchDB-find-plugin
-    // has bug on that, so disable sorting at this time.
-    var sortFieldsArray = modifiedExpression.sort;
-    if (sortFieldsArray !== undefined) {
-      delete modifiedExpression.sort;
-    }
+    // has bug on that, so disable sorting at this time by
+    // not copy sort from original expression.
 
     // selector is required from pouchdb.find plugin, thus create a selector
     // property if no selector is explicitely defined in findExpression. The
     // default selector is {'_id': {$gt: null}} which selects everything.
-    var selector = modifiedExpression.selector;
+    var selector = findExpression.selector;
     if (!selector) {
       modifiedExpression.selector = {
         '_id': {'$gt': null}
       };
+    } else {
+      modifiedExpression.selector = selector;
     }
 
     // our key attribute maps to pouchdb documents' _id field.
-    var fields = modifiedExpression.fields;
+    var fields = findExpression.fields;
     if (fields && fields.length) {
       var modifiedFields = fields.map(function (x) {
         if (x === 'key') {

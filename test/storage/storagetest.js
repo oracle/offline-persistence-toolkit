@@ -7,7 +7,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
 
   module('storagetest');
 
-  // helper function that compares expected result set with the actual result
+  // helper function that compares expected result set with the actxual result
   // set. Return true if they match, false otherwise. The expected/actual
   // result set are both arrays. They should contain the same number of
   // element, and each element should match. The order of the element in the
@@ -81,9 +81,11 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
     if (!expected && !actual) {
       return true;
     } else if (expected && actual) {
-      if (typeof(expected) === 'object') {
+      if (typeof(expected) === 'object' && typeof(actual) === 'object') {
+        var keys = [];
         for (var key in expected) {
           if (expected.hasOwnProperty(key)) {
+            keys.push(key);
             var expectedValue = expected[key];
             var actualValue = actual[key];
             if (!matchObject(expectedValue, actualValue)) {
@@ -91,8 +93,15 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
             }
           }
         }
+        for (var actualKey in actual) {
+          if (actual.hasOwnProperty(actualKey)) {
+            if (keys.indexOf(actualKey) < 0) {
+              return false;
+            }
+          }
+        }
         return true;
-      } else{
+      } else {
         return (expected == actual);
       }
     } else {
