@@ -105,7 +105,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
         });
       });
       asyncTest('getOracleRestQueryHandler', function (assert) {
-        expect(52);
+        expect(54);
+        mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
+          status: 200,
+          body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300})
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when online');
+        });
         mockFetch.addRequestReply('GET', '/testOracleRestQuery', {
           status: 200,
           body: JSON.stringify({items: [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -128,7 +134,10 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
           fetch('/testOracleRestQuery?q=DepartmentName=BB&offset=0&limit=10').then(function (response) {
               assert.ok(true, 'Received Response when offline');
               persistenceManager.forceOffline(false);
-              return fetch('/testOracleRestQuery').then(function (response) {
+              return fetch('/testOracleRestQuery');
+            }).then(function(){
+              assert.ok(true, 'Received Response when online');
+              return fetch('/testOracleRestQuery/556');
             }).then(function(){
               assert.ok(true, 'Received Response when online');
               persistenceManager.forceOffline(true);
@@ -257,4 +266,3 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
         });
       });
     });
-  });

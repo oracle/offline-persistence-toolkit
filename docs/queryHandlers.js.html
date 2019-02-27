@@ -156,8 +156,16 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
       return persistenceManager.getCache().hasMatch(request, {ignoreSearch: true}).then(function (hasMatch) {
         return persistenceStoreManager.openStore(storeName).then(function (store) {
           if (hasMatch) {
-            // query in the shredded data
-            return store.find(findQuery);
+            // check if it's a single row query. If so then we don't need to
+            // do a find.
+            return persistenceManager.getCache().match(request, {ignoreSearch: true}).then(function (response) {
+              if (response.headers.get('x-oracle-jscpt-resource-type') === 'single') {
+                return Promise.resolve();
+              } else {
+                // query in the shredded data
+                return store.find(findQuery);
+              }
+            });
           } else {
             // this might be a single row query so we need to parse the URL for an id based query
             var id = _getRequestUrlId(request);
@@ -202,7 +210,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
                 var resourceType = dataArray[0].resourceType;
                 var transformedResults = {
                   name: storeName,
-                  data: results,
+                  data: results != null ? results : dataArray[0].data,
                   resourceType: resourceType
                 };
                 return unshredder([transformedResults], response).then(function (response) {
