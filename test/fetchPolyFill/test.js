@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
   function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('persist/persistenceManager', {
-      teardown: function () {
-        stop();
+    QUnit.module('persist/persistenceManager', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -13,7 +13,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -22,8 +22,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
     persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('browserFetch()', function (assert) {
-         expect(5);
+      QUnit.test('browserFetch()', function (assert) {
+        var done = assert.async();
+         assert.expect(5);
          mockFetch.addRequestReply('GET', '/testBrowserFetch', {
           status: 200,
           body: 'Ok'
@@ -44,7 +45,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
               assert.ok(response instanceof Response, 'Received Response when browserFetch() called');
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });

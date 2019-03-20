@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
   function (persistenceManager, defaultResponseProxy, fetchStrategies, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('fetchStrategies', {
-      teardown: function () {
-        stop();
+    QUnit.module('fetchStrategies', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -17,7 +17,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -26,8 +26,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
     persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('getCacheFirstStrategy()', function (assert) {
-        expect(8);
+      QUnit.test('getCacheFirstStrategy()', function (assert) {
+        var done = assert.async();
+        assert.expect(8);
         mockFetch.addRequestReply('GET', '/testCacheFirst', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -76,12 +77,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
             return registration.unregister();
           }).then(function (unregistered) {
             mockFetch.clearAllRequestReplies();
-            start();
+            done();
           });
         });
       });
-      asyncTest('getCacheFirstStrategy() no serverCallback specified', function (assert) {
-        expect(9);
+      QUnit.test('getCacheFirstStrategy() no serverCallback specified', function (assert) {
+        var done = assert.async();
+        assert.expect(9);
         mockFetch.addRequestReply('GET', '/testCacheFirstNoServerCallback', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -109,15 +111,16 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
                 assert.ok(true, 'Received Cached Response when offline');
                 registration.unregister().then(function (unregistered) {
                   mockFetch.clearAllRequestReplies();
-                  start();
+                  done();
                 });
               });
             });
           });
         });
       });
-      asyncTest('getCacheFirstStrategy() backgroundFetch disabled', function (assert) {
-        expect(7);
+      QUnit.test('getCacheFirstStrategy() backgroundFetch disabled', function (assert) {
+        var done = assert.async();
+        assert.expect(7);
         mockFetch.addRequestReply('GET', '/testCacheFirstBackgroundFetchDisabled', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -145,15 +148,16 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
                 assert.ok(true, 'Received Cached Response when offline');
                 registration.unregister().then(function (unregistered) {
                   mockFetch.clearAllRequestReplies();
-                  start();
+                  done();
                 });
               });
             });
           });
         });
       });
-      asyncTest('getCacheIfOffline()', function (assert) {
-        expect(10);
+      QUnit.test('getCacheIfOffline()', function (assert) {
+        var done = assert.async();
+        assert.expect(10);
         mockFetch.addRequestReply('GET', '/testCacheIfOffline', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -191,7 +195,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
                   persistenceManager.browserFetch = saveFetch;
                   registration.unregister().then(function (unregistered) {
                     mockFetch.clearAllRequestReplies();
-                    start();
+                    done();
                   });
                 });
               });
@@ -199,8 +203,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
           });
         });
       });
-      asyncTest('getCacheIfOffline() HEAD', function (assert) {
-        expect(7);
+      QUnit.test('getCacheIfOffline() HEAD', function (assert) {
+        var done = assert.async();
+        assert.expect(7);
         mockFetch.addRequestReply('HEAD', '/testCacheIfOfflineHead', {
           status: 200,
           body: null
@@ -225,15 +230,16 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
                 assert.ok(true, 'Received Cached Response when offline');
                 registration.unregister().then(function (unregistered) {
                   mockFetch.clearAllRequestReplies();
-                  start();
+                  done();
                 });
               });
             });
           });
         });
       });
-      asyncTest('getCacheIfOffline() response NotOk', function (assert) {
-        expect(3);
+      QUnit.test('getCacheIfOffline() response NotOk', function (assert) {
+        var done = assert.async();
+        assert.expect(3);
         mockFetch.addRequestReply('GET', '/testCacheIfOfflineNotOk', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -271,7 +277,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
                 assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response');
                 registration.unregister().then(function (unregistered) {
                   mockFetch.clearAllRequestReplies();
-                  start();
+                  done();
                 });
               });
             });

@@ -2,7 +2,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
   function(persistenceStoreManager, localPersistenceStoreFactory, offlineCacheManager, MockFetch, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
-  module('cachestest');
+  QUnit.module('cachestest');
 
   persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
 

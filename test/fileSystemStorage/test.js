@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
   function (persistenceManager, defaultResponseProxy, PersistenceSyncManager, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, fileSystemPersistenceStoreFactory, simpleBinaryDataShredding, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('persist/persistenceManager', {
-      teardown: function () {
-        stop();
+    QUnit.module('persist/persistenceManager', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -13,7 +13,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -23,17 +23,19 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
     persistenceStoreManager.registerStoreFactory('blobResponse', fileSystemPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('blob response', function (assert) {
-        var isPhantomjs = false;
-        if (navigator.userAgent.match(/PhantomJS/)) {
-          isPhantomjs = true;
+      QUnit.test('blob response', function (assert) {
+        var done = assert.async();
+        var isHeadlessChrome = false;
+        if (navigator.webdriver) {
+          isHeadlessChrome = true;
         }
-        if (isPhantomjs) {
-          expect(0);
+        if (isHeadlessChrome) {
+          assert.expect(1);
+          assert.ok(true, 'Skipping');
           console.log('\nSkipping filesystem store tests on Phantomjs. Please test in a browser.\n');
-          start();
+          done();
         } else {
-          expect(12);
+          assert.expect(12);
           generateBlob().then(function(blob) {
             mockFetch.addRequestReply('GET', '/blobResponse1', {
               status: 200,
@@ -92,7 +94,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
                 return registration.unregister();
               }).then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });

@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
   function (persistenceManager, defaultResponseProxy, fetchStrategies, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('cacheStrategies', {
-      teardown: function () {
-        stop();
+    QUnit.module('cacheStrategies', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -17,7 +17,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -34,8 +34,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
     persistenceStoreManager.registerDefaultStoreFactory(versionedLocalPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('getHttpCacheHeaderStrategy: expires', function (assert) {
-        expect(5);
+      QUnit.test('getHttpCacheHeaderStrategy: expires', function (assert) {
+        var done = assert.async();
+        assert.expect(5);
         mockFetch.addRequestReply('GET', '/testExpires', {
           status: 200,
           statusText: 'OK',
@@ -59,12 +60,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
         }).then(function (response) {
           assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
           assert.ok(response.headers.get('x-oracle-jscpt-cache-expiration-date') == 'Wed, 21 Oct 2015 07:28:00 GMT', 'x-oracle-jscpt-cache-expiration-date is correct');
-          start();
+          done();
         });
       });
 
-      asyncTest('getHttpCacheHeaderStrategy: max-age', function (assert) {
-        expect(5);
+      QUnit.test('getHttpCacheHeaderStrategy: max-age', function (assert) {
+        var done = assert.async();
+        assert.expect(5);
         mockFetch.addRequestReply('GET', '/testMaxAge', {
           status: 200,
           statusText: 'OK',
@@ -91,12 +93,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
           var currentTime = (new Date()).getTime();
           var expiresIn = expiresTime - currentTime;
           assert.ok(expiresIn > 9000 && expiresIn < 10000, 'Expiration time is correct');
-          start();
+          done();
         });
       });
 
-      asyncTest('getHttpCacheHeaderStrategy: If-Match', function (assert) {
-        expect(10);
+      QUnit.test('getHttpCacheHeaderStrategy: If-Match', function (assert) {
+        var done = assert.async();
+        assert.expect(10);
         mockFetch.addRequestReply('GET', '/testIfMatch', {
           status: 200,
           statusText: 'OK',
@@ -147,12 +150,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
         }).then(function (response) {
           assert.ok(persistenceUtils.isCachedResponse(response), 'Cached response');
           assert.ok(response.status == 412, 'response status is 412');
-          start();
+          done();
         });
       });
 
-      asyncTest('getHttpCacheHeaderStrategy: must-revalidate', function (assert) {
-        expect(4);
+      QUnit.test('getHttpCacheHeaderStrategy: must-revalidate', function (assert) {
+        var done = assert.async();
+        assert.expect(4);
         mockFetch.addRequestReply('GET', '/testMustRevalidate', {
           status: 200,
           statusText: 'OK',
@@ -176,12 +180,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
           return fetch('/testMustRevalidate');
         }).then(function (response) {
           assert.ok(response.status == 504, 'response status is 504');
-          start();
+          done();
         });
       });
 
-      asyncTest('getHttpCacheHeaderStrategy: no-cache', function (assert) {
-        expect(5);
+      QUnit.test('getHttpCacheHeaderStrategy: no-cache', function (assert) {
+        var done = assert.async();
+        assert.expect(5);
         mockFetch.addRequestReply('GET', '/testNoCache', {
           status: 200,
           statusText: 'OK',
@@ -203,12 +208,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
           return fetch('/testNoCache');
         }).then(function (response) {
           assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response');
-          start();
+          done();
         });
       });
 
-      asyncTest('getHttpCacheHeaderStrategy: no-store', function (assert) {
-        expect(5);
+      QUnit.test('getHttpCacheHeaderStrategy: no-store', function (assert) {
+        var done = assert.async();
+        assert.expect(5);
         mockFetch.addRequestReply('GET', '/testNoStore', {
           status: 200,
           statusText: 'OK',
@@ -231,7 +237,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/f
           return fetch('/testNoStore');
         }).then(function (response) {
           assert.ok(!persistenceUtils.isCachedResponse(response), 'Not cached response');
-          start();
+          done();
         });
       });
     });

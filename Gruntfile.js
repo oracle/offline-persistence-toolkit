@@ -4,7 +4,7 @@ module.exports = function (grunt) {
   grunt.initConfig({
     // Metadata.
     pkg: grunt.file.readJSON('package.json'),
-    pouchdb_bundle: 'pouchdb-browser-6.3.4.js',
+    pouchdb_bundle: 'pouchdb-browser-7.0.0.js',
     paths: {
       src: 'src',
       src_files: 'src/**/*.js',
@@ -320,7 +320,12 @@ module.exports = function (grunt) {
     },
     qunit: {
       files: ['test/**/*.html'],
-      options: {inject: null}
+      options: {
+        puppeteer: {
+          headless: true,
+          args: ['--disable-web-security']
+        }
+      }
     },
     run_java: {
       jscover: {

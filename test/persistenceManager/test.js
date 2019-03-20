@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
   function (persistenceManager, defaultResponseProxy, PersistenceSyncManager, persistenceUtils, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('persist/persistenceManager', {
-      teardown: function () {
-        stop();
+    QUnit.module('persist/persistenceManager', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -13,15 +13,16 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
 
     var mockFetch = new MockFetch();
     persistenceManager.init().then(function () {
-      asyncTest('getRegistration()', function (assert) {
-        expect(2);
+      QUnit.test('getRegistration()', function (assert) {
+        var done = assert.async();
+        assert.expect(2);
         persistenceManager.register({
           scope: '/testRegistration'
         }).then(function (registration) {
@@ -29,13 +30,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
             assert.ok(registration === regObj, 'getRegistration() returned the registration object');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('getRegistrations()', function (assert) {
-        expect(3);
+      QUnit.test('getRegistrations()', function (assert) {
+        var done = assert.async();
+        assert.expect(3);
         persistenceManager.register({
           scope: '/testRegistrations'
         }).then(function (registration) {
@@ -44,13 +46,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
             assert.ok(registration === regObjArray[0], 'getRegistrations() array contains the registration object');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('Remove all registrations', function (assert) {
-        expect(1);
+      QUnit.test('Remove all registrations', function (assert) {
+        var done = assert.async();
+        assert.expect(1);
         persistenceManager.register({
           scope: '/testRegistration1'
         }).then(function () {
@@ -74,7 +77,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
             return Promise.all(unregisterPromiseArray).then(function (resp) {
               persistenceManager.getRegistrations().then(function (regObjArray) {
                 assert.ok(regObjArray.length == 0, 'Unregistered all registrations');
-                start();
+                done();
                 return Promise.resolve();
               });
             });
@@ -83,8 +86,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
       });
       
       persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
-      asyncTest('forceOffline()', function (assert) {
-        expect(6);
+      QUnit.test('forceOffline()', function (assert) {
+        var done = assert.async();
+        assert.expect(6);
         mockFetch.addRequestReply('GET', '/testOnline', {
           status: 200,
           body: 'Ok'
@@ -127,13 +131,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
               });
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('isOnline()', function (assert) {
-        expect(3);
+      QUnit.test('isOnline()', function (assert) {
+        var done = assert.async();
+        assert.expect(3);
         assert.ok(persistenceManager.isOnline(), 'isOnline() returned true');
         persistenceManager.forceOffline(true);
         assert.ok(!persistenceManager.isOnline(), 'isOnline() returned false');
@@ -144,10 +149,11 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
         navigator.network = networkConnectionInfo;
         assert.ok(!persistenceManager.isOnline(), 'isOnline() returned false');
         navigator.network = null;
-        start();
+        done();
       });
-      asyncTest('register() and registration object apis', function (assert) {
-        expect(7);
+      QUnit.test('register() and registration object apis', function (assert) {
+        var done = assert.async();
+        assert.expect(7);
         mockFetch.addRequestReply('GET', '/testRegister', {
           status: 200,
           body: 'Ok'
@@ -171,20 +177,22 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
                 assert.ok(unregistered == true, 'unregistered scope');
                 fetch('/testRegister').then(function (response) {
                   assert.ok(response instanceof Response, 'Received Response when not registered');
-                  start();
+                  done();
                 });
               });
             });
           });
         });
       });
-      asyncTest('getSyncManager()', function (assert) {
-        expect(1);
+      QUnit.test('getSyncManager()', function (assert) {
+        var done = assert.async();
+        assert.expect(1);
         assert.ok(persistenceManager.getSyncManager() instanceof PersistenceSyncManager, 'getSyncManager() returned PersistenceSyncManager');
-        start();
+        done();
       });
-      asyncTest('browserFetch()', function (assert) {
-         expect(5);
+      QUnit.test('browserFetch()', function (assert) {
+         var done = assert.async();
+         assert.expect(5);
          mockFetch.addRequestReply('GET', '/testBrowserFetch', {
           status: 200,
           body: 'Ok'
@@ -205,7 +213,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
               assert.ok(response instanceof Response, 'Received Response when browserFetch() called');
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });

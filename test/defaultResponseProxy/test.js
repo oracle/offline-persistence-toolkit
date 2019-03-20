@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
   function (persistenceManager, persistenceUtils, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('persist/defaultResponseProxy', {
-      teardown: function () {
-        stop();
+    QUnit.module('persist/defaultResponseProxy', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -25,7 +25,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
             return Promise.resolve();
           }
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -34,8 +34,9 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
     persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('getResponseProxy() shredder/unshredder', function (assert) {
-        expect(6);
+      QUnit.test('getResponseProxy() shredder/unshredder', function (assert) {
+        var done = assert.async();
+        assert.expect(6);
         mockFetch.addRequestReply('GET', '/testShredder', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -88,21 +89,22 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
             assert.ok(true, 'Received Response when online');
             persistenceStoreManager.openStore('test').then(function (store) {
               store.findByKey(1001).then(function (data) {
-                ok(data.DepartmentName == 'ADFPM 1001 neverending', 'Found DepartmentId 1001 in localStore');
+                assert.ok(data.DepartmentName == 'ADFPM 1001 neverending', 'Found DepartmentId 1001 in localStore');
                 return store.findByKey(556);
               }).then(function (data) {
-                ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
+                assert.ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
                 return store.findByKey(10);
               }).then(function (data) {
-                ok(data.DepartmentName == 'Administration', 'Found DepartmentId 10 in localStore');
-                start();
+                assert.ok(data.DepartmentName == 'Administration', 'Found DepartmentId 10 in localStore');
+                done();
               });
             });
           });
         });
       });
-      asyncTest('getResponseProxy() queryHandler', function (assert) {
-        expect(4);
+      QUnit.test('getResponseProxy() queryHandler', function (assert) {
+        var done = assert.async();
+        assert.expect(4);
         mockFetch.addRequestReply('GET', '/testQueryHandler', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -135,14 +137,15 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
               assert.ok(true, 'Received Response when offline');
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });
         });
       });
-      asyncTest('getResponseProxy() fetchStrategy', function (assert) {
-        expect(4);
+      QUnit.test('getResponseProxy() fetchStrategy', function (assert) {
+        var done = assert.async();
+        assert.expect(4);
         mockFetch.addRequestReply('GET', '/testFetchStrategy', {
           status: 200,
           body: 'OK'
@@ -165,13 +168,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
             assert.ok(true, 'Received Response when offline');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('getResponseProxy() cacheStrategy', function (assert) {
-        expect(3);
+      QUnit.test('getResponseProxy() cacheStrategy', function (assert) {
+        var done = assert.async();
+        assert.expect(3);
         mockFetch.addRequestReply('GET', '/testCacheStrategy', {
           status: 200,
           body: 'OK'
@@ -193,13 +197,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
           fetch('/testCacheStrategy').then(function (response) {
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('getResponseProxy() requestHandlerOverride.handle*', function (assert) {
-        expect(13);
+      QUnit.test('getResponseProxy() requestHandlerOverride.handle*', function (assert) {
+        var done = assert.async();
+        assert.expect(13);
         mockFetch.addRequestReply('*', '/testRequestHandlerOverride', {
           status: 200,
           body: 'OK'
@@ -261,13 +266,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
           }).then(function () {
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('getResponseProxy() default handle*', function (assert) {
-        expect(11);
+      QUnit.test('getResponseProxy() default handle*', function (assert) {
+        var done = assert.async();
+        assert.expect(11);
         var deptData = [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
             {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
             {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}];
@@ -315,13 +321,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
             assert.ok(updateBody == content, 'body is correct');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('Response Not Ok for request *', function (assert) {
-        expect(18);
+      QUnit.test('Response Not Ok for request *', function (assert) {
+        var done = assert.async();
+        assert.expect(18);
         mockFetch.addRequestReply('*', '/testResponseNotOk', {
           status: 500,
           body: 'NOTOK'
@@ -365,13 +372,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
             assert.ok(response.ok == false, 'ok is false');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('fetch rejected for request *', function (assert) {
-        expect(10);
+      QUnit.test('fetch rejected for request *', function (assert) {
+        var done = assert.async();
+        assert.expect(10);
         mockFetch.addRequestReply('*', '/testFetchRejected', {
           status: 500,
           body: 'NOTOK'
@@ -420,13 +428,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
             persistenceManager.browserFetch = saveFetch;
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('blob response', function (assert) {
-        expect(4);
+      QUnit.test('blob response', function (assert) {
+        var done = assert.async();
+        assert.expect(4);
         generateBlob().then(function(blob) {
           mockFetch.addRequestReply('GET', '/blobResponse', {
             status: 200,
@@ -448,7 +457,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
                 assert.ok(blob != null, 'body is not empty');
                 registration.unregister().then(function (unregistered) {
                   assert.ok(unregistered == true, 'unregistered scope');
-                  start();
+                  done();
                 });
               });
             });

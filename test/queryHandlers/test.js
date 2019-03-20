@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
   function (persistenceManager, defaultResponseProxy, queryHandlers, simpleJsonShredding, oracleRestJsonShredding, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('queryHandlers', {
-      teardown: function () {
-        stop();
+    QUnit.module('queryHandlers', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -25,7 +25,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
             return Promise.resolve();
           }
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -42,8 +42,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
     persistenceStoreManager.registerDefaultStoreFactory(versionedLocalPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('getSimpleQueryHandler', function (assert) {
-        expect(13);
+      QUnit.test('getSimpleQueryHandler', function (assert) {
+        var done = assert.async();
+        assert.expect(13);
         mockFetch.addRequestReply('GET', '/testSimpleQuery', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
@@ -90,7 +91,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
                               assert.ok(responseData.length == 3, 'Returned the correct departments');
                               registration.unregister().then(function (unregistered) {
                                 assert.ok(unregistered == true, 'unregistered scope');
-                                start();
+                                done();
                               });
                             });
                           });
@@ -104,8 +105,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
           });
         });
       });
-      asyncTest('getOracleRestQueryHandler', function (assert) {
-        expect(54);
+      QUnit.test('getOracleRestQueryHandler', function (assert) {
+        var done = assert.async();
+        assert.expect(54);
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
           body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300})
@@ -260,7 +262,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               return registration.unregister();
             }).then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });

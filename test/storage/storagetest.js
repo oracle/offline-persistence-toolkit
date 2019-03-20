@@ -5,7 +5,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
 
-  module('storagetest');
+  QUnit.module('storagetest');
 
   // helper function that compares expected result set with the actxual result
   // set. Return true if they match, false otherwise. The expected/actual
@@ -931,7 +931,8 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
     });
   });
 
-  QUnit.asyncTest('test binary data handling', function (assert) {
+  QUnit.test('test binary data handling', function (assert) {
+    var done = assert.async();
     var testStoreName = 'testBinaryStore';
     var testStore;
     persistenceStoreManager.registerStoreFactory(testStoreName, pouchDBPersistenceStoreFactory);
@@ -1022,7 +1023,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function (keysValue) {
         assert.ok(matchResultSetIgnoreOrder(keysValue, ['testBinaryKey1', 'testBinaryKey2']), 'all rows are found.');
         resolve();
-        start();
+        done();
       }).catch(function (err) {
         assert.ok(false);
         reject(err);

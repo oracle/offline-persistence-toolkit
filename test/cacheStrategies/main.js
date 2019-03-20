@@ -9,7 +9,7 @@
     },
     shim: {
       'test': {
-        deps: ['promise', 'persist/bundles-config']
+        deps: ['promise', 'persist/bundles-config', 'qunit']
       }
     }
   });

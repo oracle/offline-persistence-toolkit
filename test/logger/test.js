@@ -1,10 +1,10 @@
 define(['persist/impl/logger'],
   function (logger) {
     'use strict';
-    module('logger');
+    QUnit.module('logger');
 
-    test('log levels', function (assert) {
-      expect(7);
+    QUnit.test('log levels', function (assert) {
+      assert.expect(7);
       var customWriter = {};
       customWriter.error = function (args) {
         assert.ok(true, 'error log');

@@ -2,9 +2,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
   function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('PersistenceXMLHttpRequest', {
-      teardown: function () {
-        stop();
+    QUnit.module('PersistenceXMLHttpRequest', {
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -17,7 +17,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -26,8 +26,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
     persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      asyncTest('open()/send()', function (assert) {
-        expect(108);
+      QUnit.test('open()/send()', function (assert) {
+        var done = assert.async();
+        assert.expect(108);
         mockFetch.addRequestReply('GET', '/testOpen', {
           status: 200,
           statusText: 'OK',
@@ -46,62 +47,62 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           var xhr = new XMLHttpRequest();
 
           xhr.onreadystatechange = function(event) {
-            ok(event.type == 'readystatechange', 'readystatechange event');
+            assert.ok(event.type == 'readystatechange', 'readystatechange event');
             
             if (this.readyState == 1) {
-              ok(this.onabort === null, 'onabort is null');
-              ok(this.onerror === null, 'onerror is null');
-              ok(this.onabort === null, 'onabort is null');
-              ok(this.onload === null, 'onload is null');
-              ok(this.onloadend === null, 'onloadend is null');
-              ok(this.onloadstart === null, 'onloadstart is null');
-              ok(this.onprogress === null, 'onprogress is null');
-              ok(this.ontimeout === null, 'ontimeout is null');
-              ok(this.response === '', 'response is empty');
-              ok(!this.responseText, 'responseText is empty');
-              ok(this.responseType == '', 'responseType is empty');
-              ok(this.responseURL === '', 'responseURL is empty');
-              ok(this.responseXML === null, 'responseXML is null');
-              ok(this.status === 0, 'status is 0');
-              ok(this.statusText === '', 'statusText is empty');
-              ok(this.timeout === 0, 'timeout is 0');
-              ok(this.withCredentials === false, 'withCredentials is false');
-              ok(this.getResponseHeader('content-type') == null, 'responseHeader is null');
-              ok(this.getAllResponseHeaders() == '', 'responseHeaders are empty');
+              assert.ok(this.onabort === null, 'onabort is null');
+              assert.ok(this.onerror === null, 'onerror is null');
+              assert.ok(this.onabort === null, 'onabort is null');
+              assert.ok(this.onload === null, 'onload is null');
+              assert.ok(this.onloadend === null, 'onloadend is null');
+              assert.ok(this.onloadstart === null, 'onloadstart is null');
+              assert.ok(this.onprogress === null, 'onprogress is null');
+              assert.ok(this.ontimeout === null, 'ontimeout is null');
+              assert.ok(this.response === '', 'response is empty');
+              assert.ok(!this.responseText, 'responseText is empty');
+              assert.ok(this.responseType == '', 'responseType is empty');
+              assert.ok(this.responseURL === '', 'responseURL is empty');
+              assert.ok(this.responseXML === null, 'responseXML is null');
+              assert.ok(this.status === 0, 'status is 0');
+              assert.ok(this.statusText === '', 'statusText is empty');
+              assert.ok(this.timeout === 0, 'timeout is 0');
+              assert.ok(this.withCredentials === false, 'withCredentials is false');
+              assert.ok(this.getResponseHeader('content-type') == null, 'responseHeader is null');
+              assert.ok(this.getAllResponseHeaders() == '', 'responseHeaders are empty');
             } else if (this.readyState == 2) {
-              ok(this.response === '', 'response is empty');
-              ok(!this.responseText, 'responseText is empty');
-              ok(this.responseType == '', 'responseType is empty');
-              ok(this.responseURL === '', 'responseURL is empty');
-              ok(this.responseXML === null, 'responseXML is null');
-              ok(this.status === 0, 'status is 0');
-              ok(this.statusText === '', 'statusText is empty');
-              ok(this.timeout === 0, 'timeout is 0');
-              ok(this.withCredentials === false, 'withCredentials is false');
+              assert.ok(this.response === '', 'response is empty');
+              assert.ok(!this.responseText, 'responseText is empty');
+              assert.ok(this.responseType == '', 'responseType is empty');
+              assert.ok(this.responseURL === '', 'responseURL is empty');
+              assert.ok(this.responseXML === null, 'responseXML is null');
+              assert.ok(this.status === 0, 'status is 0');
+              assert.ok(this.statusText === '', 'statusText is empty');
+              assert.ok(this.timeout === 0, 'timeout is 0');
+              assert.ok(this.withCredentials === false, 'withCredentials is false');
             } else if (this.readyState == 4) {
-              ok(this.response === 'REPLY', 'response is correct');
-              ok(this.responseText === 'REPLY', 'responseText is correct');
-              ok(!this.responseType, 'responseType is null');
-              ok(this.responseURL === 'http://localhost/testOpen', 'responseURL is null');
-              ok(this.responseXML === null, 'responseXML is null');
-              ok(this.status === 200, 'status is 200');
-              ok(this.statusText === 'OK', 'statusText is OK');
-              ok(this.timeout === 0, 'timeout is 0');
-              ok(this.withCredentials === false, 'withCredentials is false');
-              ok(this.getResponseHeader('content-type') == 'test-mime', 'responseHeader is correct');
-              ok(this.getAllResponseHeaders().indexOf('content-type: test-mime') >= 0, 'responseHeader is correct');
-              start();
+              assert.ok(this.response === 'REPLY', 'response is correct');
+              assert.ok(this.responseText === 'REPLY', 'responseText is correct');
+              assert.ok(!this.responseType, 'responseType is null');
+              assert.ok(this.responseURL === 'http://localhost/testOpen', 'responseURL is null');
+              assert.ok(this.responseXML === null, 'responseXML is null');
+              assert.ok(this.status === 200, 'status is 200');
+              assert.ok(this.statusText === 'OK', 'statusText is OK');
+              assert.ok(this.timeout === 0, 'timeout is 0');
+              assert.ok(this.withCredentials === false, 'withCredentials is false');
+              assert.ok(this.getResponseHeader('content-type') == 'test-mime', 'responseHeader is correct');
+              assert.ok(this.getAllResponseHeaders().indexOf('content-type: test-mime') >= 0, 'responseHeader is correct');
+              done();
             }
           };
           xhr.addEventListener('readystatechange', xhr.onreadystatechange);
           xhr.addEventListener('loadstart', function(event) {
-            ok(this.readyState == 1, 'state is correct');
+            assert.ok(this.readyState == 1, 'state is correct');
           });
           xhr.addEventListener('load', function(event) {
-            ok(this.readyState == 4, 'state is correct');
+            assert.ok(this.readyState == 4, 'state is correct');
           });
           xhr.addEventListener('loadend', function(event) {
-            ok(this.readyState == 4, 'state is correct');
+            assert.ok(this.readyState == 4, 'state is correct');
           });
           xhr.open('GET', 'http://localhost/testOpen', true);
           xhr.setRequestHeader('test', 'value');
@@ -119,8 +120,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         });
       });
       
-      QUnit.asyncTest('test binary data handling', function (assert) {
-        expect(6);
+      QUnit.test('test binary data handling', function (assert) {
+        var done = assert.async();
+        assert.expect(6);
         generateMultipartFormWithBlob({firstName: 'Bob', lastName: 'Smith'}).then(function(multipartDataToTest) {
           var headers = new Headers({'Content-Type': 'image/png'});
           mockFetch.addRequestReply('GET', '/testBinaryDataHandling', {
@@ -137,11 +139,11 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
 
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function(event) {
-              ok(event.type == 'readystatechange', 'readystatechange event');
+              assert.ok(event.type == 'readystatechange', 'readystatechange event');
               if (this.readyState == 4) {
-                ok(this.status === 200, 'status is 200');
-                ok(this.statusText === 'OK', 'statusText is OK');
-                start();
+                assert.ok(this.status === 200, 'status is 200');
+                assert.ok(this.statusText === 'OK', 'statusText is OK');
+                done();
               }
             };
             xhr.open('GET', 'http://testBinaryDataHandling', true);
@@ -151,8 +153,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
       });
     });
     
-    QUnit.asyncTest('test binary data handling without URL support', function (assert) {
-      expect(6);
+    QUnit.test('test binary data handling without URL support', function (assert) {
+      var done = assert.async();
+      assert.expect(6);
       generateMultipartFormWithBlob({firstName: 'Bob', lastName: 'Smith'}, true).then(function(multipartDataToTest) {
         var headers = new Headers({'Content-Type': 'image/png'});
         mockFetch.addRequestReply('GET', '/testBinaryDataHandlingNoURL', {
@@ -169,11 +172,11 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
 
           var xhr = new XMLHttpRequest();
           xhr.onreadystatechange = function(event) {
-            ok(event.type == 'readystatechange', 'readystatechange event');
+            assert.ok(event.type == 'readystatechange', 'readystatechange event');
             if (this.readyState == 4) {
-              ok(this.status === 200, 'status is 200');
-              ok(this.statusText === 'OK', 'statusText is OK');
-              start();
+              assert.ok(this.status === 200, 'status is 200');
+              assert.ok(this.statusText === 'OK', 'statusText is OK');
+              done();
             }
           };
           xhr.open('GET', 'http://testBinaryDataHandlingNoURL', true);

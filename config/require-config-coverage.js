@@ -14,7 +14,7 @@
       'persistenceStoreFactory': '../../dist/debug/persistenceStoreFactory',
       'persistenceStoreManager': '../../dist/debug/persistenceStoreManager',
       'persistenceUtils': '../../dist/debug/persistenceUtils',
-      'pouchdb': '../../dist/debug/pouchdb-browser-6.3.4',
+      'pouchdb': '../../dist/debug/pouchdb-browser-7.0.0',
       'pouchDBPersistenceStoreFactory': '../../dist/debug/pouchDBPersistenceStoreFactory',
       'queryHandlers': '../../dist/debug/queryHandlers',
       'simpleBinaryDataShredding': '../../dist/debug/simpleBinaryDataShredding',

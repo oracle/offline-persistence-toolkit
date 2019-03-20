@@ -1,7 +1,7 @@
 {
   "name": "@oracle/offline-persistence-toolkit",
   "title": "Offline Persistence Toolkit",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Offline Persistence Toolkit by Oracle Corp.",
   "author": "oraclejet",
   "license": "UPL-1.0",
@@ -27,7 +27,7 @@
     "grunt-browserify": "^5.2.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-qunit": "^1.2.0",
+    "grunt-contrib-qunit": "^3.1.0",
     "grunt-contrib-rename": "^0.2.0",
     "grunt-contrib-requirejs": "^0.4.4",
     "grunt-contrib-uglify": "^2.0.0",
@@ -37,7 +37,7 @@
     "grunt-string-replace": "^1.3.1",
     "gruntify-eslint": "^3.1.0",
     "load-grunt-tasks": "^3.5.2",
-    "pouchdb-browser": "~6.3.4",
+    "pouchdb-browser": "~7.0.0",
     "sql-where-parser": "^2.2.1"
   },
   "dependencies": {}

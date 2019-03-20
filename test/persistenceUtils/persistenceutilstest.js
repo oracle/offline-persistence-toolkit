@@ -2,7 +2,7 @@ define(['persist/persistenceUtils', 'formData', 'persist/impl/logger'],
   function(persistenceUtils, formData, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
-  module('persistenceUtilsTest');
+  QUnit.module('persistenceUtilsTest');
  
   QUnit.test("request to and from JSON", function (assert) {
     var testCases = [{

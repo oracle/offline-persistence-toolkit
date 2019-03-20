@@ -2,16 +2,17 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
   function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, persistenceUtils, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
-    module('persistenceSyncManager', {
-      setup: function() {
-        stop();
+    QUnit.module('persistenceSyncManager', {
+      beforeEach: function (assert) {
+        var done = assert.async();
         persistenceStoreManager.openStore('syncLog').then(function (store) {
-          store.delete();
-          start();
+          return store.delete();
+        }).then(function() {
+          done();
         });
       },
-      teardown: function () {
-        stop();
+      afterEach: function (assert) {
+        var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
           return store.delete();
@@ -20,7 +21,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         }).then(function (store) {
           return store.delete();
         }).then(function () {
-          start();
+          done();
         });
       }
     });
@@ -36,8 +37,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
     var mockFetch = new MockFetch();
     persistenceStoreManager.registerDefaultStoreFactory(versionedLocalPersistenceStoreFactory);
     persistenceManager.init().then(function () {
-      asyncTest('addEventListener()', function (assert) {
-        expect(9);
+      QUnit.test('addEventListener()', function (assert) {
+        var done = assert.async();
+        assert.expect(9);
         mockFetch.addRequestReply('GET', '/testListener', {
           status: 200,
           body: 'Ok'
@@ -71,13 +73,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           }).then(function () {
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('beforeSyncRequest event', function (assert) {
-        expect(27);
+      QUnit.test('beforeSyncRequest event', function (assert) {
+        var done = assert.async();
+        assert.expect(27);
         var validateHeader = null;
         mockFetch.addRequestReply('*', '/testBeforeSyncRequest', {
           status: 200,
@@ -195,13 +198,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             persistenceManager.getSyncManager().removeEventListener('beforeSyncRequest', beforeSyncRequestResolveReplay, '/testBeforeSyncRequest');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('syncRequest event', function (assert) {
-        expect(15);
+      QUnit.test('syncRequest event', function (assert) {
+        var done = assert.async();
+        assert.expect(15);
         var validateHeader = null;
         mockFetch.addRequestReply('*', '/testSyncRequest', {
           status: 200,
@@ -283,13 +287,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             persistenceManager.getSyncManager().removeEventListener('syncRequest', syncRequestResolveStop, '/testSyncRequest');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('getSyncLog()', function (assert) {
-        expect(11);
+      QUnit.test('getSyncLog()', function (assert) {
+        var done = assert.async();
+        assert.expect(11);
         mockFetch.addRequestReply('GET', '/testSyncLog', {
           status: 200,
           body: 'Ok'
@@ -318,22 +323,23 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
               return Promise.resolve(syncLog[0]);
             }).then(function (syncLogItem) {
               syncLogItem.undo().then(function (undoResult) {
-                ok(!undoResult, 'No undo data');
+                assert.ok(!undoResult, 'No undo data');
                 return syncLogItem.redo();
               }).then(function (redoResult) {
-                ok(!redoResult, 'No redo data');
+                assert.ok(!redoResult, 'No redo data');
               });
             }).then(function () {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });
         });
       });
-      asyncTest('insertRequest()', function (assert) {
-        expect(9);
+      QUnit.test('insertRequest()', function (assert) {
+        var done = assert.async();
+        assert.expect(9);
 
         persistenceManager.register({
           scope: '/testInsertRequest'
@@ -353,21 +359,22 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             return Promise.resolve(syncLog[0]);
           }).then(function (syncLogItem) {
             syncLogItem.undo().then(function (undoResult) {
-              ok(!undoResult, 'No undo data');
+              assert.ok(!undoResult, 'No undo data');
               return syncLogItem.redo();
             }).then(function (redoResult) {
-              ok(!redoResult, 'No redo data');
+              assert.ok(!redoResult, 'No redo data');
             });
           }).then(function () {
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('removeRequest()', function (assert) {
-        expect(4);
+      QUnit.test('removeRequest()', function (assert) {
+        var done = assert.async();
+        assert.expect(4);
 
         persistenceManager.register({
           scope: '/testRemoveRequest'
@@ -388,13 +395,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             assert.ok(syncLog.length == 0, 'SyncLog is empty');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('updateRequest()', function (assert) {
-        expect(10);
+      QUnit.test('updateRequest()', function (assert) {
+        var done = assert.async();
+        assert.expect(10);
 
         persistenceManager.register({
           scope: '/testUpdateRequest'
@@ -422,14 +430,15 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             }).then(function () {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });
         });
       });
-      asyncTest('sync()', function (assert) {
-        expect(7);
+      QUnit.test('sync()', function (assert) {
+        var done = assert.async();
+        assert.expect(7);
         mockFetch.addRequestReply('*', '/testSync', {
           status: 200,
           body: 'Ok'
@@ -457,13 +466,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             assert.ok(syncLog.length == 0, 'SyncLog is empty');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('fetch error', function (assert) {
-        expect(8);
+      QUnit.test('fetch error', function (assert) {
+        var done = assert.async();
+        assert.expect(8);
 
         persistenceManager.register({
           scope: '/testFetchError'
@@ -486,22 +496,23 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
               return Promise.resolve(syncLog[0]);
             }).then(function (syncLogItem) {
               syncLogItem.undo().then(function (undoResult) {
-                ok(!undoResult, 'No undo data');
+                assert.ok(!undoResult, 'No undo data');
                 return syncLogItem.redo();
               }).then(function (redoResult) {
-                ok(!redoResult, 'No redo data');
+                assert.ok(!redoResult, 'No redo data');
               });
             }).then(function () {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });
         });
       });
-      asyncTest('timeout fetch()', function (assert) {
-        expect(5);
+      QUnit.test('timeout fetch()', function (assert) {
+        var done = assert.async();
+        assert.expect(5);
         mockFetch.addRequestReply('GET', '/testTimeout', {
           status: 200,
           body: 'Ok'
@@ -531,13 +542,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             assert.ok(err.error == 'Preflight OPTIONS request timed out', 'Timeout');
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('timeout fetch() URL', function (assert) {
-        expect(5);
+      QUnit.test('timeout fetch() URL', function (assert) {
+        var done = assert.async();
+        assert.expect(5);
         mockFetch.addRequestReply('GET', '/testURLTimeout', {
           status: 200,
           body: 'Ok'
@@ -569,13 +581,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           }).then(function () {}, function(err) {
             registration.unregister().then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
-              start();
+              done();
             });
           });
         });
       });
-      asyncTest('server errpr', function (assert) {
-        expect(4);
+      QUnit.test('server errpr', function (assert) {
+        var done = assert.async();
+        assert.expect(4);
         mockFetch.addRequestReply('GET', '/testServerError', {
           status: 200,
           body: 'Ok'
@@ -610,14 +623,15 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             function(err) {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });
         });
       });
-      asyncTest('undo/redo', function (assert) {
-        expect(31);
+      QUnit.test('undo/redo', function (assert) {
+        var done = assert.async();
+        assert.expect(31);
         mockFetch.addRequestReply('GET', '/testUndoRedo', {
           status: 200,
           body: JSON.stringify([{ID: 2, name: 'Test1'}])
@@ -724,7 +738,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
             }).then(function() {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
-                start();
+                done();
               });
             });
           });

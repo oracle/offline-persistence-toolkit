@@ -17,9 +17,17 @@
       'persist/offline-persistence-toolkit-pouchdbstore-{pkg.version}': [
         'persist/PersistenceStore',
         'persist/impl/storageUtils',
-        'persist/pouchdb-browser-6.3.4',
+        'persist/pouchdb-browser-7.0.0',
         'persist/impl/pouchDBPersistenceStore',
         'persist/pouchDBPersistenceStoreFactory',
+        'persist/persistenceStoreFactory'
+      ],
+      'persist/offline-persistence-toolkit-arraystore-{pkg.version}': [
+        'persist/PersistenceStore',
+        'persist/impl/storageUtils',
+        'persist/impl/keyValuePersistenceStore',
+        'persist/impl/arrayPersistenceStore',
+        'persist/arrayPersistenceStoreFactory',
         'persist/persistenceStoreFactory'
       ],
       'persist/offline-persistence-toolkit-localstore-{pkg.version}': [

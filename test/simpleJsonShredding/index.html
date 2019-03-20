@@ -4,14 +4,11 @@
   <meta charset="utf-8">
   <title>simpleJsonShredding Test</title>
   <link rel="stylesheet" href="../lib/qunit/qunit.css">
-  <script src="../lib/qunit/qunit.js"></script>
-  <script>
-    QUnit.config.autoload = false;
-    QUnit.config.autostart = false;
-    QUnit.config.testTimeout = 100000;
-  </script>
-  <script src="../lib/phantomjs-bridge/bridge.js"></script>
   <script data-main="main" src="../../lib/require.js"></script>
+  <script>requirejs.config({
+    paths: {
+      'qunit': '../lib/qunit/qunit'
+    }});</script>
 </head>
 <body>
   <div id="qunit"></div>
