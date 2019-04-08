@@ -145,7 +145,7 @@
 
 
 <div class="description">
-    helper function to build endpoint key to register options under.The option contains shredder/unshredder needed for cache to shred/unshreddresponses. Ideally, we would like cache to be able to look up suchinformation in the framework based on scope, but there is no central placefor such information to reside, considering the facts that the frameworkshould work in service worker case. So the solution is for cache tolookup the information based on request.url, thus we require(1) responseProxy needs to register/unregister the options so during which    time period cache is able to look up shredder/unshredder(2) because of asynchronous nature, there could be multiple fetch events    going on from the same url, while we don't want the registered     shredder/unshredder to grow out of control, we create a unique key    so we can use the same key to unreigster the shredder/unshredder(3) any cache operations needs to happen within defaultResponseProxy    processRequest scope.
+    helper function to build endpoint key to register options under.The option contains shredder/unshredder needed for cache to shred/unshreddresponses. Ideally, we would like cache to be able to look up suchinformation in the framework based on scope, but there is no central placefor such information to reside, considering the facts that the frameworkshould work in service worker case. So the solution is for cache tolookup the information based on request.url, thus we require(1) responseProxy needs to register/unregister the options so during which    time period cache is able to look up shredder/unshredder(2) because of asynchronous nature, there could be multiple fetch events    going on from the same url, while we don't want the registered    shredder/unshredder to grow out of control, we create a unique key    so we can use the same key to unreigster the shredder/unshredder(3) any cache operations needs to happen within defaultResponseProxy    processRequest scope.
 </div>
 
 
@@ -976,7 +976,7 @@
 
 
 <div class="description">
-    Return a Request object constructed from the JSON object returned by requestToJSON
+    Return a Request object constructed from the JSON object returned byrequestToJSON
 </div>
 
 
@@ -1647,7 +1647,7 @@
 
 
 <div class="description">
-    Update the Response object with the provided payload. The existing payload will be replaced
+    Update the Response object with the provided payload. The existing payloadwill be replaced
 </div>
 
 
