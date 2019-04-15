@@ -68,28 +68,16 @@ define(['./impl/logger'], function (logger) {
     return response.headers.has('x-oracle-jscpt-etag-generated');
   };
 
-  /**
-   * Derive the payload body type based on content-type from response
-   * header and responseType from request.
-   * @method
-   * @name derivePayloadType
-   * @memberof persistenceUtils
-   * @static
-   * @param {XMLHttpRequest} xhr request object
-   * @param {Response} response Response object
-   * @return {string} Returns payload body type, possible values are:
-   *   text, blob, arraybuffer, multipart
-   */
-  function derivePayloadType(xhr, response) {
+  function _derivePayloadType(xhr, response) {
     var contentType = response.headers.get('Content-Type');
     var responseType = xhr.responseType;
     if (_isTextPayload(response.headers)) {
       return "text";
     } else if (isCachedResponse(response) || responseType === 'blob') {
       return "blob";
-    } else if (contentType.indexOf('image/') !== -1 || responseType === 'arraybuffer') {
+    } else if (contentType &amp;&amp; contentType.indexOf('image/') !== -1 || responseType === 'arraybuffer') {
       return "arraybuffer";
-    } else if (contentType.indexOf('multipart/form-data') !== -1) {
+    } else if (contentType &amp;&amp; contentType.indexOf('multipart/form-data') !== -1) {
       return "multipart";
     } else {
       return "text";
@@ -585,7 +573,7 @@ define(['./impl/logger'], function (logger) {
     buildEndpointKey: buildEndpointKey,
     _cloneRequest: _cloneRequest,
     _cloneResponse: _cloneResponse,
-    derivePayloadType: derivePayloadType
+    _derivePayloadType: _derivePayloadType
   };
 });
 

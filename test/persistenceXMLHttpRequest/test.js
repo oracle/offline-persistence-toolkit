@@ -48,7 +48,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
 
           xhr.onreadystatechange = function(event) {
             assert.ok(event.type == 'readystatechange', 'readystatechange event');
-            
+
             if (this.readyState == 1) {
               assert.ok(this.onabort === null, 'onabort is null');
               assert.ok(this.onerror === null, 'onerror is null');
@@ -110,7 +110,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           xhr.send();
           xhr.removeEventListener('readystatechange', xhr.onreadystatechange);
           xhr.abort();
-          
+
           var xhrErr = new XMLHttpRequest();
           try {
             xhrErr.open('GET', 'http://localhost/testOpenErr', false);
@@ -119,7 +119,37 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           }
         });
       });
-      
+
+      QUnit.test('test null content type', function (assert) {
+        var done = assert.async();
+        assert.expect(6);
+        var headers = new Headers({'Content-Type': null});
+        mockFetch.addRequestReply('GET', '/testNullContentHeader', {
+          status: 200,
+          statusText: 'OK',
+          headers: headers,
+          body: "Hello"
+        });
+        persistenceManager.register({
+          scope: '/testNullContentHeader'
+        }).then(function (registration) {
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function(event) {
+            assert.ok(event.type == 'readystatechange', 'readystatechange event');
+            if (this.readyState == 4) {
+              assert.ok(this.status === 200, 'status is 200');
+              assert.ok(this.statusText === 'OK', 'statusText is OK');
+              done();
+            }
+          };
+          xhr.open('GET', 'http://testNullContentHeader', true);
+          xhr.send();
+        });
+      });
+
       QUnit.test('test binary data handling', function (assert) {
         var done = assert.async();
         assert.expect(6);
@@ -152,7 +182,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         });
       });
     });
-    
+
     QUnit.test('test binary data handling without URL support', function (assert) {
       var done = assert.async();
       assert.expect(6);
@@ -184,7 +214,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         });
       });
     });
-    
+
     var generateMultipartFormWithBlob = function (params, noURL) {
       return new Promise(function(resolve, reject) {
         var saveURL = window.URL;

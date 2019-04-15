@@ -512,7 +512,7 @@ define(['../persistenceUtils', './logger'], function (persistenceUtils, logger) 
     self._statusText = response.statusText;
     self._responseURL = request.url;
 
-    var payloadType = persistenceUtils.derivePayloadType(self, response);
+    var payloadType = persistenceUtils._derivePayloadType(self, response);
     if (payloadType === 'blob') {
       logger.log('Offline Persistence Toolkit PersistenceXMLHttpRequest: Calling response.blob()');
       response.blob().then(function (blobData) {

@@ -11,7 +11,7 @@
 
 define([], function () {
   'use strict';
-  
+
   if (!window.navigator._mocked &&
     navigator.userAgent.match(/PhantomJS/)) {
     window.navigator = (function (oldNav) {
@@ -29,7 +29,7 @@ define([], function () {
       return newNav;
     }(window.navigator));
   }
-  
+
   function MockFetch() {
     this._replies = [];
     window.fetch = this.fetch.bind(this);
@@ -46,7 +46,7 @@ define([], function () {
   MockFetch.prototype.clearAllRequestReplies = function () {
     this._replies = [];
   };
-  
+
     /**
    * Add request reply
    * @method
@@ -81,7 +81,7 @@ define([], function () {
     var repliesCount = self._replies.length;
 
     for (i = 0; i < repliesCount; i++) {
-      if ((request.url.toLowerCase().indexOf(self._replies[i].scope.toLowerCase()) != -1) && 
+      if ((request.url.toLowerCase().indexOf(self._replies[i].scope.toLowerCase()) != -1) &&
         (self._replies[i].method == '*' || request.method == self._replies[i].method)) {
         if (self._replies[i].result instanceof Promise) {
           return self._replies[i].result.then(function(result) {
@@ -92,6 +92,11 @@ define([], function () {
           return;
         } else {
           response = new Response(self._replies[i].result.body, self._replies[i].result);
+
+          if (response.headers.get('Content-Type') === 'null') {
+            response.headers.delete('Content-Type');
+          }
+
           if (self._replies[i].callback) {
             self._replies[i].callback(request, response);
           }
