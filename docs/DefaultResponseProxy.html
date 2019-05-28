@@ -186,6 +186,8 @@
 
 
 
+
+
     
     </div>
 
@@ -284,7 +286,38 @@
 
             
 
-            <td class="description last">Options<ul><li>options.jsonProcessor An object containing the JSON shredder, unshredder, and queryHandler for the responses.</li><li>options.jsonProcessor.shredder JSON shredder for the responses</li><li>options.jsonProcessor.unshredder JSON unshredder for the responses</li><li>options.queryHandler query parameter handler. Should be a function which takes a                         Request and returns a Promise which resolves with a Response                         when the query parameters have been processed. If the Request                         was not handled then resolve to null.</li><li>options.fetchStrategy Should be a function which takes a                  Request and returns a Promise which resolves to a Response                  If unspecified then uses the default.</li><li>options.cacheStrategy Should be a function which returns a Promise which                  resolves with a response when the cache expiration behavior has been processed.                  If unspecified then uses the default which                  uses the HTTP cache headers to determine cache expiry.</li><li>options.requestHandlerOverride An object containing request handler overrides.</li><li>options.requestHandlerOverride.handleGet Override the default GET request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li><li>options.requestHandlerOverride.handlePost Override the default POST request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li><li>options.requestHandlerOverride.handlePut Override the default PUT request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li><li>options.requestHandlerOverride.handlePatch Override the default PATCH request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li><li>options.requestHandlerOverride.handleDelete Override the default DELETE request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li><li>options.requestHandlerOverride.handleHead Override the default HEAD request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li><li>options.requestHandlerOverride.handleOptions Override the default OPTIONS request handler with the supplied function.The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li></ul></td>
+            <td class="description last">Options
+<ul>
+<li>options.jsonProcessor An object containing the JSON shredder, unshredder, and queryHandler for the responses.</li>
+<li>options.jsonProcessor.shredder JSON shredder for the responses</li>
+<li>options.jsonProcessor.unshredder JSON unshredder for the responses</li>
+<li>options.queryHandler query parameter handler. Should be a function which takes a
+                         Request and returns a Promise which resolves with a Response
+                         when the query parameters have been processed. If the Request
+                         was not handled then resolve to null.</li>
+<li>options.fetchStrategy Should be a function which takes a
+                  Request and returns a Promise which resolves to a Response
+                  If unspecified then uses the default.</li>
+<li>options.cacheStrategy Should be a function which returns a Promise which
+                  resolves with a response when the cache expiration behavior has been processed.
+                  If unspecified then uses the default which
+                  uses the HTTP cache headers to determine cache expiry.</li>
+<li>options.requestHandlerOverride An object containing request handler overrides.</li>
+<li>options.requestHandlerOverride.handleGet Override the default GET request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+<li>options.requestHandlerOverride.handlePost Override the default POST request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+<li>options.requestHandlerOverride.handlePut Override the default PUT request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+<li>options.requestHandlerOverride.handlePatch Override the default PATCH request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+<li>options.requestHandlerOverride.handleDelete Override the default DELETE request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+<li>options.requestHandlerOverride.handleHead Override the default HEAD request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+<li>options.requestHandlerOverride.handleOptions Override the default OPTIONS request handler with the supplied function.
+The function should take a Request object as parameter and return a Promise which resolves to a Response object.</li>
+</ul></td>
         </tr>
 
     
@@ -335,6 +368,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -434,6 +469,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -475,7 +512,9 @@
 
 
 <div class="description">
-    The default DELETE request handler.Processes the DELETE Request using the default logic. Can be overridden to providecustom processing logic.
+    The default DELETE request handler.
+Processes the DELETE Request using the default logic. Can be overridden to provide
+custom processing logic.
 </div>
 
 
@@ -591,6 +630,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -632,7 +673,9 @@
 
 
 <div class="description">
-    The default GET request handler.Processes the GET Request using the default logic. Can be overrided to providecustom processing logic.
+    The default GET request handler.
+Processes the GET Request using the default logic. Can be overrided to provide
+custom processing logic.
 </div>
 
 
@@ -748,6 +791,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -789,7 +834,9 @@
 
 
 <div class="description">
-    The default HEAD request handler.Processes the HEAD Request using the default logic. Can be overrided to providecustom processing logic.
+    The default HEAD request handler.
+Processes the HEAD Request using the default logic. Can be overrided to provide
+custom processing logic.
 </div>
 
 
@@ -905,6 +952,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -946,7 +995,9 @@
 
 
 <div class="description">
-    The default OPTIONS request handler.The default implementation when offline will return a Response with'503 Service Unavailable' error code.
+    The default OPTIONS request handler.
+The default implementation when offline will return a Response with
+'503 Service Unavailable' error code.
 </div>
 
 
@@ -1062,6 +1113,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -1103,7 +1156,9 @@
 
 
 <div class="description">
-    The default PATCH request handler.The default implementation when offline will return a Response with'503 Service Unavailable' error code.
+    The default PATCH request handler.
+The default implementation when offline will return a Response with
+'503 Service Unavailable' error code.
 </div>
 
 
@@ -1219,6 +1274,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -1260,7 +1317,9 @@
 
 
 <div class="description">
-    The default POST request handler.The default implementation when offline will return a Response with'503 Service Unavailable' error code.
+    The default POST request handler.
+The default implementation when offline will return a Response with
+'503 Service Unavailable' error code.
 </div>
 
 
@@ -1376,6 +1435,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -1417,7 +1478,9 @@
 
 
 <div class="description">
-    The default PUT request handler.Processes the PUT Request using the default logic. Can be overrided to providecustom processing logic.
+    The default PUT request handler.
+Processes the PUT Request using the default logic. Can be overrided to provide
+custom processing logic.
 </div>
 
 
@@ -1533,6 +1596,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -1574,7 +1639,8 @@
 
 
 <div class="description">
-    Process the Request. Use this function if you want to chain requestprocessing within a fetch event listener.
+    Process the Request. Use this function if you want to chain request
+processing within a fetch event listener.
 </div>
 
 
@@ -1690,6 +1756,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -1739,7 +1807,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a>
 </footer>
 
 <script> prettyPrint(); </script>

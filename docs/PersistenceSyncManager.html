@@ -28,9 +28,16 @@
 
 <header>
     
-        <h2>PersistenceSyncManager</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PersistenceSyncManager<span class="signature">(isOnline, browserFetch, cache)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">The PersistenceSyncManager should be used support synchronizationcapabilities for requests which were made when offline. The PersistenceSyncManagerinstance can be obtained via the persistenceManager.getSyncManager() API. ThePersistenceSyncManager supports operations such as retrieving the sync log,invoking the sync() API to replay the requests which were made while offline,inserting/removing requests from the sync log, adding event listeners forsync operations, and performing undo/redo operations for the shredded localdata which were made as a result of those requests.</div>
+            <div class="class-description">The PersistenceSyncManager should be used support synchronization
+capabilities for requests which were made when offline. The PersistenceSyncManager
+instance can be obtained via the persistenceManager.getSyncManager() API. The
+PersistenceSyncManager supports operations such as retrieving the sync log,
+invoking the sync() API to replay the requests which were made while offline,
+inserting/removing requests from the sync log, adding event listeners for
+sync operations, and performing undo/redo operations for the shredded local
+data which were made as a result of those requests.</div>
         
     
 </header>
@@ -44,7 +51,9 @@
     <h2>Constructor</h2>
     
 
+    
     <h4 class="name" id="PersistenceSyncManager"><span class="type-signature"></span>new PersistenceSyncManager<span class="signature">(isOnline, browserFetch, cache)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -186,7 +195,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line501">line 501</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line491">line 491</a>
     </li></ul></dd>
     
 
@@ -212,6 +221,10 @@
 
 
 
+
+
+
+
     
     </div>
 
@@ -221,7 +234,9 @@
 
     
 
-     
+    
+
+    
 
     
 
@@ -235,14 +250,76 @@
 
     
 
+    
     <h4 class="name" id="addEventListener"><span class="type-signature"></span>##addEventListener<span class="signature">(type, listener, scope)</span><span class="type-signature"></span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Add an event listener. The listener should always return a Promise which should resolve to either null or an object with the action field.<br><p>For the beforeSyncRequest event, the resolved value of the Promise returned by the listener should be one of the items given below:<p><table><thead><tr><th>Resolved Value</th><th>Behavior</th></tr></thead><tbody><tr><td>null</td><td>Continue replaying the request</td></tr><tr><td>{action: 'replay', request: Request obj}</td><td>Replay the provided Request obj</td></tr><tr><td>{action: 'skip'}</td><td>Skip replaying the request</td></tr><tr><td>{action: 'stop'}</td><td>Stop the sync process</td></tr><tr><td>{action: 'continue'}</td><td>Continue replaying the request</td></tr></tbody></table><br>For the syncRequest event, the resolved value of the Promise returned by the listener should be one of the items given below:<p><table><thead><tr><th>Resolved Value</th><th>Behavior</th></tr></thead><tbody><tr><td>null</td><td>Continue processing the sync log</td></tr><tr><td>{action: 'stop'}</td><td>Stop the sync process</td></tr><tr><td>{action: 'continue'}</td><td>Continue processing the sync log</td></tr></tbody></table><br>
+    Add an event listener. The listener should always return a Promise which should resolve to either null or an object with the action field.
+<br>
+<p>
+For the beforeSyncRequest event, the resolved value of the Promise returned by the listener should be one of the items given below:
+<p>
+<table>
+<thead>
+<tr>
+<th>Resolved Value</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>null</td>
+<td>Continue replaying the request</td>
+</tr>
+<tr>
+<td>{action: 'replay', request: Request obj}</td>
+<td>Replay the provided Request obj</td>
+</tr>
+<tr>
+<td>{action: 'skip'}</td>
+<td>Skip replaying the request</td>
+</tr>
+<tr>
+<td>{action: 'stop'}</td>
+<td>Stop the sync process</td>
+</tr>
+<tr>
+<td>{action: 'continue'}</td>
+<td>Continue replaying the request</td>
+</tr>
+</tbody>
+</table>
+<br>
+For the syncRequest event, the resolved value of the Promise returned by the listener should be one of the items given below:
+<p>
+<table>
+<thead>
+<tr>
+<th>Resolved Value</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>null</td>
+<td>Continue processing the sync log</td>
+</tr>
+<tr>
+<td>{action: 'stop'}</td>
+<td>Stop the sync process</td>
+</tr>
+<tr>
+<td>{action: 'continue'}</td>
+<td>Continue processing the sync log</td>
+</tr>
+</tbody>
+</table>
+<br>
 </div>
 
 
@@ -381,7 +458,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line517">line 517</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line507">line 507</a>
     </li></ul></dd>
     
 
@@ -407,19 +484,26 @@
 
 
 
+
+
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getSyncLog"><span class="type-signature"></span>##getSyncLog<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Returns a Promise which resolves to all the Requests in the Sync Log returned as an Array sorted bythe created date of the Request
+    Returns a Promise which resolves to all the Requests in the Sync Log returned as an Array sorted by
+the created date of the Request
 </div>
 
 
@@ -463,7 +547,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line601">line 601</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line591">line 591</a>
     </li></ul></dd>
     
 
@@ -486,11 +570,24 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise which resolves to all the Requests in the Sync Log returned as an Array of compound objectswhich have the following structure:<ul><li>requestId An internally generated unique id for the Request.</li><li>request The Request object.</li><li>undo The undo function which returns a Promise to undo the changesmade to the local shredded data store for the Request. The Promise willresolve to true if there is undo data and false if there wasn't any.</li><li>redo The redo function which returns a Promise to redo the changesmade to the local shredded data store for the Request. The Promise willresolve to true if there is redo data and false if there wasn't any.</li></ul>
+    Returns a Promise which resolves to all the Requests in the Sync Log returned as an Array of compound objects
+which have the following structure:
+<ul>
+<li>requestId An internally generated unique id for the Request.</li>
+<li>request The Request object.</li>
+<li>undo The undo function which returns a Promise to undo the changes
+made to the local shredded data store for the Request. The Promise will
+resolve to true if there is undo data and false if there wasn't any.</li>
+<li>redo The redo function which returns a Promise to redo the changes
+made to the local shredded data store for the Request. The Promise will
+resolve to true if there is redo data and false if there wasn't any.</li>
+</ul>
 </div>
 
 
@@ -511,19 +608,24 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="insertRequest"><span class="type-signature"></span>##insertRequest<span class="signature">(request, options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Insert a Request into the Sync Log. The position in the Sync Log the Request will be inserted atis determined by the Request created date.
+    Insert a Request into the Sync Log. The position in the Sync Log the Request will be inserted at
+is determined by the Request created date.
 </div>
 
 
@@ -598,7 +700,23 @@
 
             
 
-            <td class="description last">Options<ul><li>options.undoRedoDataArray optionally specify undo/redo data if this request was shredded. Should be an Arraywhose entries should have the structure:<ul><li>operation The operation performed on the local store, e.g. upsert or remove</li><li>storeName The local store name</li><li>undoRedoData An Array of compounds object with the following structure containing the undo/redo data<ul><li>key The key for the shredded data row.</li><li>undo The undo data for the shredded data row.</li><li>redo The redo data for the shredded data row.</li></ul></li></ul></li></ul></td>
+            <td class="description last">Options
+<ul>
+<li>options.undoRedoDataArray optionally specify undo/redo data if this request was shredded. Should be an Array
+whose entries should have the structure:
+<ul>
+<li>operation The operation performed on the local store, e.g. upsert or remove</li>
+<li>storeName The local store name</li>
+<li>undoRedoData An Array of compounds object with the following structure containing the undo/redo data
+<ul>
+<li>key The key for the shredded data row.</li>
+<li>undo The undo data for the shredded data row.</li>
+<li>redo The redo data for the shredded data row.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul></td>
         </tr>
 
     
@@ -639,7 +757,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line623">line 623</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line613">line 613</a>
     </li></ul></dd>
     
 
@@ -649,6 +767,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -687,12 +807,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="removeEventListener"><span class="type-signature"></span>##removeEventListener<span class="signature">(type, listener, scope)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -838,7 +962,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line589">line 589</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line579">line 579</a>
     </li></ul></dd>
     
 
@@ -864,12 +988,18 @@
 
 
 
+
+
+
+
         
             
 
     
 
+    
     <h4 class="name" id="removeRequest"><span class="type-signature"></span>##removeRequest<span class="signature">(requestId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -969,7 +1099,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line652">line 652</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line642">line 642</a>
     </li></ul></dd>
     
 
@@ -979,6 +1109,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1017,19 +1149,25 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="sync"><span class="type-signature"></span>##sync<span class="signature">(options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Synchronize the log with the server. By default sync will first send an OPTIONS request before each request URLto determine if the server is reachable. This OPTIONS request will be timed out after 60s and the sync will failwith a HTTP response 504 error. If the OPTIONS request does not time out then sync will progress.
+    Synchronize the log with the server. By default sync will first send an OPTIONS request before each request URL
+to determine if the server is reachable. This OPTIONS request will be timed out after 60s and the sync will fail
+with a HTTP response 504 error. If the OPTIONS request does not time out then sync will progress.
 </div>
 
 
@@ -1081,7 +1219,11 @@
 
             
 
-            <td class="description last">Options<ul><li>options.preflightOptionsRequest 'enabled' or 'disabled' or url regex. 'enabled' is the default. 'disabled' will disable sending an OPTIONS request for all URLs. Specifying an URL pattern will enable the OPTIONS request only for those URLs.</li><li>options.preflightOptionsRequestTimeout The timeout for the OPTIONS request. Default is 60s.</li></ul></td>
+            <td class="description last">Options
+<ul>
+<li>options.preflightOptionsRequest 'enabled' or 'disabled' or url regex. 'enabled' is the default. 'disabled' will disable sending an OPTIONS request for all URLs. Specifying an URL pattern will enable the OPTIONS request only for those URLs.</li>
+<li>options.preflightOptionsRequestTimeout The timeout for the OPTIONS request. Default is 60s.</li>
+</ul></td>
         </tr>
 
     
@@ -1122,7 +1264,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line676">line 676</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line666">line 666</a>
     </li></ul></dd>
     
 
@@ -1132,6 +1274,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1170,19 +1314,24 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="updateRequest"><span class="type-signature"></span>##updateRequest<span class="signature">(requestId, request)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Update a Request from the Sync Log. This function effectivaly replaces theRequest in the sync log with the provided Request.
+    Update a Request from the Sync Log. This function effectivaly replaces the
+Request in the sync log with the provided Request.
 </div>
 
 
@@ -1298,7 +1447,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line663">line 663</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line653">line 653</a>
     </li></ul></dd>
     
 
@@ -1308,6 +1457,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1346,6 +1497,8 @@
 
 
 
+
+
         
     
 
@@ -1362,13 +1515,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 06 2017 19:17:05 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a>
 </footer>
 
 <script> prettyPrint(); </script>

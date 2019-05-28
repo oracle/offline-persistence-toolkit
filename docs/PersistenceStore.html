@@ -28,9 +28,11 @@
 
 <header>
     
-        <h2>PersistenceStore</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PersistenceStore<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">PersistenceStore constructor</div>
+            <div class="class-description">Abstract class that all Persistence Store implmenetation extends
+           from. Defines the basic operations every persistence store should
+           support.</div>
         
     
 </header>
@@ -44,7 +46,9 @@
     <h2>Constructor</h2>
     
 
+    
     <h4 class="name" id="PersistenceStore"><span class="type-signature"></span>new PersistenceStore<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -117,6 +121,10 @@
 
 
 
+
+
+
+
     
     </div>
 
@@ -126,7 +134,9 @@
 
     
 
-     
+    
+
+    
 
     
 
@@ -140,7 +150,9 @@
 
     
 
+    
     <h4 class="name" id="delete"><span class="type-signature"></span>##delete<span class="signature">(findExpression)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -199,7 +211,14 @@
 
             
 
-            <td class="description last">The expression to find matching documents to delete.                               The syntax of the expression follows standard                               MangoDB syntax. If undefined, all documents in this                               store will be deleted.<ul><li>findExpression.selector The search criteria to find matching                                        document.</li></ul></td>
+            <td class="description last">The expression to find matching documents to delete.
+                               The syntax of the expression follows standard
+                               MangoDB syntax. If undefined, all documents in this
+                               store will be deleted.
+<ul>
+<li>findExpression.selector The search criteria to find matching
+                                        document.</li>
+</ul></td>
         </tr>
 
     
@@ -240,7 +259,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line161">line 161</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line163">line 163</a>
     </li></ul></dd>
     
 
@@ -266,12 +285,18 @@
 
 
 
+
+
+
+
         
             
 
     
 
+    
     <h4 class="name" id="find"><span class="type-signature"></span>##find<span class="signature">(findExpression)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -330,7 +355,15 @@
 
             
 
-            <td class="description last">The expression to query/sort the store. The syntax                               of the expression follows standard MangoDB syntax.<ul><li>findExpression.selector search criteria</li><li>findExpression.fields lists of fields to be included in the return                                      value</li><li>findExpression.sort name of the field to be sorted against and the                                    order to sort with.</li></ul></td>
+            <td class="description last">The expression to query/sort the store. The syntax
+                               of the expression follows standard MangoDB syntax.
+<ul>
+<li>findExpression.selector search criteria</li>
+<li>findExpression.fields lists of fields to be included in the return
+                                      value</li>
+<li>findExpression.sort name of the field to be sorted against and the
+                                    order to sort with.</li>
+</ul></td>
         </tr>
 
     
@@ -371,7 +404,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line102">line 102</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -394,11 +427,17 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise that resolves to an array of entries that                          satisfy the selector expression in the specified sorted                          order that contains the specified fields. The                          promise should resolve to an emtpy array if no                          entries are found.
+    Returns a Promise that resolves to an array of entries that
+                          satisfy the selector expression in the specified sorted
+                          order that contains the specified fields. The
+                          promise should resolve to an emtpy array if no
+                          entries are found.
 </div>
 
 
@@ -419,19 +458,25 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="findByKey"><span class="type-signature"></span>##findByKey<span class="signature">(key)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Convenient method to retrieve the document with the specified key. This isequivalent tofind({selector: {key: {$eq: keyValue}},
+    Convenient method to retrieve the document with the specified key. This is
+equivalent to
+find({selector: {key: {$eq: keyValue}},
            fields: [value]});
 </div>
 
@@ -484,7 +529,8 @@
 
             
 
-            <td class="description last">The key part of the composite key in the store to                    search for store entry.</td>
+            <td class="description last">The key part of the composite key in the store to
+                    search for store entry.</td>
         </tr>
 
     
@@ -525,7 +571,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line127">line 127</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line129">line 129</a>
     </li></ul></dd>
     
 
@@ -548,11 +594,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise that resolves to the store entry                  identified by the specified key
+    Returns a Promise that resolves to the store entry
+                  identified by the specified key
 </div>
 
 
@@ -573,12 +622,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getName"><span class="type-signature"></span>##getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
 
     
 
@@ -629,7 +682,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line21">line 21</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line23">line 23</a>
     </li></ul></dd>
     
 
@@ -639,6 +692,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -677,12 +732,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getVersion"><span class="type-signature"></span>##getVersion<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
 
     
 
@@ -733,7 +792,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line33">line 33</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line35">line 35</a>
     </li></ul></dd>
     
 
@@ -743,6 +802,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -781,12 +842,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="Init"><span class="type-signature"></span>##Init<span class="signature">(options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -845,7 +910,11 @@
 
             
 
-            <td class="description last">Optional options to tune the store. <ul><li>options.index   array of fields to create index for</li><li>options.version The version of the store.</li></ul></td>
+            <td class="description last">Optional options to tune the store. 
+<ul>
+<li>options.index   array of fields to create index for</li>
+<li>options.version The version of the store.</li>
+</ul></td>
         </tr>
 
     
@@ -886,7 +955,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line45">line 45</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line47">line 47</a>
     </li></ul></dd>
     
 
@@ -896,6 +965,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -934,12 +1005,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="keys"><span class="type-signature"></span>#keys<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -990,7 +1065,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line190">line 190</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line192">line 192</a>
     </li></ul></dd>
     
 
@@ -1013,11 +1088,16 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise that resolves to an array where each                          element is the key of an entry in this store.                          The Promise should resolve to an empty array if                          there is no entries in the store.
+    Returns a Promise that resolves to an array where each
+                          element is the key of an entry in this store.
+                          The Promise should resolve to an empty array if
+                          there is no entries in the store.
 </div>
 
 
@@ -1038,19 +1118,25 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="removeByKey"><span class="type-signature"></span>##removeByKey<span class="signature">(key)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Convenient method to delete a document identified by the specified key.This is equivalent to  delete({selector: {key: {$eq: keyValue}}});
+    Convenient method to delete a document identified by the specified key.
+This is equivalent to
+  delete({selector: {key: {$eq: keyValue}}});
 </div>
 
 
@@ -1143,7 +1229,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line145">line 145</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line147">line 147</a>
     </li></ul></dd>
     
 
@@ -1166,11 +1252,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise that is resolved when the store entry                  is deleted.
+    Returns a Promise that is resolved when the store entry
+                  is deleted.
 </div>
 
 
@@ -1191,12 +1280,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="upsert"><span class="type-signature"></span>##upsert<span class="signature">(key, metadata, value, expectedVersionIdentifier)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -1324,7 +1417,8 @@
 
             
 
-            <td class="description last">Optional, the new version                                           identifier value of this resource.</td>
+            <td class="description last">Optional, the new version 
+                                          identifier value of this resource.</td>
         </tr>
 
     
@@ -1365,7 +1459,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line67">line 67</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -1388,11 +1482,15 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise that for insert, resolves to undefined,                  while for update, resolves to the old value of the resource                  associated with the key.
+    Returns a Promise that for insert, resolves to undefined,
+                  while for update, resolves to the old value of the resource
+                  associated with the key.
 </div>
 
 
@@ -1413,12 +1511,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="upsertAll"><span class="type-signature"></span>##upsertAll<span class="signature">(values)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -1477,7 +1579,8 @@
 
             
 
-            <td class="description last">An array of document to be bulk operated. Each item in the                      array is of {key, metadata, value, expectedVersionIdentifier} format.</td>
+            <td class="description last">An array of document to be bulk operated. Each item in the
+                      array is of {key, metadata, value, expectedVersionIdentifier} format.</td>
         </tr>
 
     
@@ -1518,7 +1621,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line86">line 86</a>
+        <a href="PersistenceStore.js.html">PersistenceStore.js</a>, <a href="PersistenceStore.js.html#line88">line 88</a>
     </li></ul></dd>
     
 
@@ -1541,11 +1644,15 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise that resolves to an array where each element                          in the array is the status of upsert of the corresponding                          resource.
+    Returns a Promise that resolves to an array where each element
+                          in the array is the status of upsert of the corresponding
+                          resource.
 </div>
 
 
@@ -1566,6 +1673,8 @@
 
 
 
+
+
         
     
 
@@ -1582,13 +1691,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 06 2017 19:17:05 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a>
 </footer>
 
 <script> prettyPrint(); </script>

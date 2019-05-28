@@ -1,5 +1,5 @@
-define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'MockFetch', 'persist/impl/logger'],
-  function (persistenceManager, persistenceUtils, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, MockFetch, logger) {
+define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 'MockFetch', 'persist/impl/logger'],
+  function (persistenceManager, persistenceUtils, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, oracleRestJsonShredding, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
     QUnit.module('persist/defaultResponseProxy', {
@@ -461,6 +461,46 @@ define(['persist/persistenceManager', 'persist/persistenceUtils', 'persist/defau
                 });
               });
             });
+          });
+        });
+      });
+      
+      QUnit.test('getResponseProxy() delete', function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+        var deptData = {items: [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}]};
+        mockFetch.addRequestReply('GET', '/testDelete', {
+          status: 200,
+          body: JSON.stringify(deptData)
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when offline');
+        });
+        mockFetch.addRequestReply('DELETE', '/testDelete', {
+          status: 200,
+          body: null
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when offline');
+        });
+
+        persistenceManager.register({
+          scope: '/testDelete'
+        }).then(function (registration) {
+          var options = {jsonProcessor: {shredder: oracleRestJsonShredding.getShredder('departments', 'DepartmentId'), unshredder: oracleRestJsonShredding.getUnshredder()}}
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+
+          fetch('/testDelete').then(function (response) {
+            return fetch('/testDelete/556', {method: 'DELETE'});
+          }).then(function (response) {
+            persistenceManager.forceOffline(true);
+            return fetch('/testDelete');
+          }).then(function (response) {
+            return response.json();
+          }).then(function (responseJson) {
+            assert.ok(responseJson.items.length == 2, 'returned 2 items');
+            done();
           });
         });
       });

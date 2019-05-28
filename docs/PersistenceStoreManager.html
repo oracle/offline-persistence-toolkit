@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>PersistenceStoreManager</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PersistenceStoreManager<span class="signature">()</span><span class="type-signature"></span></h2>
         
             <div class="class-description">PersistenceStoreManager used for offline support</div>
         
@@ -44,7 +44,9 @@
     <h2>Constructor</h2>
     
 
+    
     <h4 class="name" id="PersistenceStoreManager"><span class="type-signature"></span>new PersistenceStoreManager<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -117,6 +119,10 @@
 
 
 
+
+
+
+
     
     </div>
 
@@ -126,7 +132,9 @@
 
     
 
-     
+    
+
+    
 
     
 
@@ -140,138 +148,9 @@
 
     
 
-    <h4 class="name" id="..registerDefaultStoreFactory"><span class="type-signature">(static) </span>.registerDefaultStoreFactory<span class="signature">(factory)</span><span class="type-signature"></span></h4>
-
     
-
-
-
-<div class="description">
-    Register the default PersistenceStoreFactory to create PersistenceStorefor stores that don't have any factory registered under.family.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>factory</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The factory instance used to create                        PersistenceStore</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line57">line 57</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
     <h4 class="name" id="deleteStore"><span class="type-signature"></span>##deleteStore<span class="signature">(name, options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -356,7 +235,12 @@
 
             
 
-            <td class="description last">Optional options when perform the                                delete. <ul><li>options.version The version of this store to delete. If not specified,                    all versions of the store will be deleted.</li></ul></td>
+            <td class="description last">Optional options when perform the
+                                delete. 
+<ul>
+<li>options.version The version of this store to delete. If not specified,
+                    all versions of the store will be deleted.</li>
+</ul></td>
         </tr>
 
     
@@ -397,7 +281,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line145">line 145</a>
+        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line154">line 154</a>
     </li></ul></dd>
     
 
@@ -420,11 +304,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise which resolves to true if the store is                  actually deleted, and false otherwise.
+    Returns a Promise which resolves to true if the store is
+                  actually deleted, and false otherwise.
 </div>
 
 
@@ -445,12 +332,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="hasStore"><span class="type-signature"></span>##hasStore<span class="signature">(name, options)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
 
     
 
@@ -535,7 +426,12 @@
 
             
 
-            <td class="description last">Optional options when perform the                                check. <ul><li>options.version The version of this store to check. If not specified,                    any version of the store counts.</li></ul></td>
+            <td class="description last">Optional options when perform the
+                                check. 
+<ul>
+<li>options.version The version of this store to check. If not specified,
+                    any version of the store counts.</li>
+</ul></td>
         </tr>
 
     
@@ -576,7 +472,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line118">line 118</a>
+        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line126">line 126</a>
     </li></ul></dd>
     
 
@@ -599,11 +495,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns true if the store with the name exists of the                   specific version, false otherwise.
+    Returns true if the store with the name exists of the 
+                  specific version, false otherwise.
 </div>
 
 
@@ -624,19 +523,25 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="openStore"><span class="type-signature"></span>##openStore<span class="signature">(name, options)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Get hold of a store for a collection of records of the same type.Returns a promise that resolves to an instance of PersistenceStorethat's ready to be used.
+    Get hold of a store for a collection of records of the same type.
+Returns a promise that resolves to an instance of PersistenceStore
+that's ready to be used.
 </div>
 
 
@@ -714,7 +619,12 @@
 
             
 
-            <td class="description last">Optional options to                                              tune the store<ul><li>options.index array of fields to create index for</li><li>options.version The version of this store to open, default to be '0'. </li></ul></td>
+            <td class="description last">Optional options to
+                                              tune the store
+<ul>
+<li>options.index array of fields to create index for</li>
+<li>options.version The version of this store to open, default to be '0'. </li>
+</ul></td>
         </tr>
 
     
@@ -755,7 +665,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line71">line 71</a>
+        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line81">line 81</a>
     </li></ul></dd>
     
 
@@ -778,11 +688,13 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns an instance of a concrete PersistenceStore.
+    Returns an instance of a PersistenceStore.
 </div>
 
 
@@ -803,6 +715,147 @@
 
 
 
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="registerDefaultStoreFactory"><span class="type-signature"></span>##registerDefaultStoreFactory<span class="signature">(factory)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Register the default PersistenceStoreFactory to create PersistenceStore
+for stores that don't have any factory registered under.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>factory</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The factory instance used to create
+                        PersistenceStore</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="persistenceStoreManager.js.html">persistenceStoreManager.js</a>, <a href="persistenceStoreManager.js.html#line67">line 67</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
     
 
@@ -819,13 +872,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 06 2017 19:17:05 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a>
 </footer>
 
 <script> prettyPrint(); </script>

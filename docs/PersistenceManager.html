@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>PersistenceManager</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PersistenceManager<span class="signature">()</span><span class="type-signature"></span></h2>
         
             <div class="class-description">PersistenceManager used for offline support</div>
         
@@ -44,7 +44,9 @@
     <h2>Constructor</h2>
     
 
+    
     <h4 class="name" id="PersistenceManager"><span class="type-signature"></span>new PersistenceManager<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -117,6 +119,10 @@
 
 
 
+
+
+
+
     
     </div>
 
@@ -126,7 +132,9 @@
 
     
 
-     
+    
+
+    
 
     
 
@@ -140,14 +148,17 @@
 
     
 
+    
     <h4 class="name" id="browserFetch"><span class="type-signature"></span>##browserFetch<span class="signature">(request)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Call fetch without going through the persistence framework. This is theunproxied browser provided fetch API.
+    Call fetch without going through the persistence framework. This is the
+unproxied browser provided fetch API.
 </div>
 
 
@@ -202,7 +213,8 @@
 
             
 
-            <td class="description last">A USVString containing the direct URL of theresource you want to fetch or a Request object.</td>
+            <td class="description last">A USVString containing the direct URL of the
+resource you want to fetch or a Request object.</td>
         </tr>
 
     
@@ -243,7 +255,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line189">line 189</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line192">line 192</a>
     </li></ul></dd>
     
 
@@ -253,6 +265,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -291,12 +305,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="forceOffline"><span class="type-signature"></span>##forceOffline<span class="signature">(offline)</span><span class="type-signature"></span></h4>
+    
 
     
 
@@ -396,7 +414,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line57">line 57</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -422,12 +440,18 @@
 
 
 
+
+
+
+
         
             
 
     
 
-    <h4 class="name" id="getCache"><span class="type-signature"></span>##getCache<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+    <h4 class="name" id="getCache"><span class="type-signature"></span>##getCache<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="OfflineCache.html">OfflineCache</a>}</span></h4>
+    
 
     
 
@@ -474,7 +498,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line70">line 70</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
@@ -484,6 +508,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -512,7 +538,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type"><a href="OfflineCache.html">OfflineCache</a></span>
 
 
     </dd>
@@ -522,12 +548,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getRegistration"><span class="type-signature"></span>##getRegistration<span class="signature">(url)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -627,7 +657,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line136">line 136</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line139">line 139</a>
     </li></ul></dd>
     
 
@@ -650,11 +680,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise which resolves to theregistration object for the URL or null.
+    Returns a Promise which resolves to the
+registration object for the URL or undefined.
 </div>
 
 
@@ -675,12 +708,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getRegistrations"><span class="type-signature"></span>##getRegistrations<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -731,7 +768,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line162">line 162</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line165">line 165</a>
     </li></ul></dd>
     
 
@@ -754,11 +791,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise which resolves to an array ofRegistration objects.
+    Returns a Promise which resolves to an array of
+Registration objects.
 </div>
 
 
@@ -779,12 +819,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="getSyncManager"><span class="type-signature"></span>##getSyncManager<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="PersistenceSyncManager.html">PersistenceSyncManager</a>}</span></h4>
+    
 
     
 
@@ -835,7 +879,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line176">line 176</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line179">line 179</a>
     </li></ul></dd>
     
 
@@ -845,6 +889,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -883,12 +929,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="init"><span class="type-signature"></span>##init<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -958,11 +1008,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    returns a Promise when resolved that this                  PersistenceManager is fully initialized.
+    returns a Promise when resolved that this
+                  PersistenceManager is fully initialized.
 </div>
 
 
@@ -983,19 +1036,34 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="isOnline"><span class="type-signature"></span>##isOnline<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
 
     
 
 
 
 <div class="description">
-    Checks if online.Returns true if the browser and PersistenceManager is online.Returns false if the browser or PersistenceManager is offline.Note: To determine if the browser is online, the function will usenavigator.onLine whose behavior is browser specific. If being usedin a hybrid mobile application, please install the Cordova plugin:https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/Installing the plugin will enable this function to return accuratebrowser online status.
+    Checks if online.
+Returns true if the browser and PersistenceManager is online.
+Returns false if the browser or PersistenceManager is offline.
+
+Note: To determine if the browser is online, the function will use
+navigator.onLine whose behavior is browser specific. If being used
+in a hybrid mobile application, please install the Cordova plugin:
+
+https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/
+
+Installing the plugin will enable this function to return accurate
+browser online status.
 </div>
 
 
@@ -1039,7 +1107,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line82">line 82</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line84">line 84</a>
     </li></ul></dd>
     
 
@@ -1049,6 +1117,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1087,12 +1157,16 @@
 
 
 
+
+
         
             
 
     
 
+    
     <h4 class="name" id="register"><span class="type-signature"></span>##register<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
 
     
 
@@ -1163,7 +1237,10 @@
 
             
 
-            <td class="description last">Options to control registration<ul><li>options.scope The URI which should be persisted.</li></ul></td>
+            <td class="description last">Options to control registration
+<ul>
+<li>options.scope The URI which should be persisted.</li>
+</ul></td>
         </tr>
 
     
@@ -1204,7 +1281,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line114">line 114</a>
+        <a href="persistenceManager.js.html">persistenceManager.js</a>, <a href="persistenceManager.js.html#line117">line 117</a>
     </li></ul></dd>
     
 
@@ -1227,11 +1304,14 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Returns a Promise which resolves to a PersistenceRegistration object for the specified options.If options is null, returns an array of all current PersistenceRegistration objects or null if there are none.
+    Returns a Promise which resolves to a PersistenceRegistration object for the specified options.
+If options is null, returns an array of all current PersistenceRegistration objects or null if there are none.
 </div>
 
 
@@ -1252,6 +1332,8 @@
 
 
 
+
+
         
     
 
@@ -1268,13 +1350,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 06 2017 19:17:04 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a>
 </footer>
 
 <script> prettyPrint(); </script>
