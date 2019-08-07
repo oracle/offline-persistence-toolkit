@@ -278,80 +278,88 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
         var queryExpArray = value.split(';');
         var i;
         var selectorQuery = {};
-        
-          for (i = 0; i &lt; queryExpArray.length; i++) {
-            
-            selectorQuery = parser.parse(queryExpArray[i], function(operatorValue, operands)
-              {
-                operatorValue = operatorValue.toUpperCase();
-                // the LHS operand is always a value operand
-                if (operatorValue != 'AND' &amp;&amp;
-                  operatorValue != 'OR') {
-                  operands[0] = 'value.' + operands[0];
-                }
-                var lhsOp = operands[0];
-                var rhsOp = operands[1];
-                var returnExp = {};
-                switch (operatorValue) {
-                  case '>':
-                    returnExp[lhsOp] = {
-                      $gt: rhsOp
-                    };
-                    break;
-                  case '&lt;':
-                    returnExp[lhsOp] = {
-                      $lt: rhsOp
-                    };
-                    break;
-                  case '>=':
-                    returnExp[lhsOp] = {
-                      $gte: rhsOp
-                    };
-                    break;
-                  case '&lt;=':
-                    returnExp[lhsOp] = {
-                      $lte: rhsOp
-                    };
-                    break;
-                  case '=':
-                    returnExp[lhsOp] = {
-                      $eq: rhsOp
-                    };
-                    break;
-                  case '!=':
-                    returnExp[lhsOp] = {
-                      $ne: rhsOp
-                    };
-                    break;
-                  case 'AND':
-                    returnExp = {
-                      $and: operands
-                    };
-                    break;
-                  case 'OR':
-                    returnExp = {
-                      $or: operands
-                    };
-                    break;
-                  case 'LIKE':
-                    rhsOp = rhsOp.replace('%', '.+');
-                    returnExp[lhsOp] = {
-                      $regex: rhsOp
-                    };
-                    break;
-                  case 'BETWEEN':
-                    var betweenOperands = [];
-                    betweenOperands[0] = {};
-                    betweenOperands[1] = {};
-                    betweenOperands[0][lhsOp] = {$gte: operands[1]};
-                    betweenOperands[1][lhsOp] = {$lte: operands[2]};
-                    returnExp = {
-                      $and: betweenOperands
-                    };
-                    break;
-                }
-                return returnExp;
-              });
+        var selectorQueryItemArray = [];
+        var selectorQueryItem = {};
+
+        for (i = 0; i &lt; queryExpArray.length; i++) {
+          
+          selectorQueryItem = parser.parse(queryExpArray[i], function(operatorValue, operands)
+            {
+              operatorValue = operatorValue.toUpperCase();
+              // the LHS operand is always a value operand
+              if (operatorValue != 'AND' &amp;&amp;
+                operatorValue != 'OR') {
+                operands[0] = 'value.' + operands[0];
+              }
+              var lhsOp = operands[0];
+              var rhsOp = operands[1];
+              var returnExp = {};
+              switch (operatorValue) {
+                case '>':
+                  returnExp[lhsOp] = {
+                    $gt: rhsOp
+                  };
+                  break;
+                case '&lt;':
+                  returnExp[lhsOp] = {
+                    $lt: rhsOp
+                  };
+                  break;
+                case '>=':
+                  returnExp[lhsOp] = {
+                    $gte: rhsOp
+                  };
+                  break;
+                case '&lt;=':
+                  returnExp[lhsOp] = {
+                    $lte: rhsOp
+                  };
+                  break;
+                case '=':
+                  returnExp[lhsOp] = {
+                    $eq: rhsOp
+                  };
+                  break;
+                case '!=':
+                  returnExp[lhsOp] = {
+                    $ne: rhsOp
+                  };
+                  break;
+                case 'AND':
+                  returnExp = {
+                    $and: operands
+                  };
+                  break;
+                case 'OR':
+                  returnExp = {
+                    $or: operands
+                  };
+                  break;
+                case 'LIKE':
+                  rhsOp = rhsOp.replace('%', '.+');
+                  returnExp[lhsOp] = {
+                    $regex: rhsOp
+                  };
+                  break;
+                case 'BETWEEN':
+                  var betweenOperands = [];
+                  betweenOperands[0] = {};
+                  betweenOperands[1] = {};
+                  betweenOperands[0][lhsOp] = {$gte: operands[1]};
+                  betweenOperands[1][lhsOp] = {$lte: operands[2]};
+                  returnExp = {
+                    $and: betweenOperands
+                  };
+                  break;
+              }
+              return returnExp;
+            });
+            selectorQueryItemArray.push(selectorQueryItem);
+          }
+          if (selectorQueryItemArray.length > 1) {
+            selectorQuery['$and'] = selectorQueryItemArray;
+          } else if (selectorQueryItemArray.length == 1) {
+            selectorQuery = selectorQueryItemArray[0];
           }
           if (Object.keys(selectorQuery).length > 0) {
             findQuery.selector = selectorQuery;
@@ -517,7 +525,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
 </nav>
 
 <br class="clear">

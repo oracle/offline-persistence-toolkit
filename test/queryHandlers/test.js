@@ -107,7 +107,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       });
       QUnit.test('getOracleRestQueryHandler', function (assert) {
         var done = assert.async();
-        assert.expect(54);
+        assert.expect(56);
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
           body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300})
@@ -218,6 +218,12 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
             }).then(function (responseData) {
               assert.ok(responseData.items.length == 3, 'Returned the correct departments');
               return fetch("/testOracleRestQuery?q=DepartmentName=%27BB%27&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=DepartmentName%3D%27BB%27%3BDepartmentId%3D556&offset=0&limit=10");
             }).then(function (response) {
               assert.ok(true, 'Received Response when offline');
               return response.json();

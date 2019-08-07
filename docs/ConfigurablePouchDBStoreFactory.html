@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: LocalPersistenceStoreFactory</title>
+    <title>JSDoc: Class: ConfigurablePouchDBStoreFactory</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: LocalPersistenceStoreFactory</h1>
+    <h1 class="page-title">Class: ConfigurablePouchDBStoreFactory</h1>
 
     
 
@@ -28,10 +28,11 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>LocalPersistenceStoreFactory</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>ConfigurablePouchDBStoreFactory<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">PersistenceStoreFactory that creates localStorage backed 
-           PersisteneStore instance.</div>
+            <div class="class-description">PersistenceStoreFactory that creates PouchDB backed 
+           PersisteneStore instance based on specified configurations,
+           for example, the adapter to be used for the PouchDB.</div>
         
     
 </header>
@@ -41,6 +42,15 @@
     
         
 
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="ConfigurablePouchDBStoreFactory"><span class="type-signature"></span>new ConfigurablePouchDBStoreFactory<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
 
 
 
@@ -49,6 +59,227 @@
 
 
 
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The optional options to be applied to every PouchDBPersistenceStore
+                          instances created by this factory.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>adapter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The adapter to be used for the underlying
+                                  PouchDB. Application uses this option needs
+                                  to make sure all necessary plugins and adapter
+                                  are installed.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The name of the adapter to be used for the underlying
+                                  PouchDB.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>plugin</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The plugin associated with the adapter to be used 
+                                 by the underlying PouchDB.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -84,7 +315,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="localPersistenceStoreFactory.js.html">localPersistenceStoreFactory.js</a>, <a href="localPersistenceStoreFactory.js.html#line9">line 9</a>
+        <a href="configurablePouchDBStoreFactory.js.html">configurablePouchDBStoreFactory.js</a>, <a href="configurablePouchDBStoreFactory.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -140,7 +371,7 @@
     
 
     
-    <h4 class="name" id="createPersistenceStore"><span class="type-signature"></span>##createPersistenceStore<span class="signature">(name, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;LocalPersistenceStore>}</span></h4>
+    <h4 class="name" id="createPersistenceStore"><span class="type-signature"></span>##createPersistenceStore<span class="signature">(name, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;PouchDBPersistenceStore>}</span></h4>
     
 
     
@@ -341,7 +572,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="localPersistenceStoreFactory.js.html">localPersistenceStoreFactory.js</a>, <a href="localPersistenceStoreFactory.js.html#line19">line 19</a>
+        <a href="configurablePouchDBStoreFactory.js.html">configurablePouchDBStoreFactory.js</a>, <a href="configurablePouchDBStoreFactory.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -370,8 +601,8 @@
 
         
 <div class="param-desc">
-    returns a Promise that is resolved to a localStorage
-backed PersistenceStore instance.
+    returns a Promise that is resolved to a PouchDB backed
+PersistenceStore instance with specified configurations.
 </div>
 
 
@@ -382,7 +613,7 @@ backed PersistenceStore instance.
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;LocalPersistenceStore></span>
+<span class="param-type">Promise.&lt;PouchDBPersistenceStore></span>
 
 
     </dd>

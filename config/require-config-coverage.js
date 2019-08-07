@@ -9,6 +9,7 @@
       'localPersistenceStoreFactory': '../../dist/debug/localPersistenceStoreFactory',
       'oracleRestJsonShredding': '../../dist/debug/oracleRestJsonShredding',
       'pouchDBPersistenceStoreFactory': '../../dist/debug/pouchDBPersistenceStoreFactory',
+      'ConfigurablePouchDBStoreFactory': '../../dist/debug/ConfigurablePouchDBStoreFactory',
       'persistenceManager': '../../dist/debug/persistenceManager',
       'PersistenceStore': '../../dist/debug/PersistenceStore',
       'persistenceStoreFactory': '../../dist/debug/persistenceStoreFactory',

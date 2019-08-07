@@ -7,7 +7,10 @@
 export {persistenceManager, defaultResponseProxy,
         persistenceStoreManager, PersistenceStore,
         pouchDBPersistenceStoreFactory, 
+        ConfigurablePouchDBStoreFactory, 
         localPersistenceStoreFactory,
+        fileSystemPersistenceStoreFactory,
+        arrayPersistenceStoreFactory,
         persistenceUtils, queryHandlers, 
         fetchStrategies, cacheStrategies,
         simpleJsonShredding, oracleRestJsonShredding
@@ -18,6 +21,8 @@ declare var defaultResponseProxy: DefaultResponseProxy;
 declare var persistenceStoreManager: PersistenceStoreManager;
 declare var pouchDBPersistenceStoreFactory: PouchDBPersistenceStoreFactory;
 declare var localPersistenceStoreFactory: LocalPersistenceStoreFactory;
+declare var fileSystemPersistenceStoreFactory: FileSystemPersistenceStoreFactory;
+declare var arrayPersistenceStoreFactory: ArrayPersistenceStoreFactory;
 
 declare class PersistenceManager {
   /** 
@@ -378,11 +383,39 @@ declare abstract class PersistenceStoreFactory {
 }
 
 declare class LocalPersistenceStoreFactory extends PersistenceStoreFactory{
-  static createPersistenceStore(name: string, options?: any): PersistenceStore
+  static createPersistenceStore(name: string, options?: StoreOptions): Promise<PersistenceStore>
 }
 
 declare class PouchDBPersistenceStoreFactory extends PersistenceStoreFactory {
-  static createPersistenceStore(name: string, options?: any): PersistenceStore
+  static createPersistenceStore(name: string, options?: PouchDBStoreOptions): Promise<PersistenceStore>
+}
+
+declare class ConfigurablePouchDBStoreFactory extends PersistenceStoreFactory {
+  constructor(options?: ConfigurablePouchDBFactoryOptions);
+  createPersistenceStore(name: string, options?: PouchDBStoreOptions): Promise<PersistenceStore>
+}
+
+declare class FileSystemPersistenceStoreFactory extends PersistenceStoreFactory {
+  static createPersistenceStore(name: string, options?: StoreOptions): Promise<PersistenceStore>  
+}
+
+declare class ArrayPersistenceStoreFactory extends PersistenceStoreFactory {
+  static createPersistenceStore(name: string, options?: StoreOptions): Promise<PersistenceStore>
+}
+
+interface StoreOptions {
+  version?: string;
+}
+
+interface PouchDBStoreOptions extends StoreOptions {
+  index?: string[];
+}
+
+interface ConfigurablePouchDBFactoryOptions {
+  adapter?: {
+    name: 'cordova-sqlite' | 'memory' | 'leveldb' | 'idb' | 'http' | string,
+    plugin?: object 
+  }
 }
 
 declare class queryHandlers {

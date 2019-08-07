@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: pouchDBPersistenceStoreFactory.js</title>
+    <title>JSDoc: Source: configurablePouchDBStoreFactory.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: pouchDBPersistenceStoreFactory.js</h1>
+    <h1 class="page-title">Source: configurablePouchDBStoreFactory.js</h1>
 
     
 
@@ -37,42 +37,60 @@ define(["./impl/pouchDBPersistenceStore"],
 
   /**
    * @export
-   * @class PouchDBPersistenceStoreFactory
+   * @class ConfigurablePouchDBStoreFactory
    * @classdesc PersistenceStoreFactory that creates PouchDB backed 
-   *            PersisteneStore instance.
-   * @hideconstructor
+   *            PersisteneStore instance based on specified configurations,
+   *            for example, the adapter to be used for the PouchDB.
+   * @param {object} [options] The optional options to be applied to every PouchDBPersistenceStore
+   *                           instances created by this factory.
+   * @param {object} [options.adapter] The adapter to be used for the underlying
+   *                                   PouchDB. Application uses this option needs
+   *                                   to make sure all necessary plugins and adapter
+   *                                   are installed.
+   * @param {string} options.adapter.name The name of the adapter to be used for the underlying
+   *                                   PouchDB.
+   * @param {object} [options.adapter.plugin] The plugin associated with the adapter to be used 
+   *                                  by the underlying PouchDB.
    */
-  var PouchDBPersistenceStoreFactory = (function () {
+  var ConfigurablePouchDBStoreFactory = function (options) {
+    this._options = options;
+  }
 
-    /**
-     * @method
-     * @name createPersistenceStore
-     * @memberof! PouchDBPersistenceStoreFactory
-     * @export
-     * @instance
-     * @param {string} name The name to be associated with the store.
-     * @param {object} [options] The configratuion options to be applied to the store.
-     * @param {string} [options.version] The version of the store.
-     * @return {Promise&lt;PouchDBPersistenceStore>} returns a Promise that is resolved to a PouchDB backed
-     * PersistenceStore instance.
-     */
-     
-    function _createPersistenceStore (name, options) {
-      var store = new PouchDBPersistenceStore(name);
-      return store.Init(options).then(function () {
-        return Promise.resolve(store);
-      });
-    };
-
-    return {
-      'createPersistenceStore' : function (name, options) {
-        return _createPersistenceStore(name, options);
+  /**
+   * @method
+   * @name createPersistenceStore
+   * @memberof! ConfigurablePouchDBStoreFactory
+   * @export
+   * @instance
+   * @param {string} name The name to be associated with the store.
+   * @param {object} [options] The configratuion options to be applied to the store.
+   * @param {string} [options.version] The version of the store.
+   * @return {Promise&lt;PouchDBPersistenceStore>} returns a Promise that is resolved to a PouchDB backed
+   * PersistenceStore instance with specified configurations.
+   */
+  ConfigurablePouchDBStoreFactory.prototype.createPersistenceStore = function (name, options) {
+    var store = new PouchDBPersistenceStore(name);
+    var storeOptions = this._options;
+    if (options) {
+      if (!storeOptions) {
+        storeOptions = options;
+      } else {
+        storeOptions = Object.create(storeOptions);
+        for (var key in options) {
+          if (Object.prototype.hasOwnProperty.call(options, key)) {
+            storeOptions[key] = options[key];
+          }
+        }
       }
-    };
-  }());
+    }
+    return store.Init(storeOptions).then(function () {
+      return Promise.resolve(store);
+    });
+  }  
 
-  return PouchDBPersistenceStoreFactory;
-});</code></pre>
+  return ConfigurablePouchDBStoreFactory;
+});
+</code></pre>
         </article>
     </section>
 

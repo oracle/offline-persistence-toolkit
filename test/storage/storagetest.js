@@ -1,7 +1,12 @@
 define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
-        'persist/pouchDBPersistenceStoreFactory', 'persist/arrayPersistenceStoreFactory', 'testPersistenceStoreFactory', 'persist/persistenceManager', 'persist/impl/logger'],
+        'persist/pouchDBPersistenceStoreFactory', 'persist/arrayPersistenceStoreFactory',
+        'persist/configurablePouchDBStoreFactory',
+        'testPersistenceStoreFactory', 'persist/persistenceManager', 'persist/impl/logger'],
   function(persistenceStoreManager, localPersistenceStoreFactory,
-           pouchDBPersistenceStoreFactory, arrayPersistenceStoreFactory, testPersistenceStoreFactory, persistenceManager, logger){
+           pouchDBPersistenceStoreFactory, arrayPersistenceStoreFactory, 
+           ConfigurablePouchDBStoreFactory,
+           testPersistenceStoreFactory, persistenceManager, 
+           logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
 
@@ -1029,6 +1034,29 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
         reject(err);
       });
     });
+    });
+  });
+
+  QUnit.test('test SQLite Adapter', function(assert) {
+    var testStoreName = 'testSQLite';
+    var testStore;
+    var factory = new ConfigurablePouchDBStoreFactory({adapter: {name:'cordova-sqlite'}});
+    persistenceStoreManager.registerStoreFactory(testStoreName, factory);
+    return persistenceStoreManager.openStore(testStoreName, {version: "1.0"}).then(function (store) {
+      assert.ok(true, 'store opened');
+      testStore = store;
+      return store.upsert(testStoreName + 'key',
+                                {created: 908935353},
+                                {name: 'name-adapter'});
+    }).then(function() {
+      assert.ok(true, 'row inserted');
+      return testStore.keys();
+    }).then(function(keys) {
+      assert.ok(keys && keys.length === 1 && keys[0] === 'testSQLitekey');
+    }).catch(function (err) {
+      // sqlite can only run on hybrid with the needed plugin
+      assert.ok(true);
+      return;
     });
   });
 

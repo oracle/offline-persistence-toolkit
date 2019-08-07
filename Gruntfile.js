@@ -66,7 +66,7 @@ module.exports = function (grunt) {
             },
             {
               name: 'persist/pouchDBPersistenceStoreFactory',
-              include: ['persist/persistenceStoreFactory'],
+              include: ['persist/persistenceStoreFactory', 'persist/configurablePouchDBStoreFactory'],
               excludeShallow: ['persist/impl/logger']
             },
             {
@@ -113,7 +113,7 @@ module.exports = function (grunt) {
             },
             {
               name: 'persist/pouchDBPersistenceStoreFactory',
-              include: ['persist/persistenceStoreFactory'],
+              include: ['persist/persistenceStoreFactory', 'persist/configurablePouchDBStoreFactory'],
               excludeShallow: ['persist/impl/logger']
             },
             {
