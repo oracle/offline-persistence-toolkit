@@ -20,7 +20,7 @@
         'persist/pouchdb-browser-7.0.0',
         'persist/impl/pouchDBPersistenceStore',
         'persist/pouchDBPersistenceStoreFactory',
-        'persist/ConfigurablePouchDBStoreFactory',
+        'persist/configurablePouchDBStoreFactory',
         'persist/persistenceStoreFactory'
       ],
       'persist/offline-persistence-toolkit-arraystore-{pkg.version}': [
