@@ -28,7 +28,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
 
       QUnit.test('open()/send()', function (assert) {
         var done = assert.async();
-        assert.expect(108);
+        assert.expect(109);
         mockFetch.addRequestReply('GET', '/testOpen', {
           status: 200,
           statusText: 'OK',
@@ -91,7 +91,6 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
               assert.ok(this.withCredentials === false, 'withCredentials is false');
               assert.ok(this.getResponseHeader('content-type') == 'test-mime', 'responseHeader is correct');
               assert.ok(this.getAllResponseHeaders().indexOf('content-type: test-mime') >= 0, 'responseHeader is correct');
-              done();
             }
           };
           xhr.addEventListener('readystatechange', xhr.onreadystatechange);
@@ -103,6 +102,24 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           });
           xhr.addEventListener('loadend', function(event) {
             assert.ok(this.readyState == 4, 'state is correct');
+            var xhrErr = new XMLHttpRequest();
+            try {
+              xhrErr.open('GET', 'http://localhost/testOpenErr', false);
+            } catch (err) {
+              assert.ok(true, 'Error for sync open');
+            }
+
+            var xhrErrNoRegisteredUrl = new XMLHttpRequest();
+            try {
+              xhrErrNoRegisteredUrl.onerror = function(event) {
+                assert.ok(event.type == 'error', 'error handler invoked');
+                done();
+              };
+              xhrErrNoRegisteredUrl.open('GET', 'http://localhost/testNonReg');
+              xhrErrNoRegisteredUrl.send();
+            } catch (err) {
+              assert.ok(false, 'Should not throw error. The onerror handler should be invoked');
+            }
           });
           xhr.open('GET', 'http://localhost/testOpen', true);
           xhr.setRequestHeader('test', 'value');
@@ -110,13 +127,6 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
           xhr.send();
           xhr.removeEventListener('readystatechange', xhr.onreadystatechange);
           xhr.abort();
-
-          var xhrErr = new XMLHttpRequest();
-          try {
-            xhrErr.open('GET', 'http://localhost/testOpenErr', false);
-          } catch (err) {
-            assert.ok(true, 'Error for sync open');
-          }
         });
       });
 

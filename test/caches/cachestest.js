@@ -1,5 +1,10 @@
-define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/impl/offlineCacheManager', 'MockFetch', 'persist/impl/logger'],
-  function(persistenceStoreManager, localPersistenceStoreFactory, offlineCacheManager, MockFetch, logger){
+define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
+        'persist/oracleRestJsonShredding', 'persist/persistenceUtils',
+        'persist/impl/offlineCacheManager', 'persist/impl/defaultCacheHandler',
+        'MockFetch', 'persist/impl/logger'],
+  function(persistenceStoreManager, localPersistenceStoreFactory, 
+           oracleRestJsonShredding, persistenceUtils, offlineCacheManager,
+           cacheHandler, MockFetch, logger){
   'use strict';
   logger.option('level',  logger.LEVEL_LOG);
   QUnit.module('cachestest');
@@ -430,10 +435,145 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
     });
   });
 
-  QUnit.test('cache shredding test', function (assert) {
+  QUnit.test('cache shredding test collection', function (assert) {
+    var data = [{
+      DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300
+    }, {
+      DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300
+    }, {
+      DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300
+    }];
+    var payloadJson = JSON.stringify({items: data});
+    var request = new Request('http://localhost:7001/testcacheshreddingcollection');
+    var endpointKey = persistenceUtils.buildEndpointKey(request);
+
+    var shreddedStoreName = 'departments';
+    var shredder = oracleRestJsonShredding.getShredder(shreddedStoreName, 'DepartmentId');
+    var unshredder = oracleRestJsonShredding.getUnshredder();
+    var options = {jsonProcessor: {shredder: shredder, unshredder: unshredder}}
+    
+    var mockFetch = new MockFetch();
+    mockFetch.addRequestReply('GET', '/testcacheshreddingcollection', {
+      status: 200,
+      body: payloadJson
+    });
+
     return new Promise(function (resolve, reject) {
-      assert.ok(true);
-      resolve();
+      var testCache;
+      offlineCacheManager.delete('cacheShreddingTestCollection').then(function(){
+        return offlineCacheManager.open('cacheShreddingTestCollection');
+      }).then(function (cache) {
+        assert.ok(cache);
+        testCache = cache;
+        return testCache.delete();
+      }).then(function () {
+        assert.ok(true);
+        assert.ok(testCache.getName() === 'cacheShreddingTestCollection');
+        cacheHandler.registerEndpointOptions(endpointKey, options);
+        return testCache.add(request);
+      }).then(function () {
+        assert.ok(true, "request is added to the cache");
+        return testCache.match(request);
+      }).then(function (response1) {
+        assert.ok(response1 != null, "request is found in the cache");
+        var hasStore = persistenceStoreManager.hasStore(shreddedStoreName);
+        assert.ok(hasStore, "shredded store exists");
+        return persistenceStoreManager.openStore(shreddedStoreName);
+      }).then(function (shreddedStore) {
+        assert.ok(shreddedStore, "shredded store is opened.");
+        return shreddedStore.keys();
+      }).then(function (keysArray) {
+        assert.ok(keysArray.length === 3, "found 3 entries in the shredded store.");
+        return testCache.delete(request);
+      }).then(function (deleted) {
+        assert.ok(deleted, "request is deleted from the cache");
+        return testCache.match(request);
+      }).then(function (response1) {
+        assert.ok(!response1, "no request is found in the cache.");
+        var hasStore = persistenceStoreManager.hasStore(shreddedStoreName);
+        assert.ok(hasStore, "shredded store still exits.");
+        return persistenceStoreManager.openStore(shreddedStoreName);
+      }).then(function (shreddedStore) {
+        assert.ok(shreddedStore, "shredded store can still be opened.");
+        return shreddedStore.keys();
+      }).then(function (keysArray) {
+        assert.ok(keysArray.length === 0, "no entry is found in the shredded store.");
+        resolve();
+      }).catch(function (err) {
+        assert.ok(false);
+        reject(err);
+      }).finally(function() {
+        cacheHandler.unregisterEndpointOptions(endpointKey);
+      });
+    });
+  });
+
+  QUnit.test('cache shredding test single', function (assert) {
+    var data = {
+      DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300
+    };
+    var payloadJson = JSON.stringify(data);
+    var request = new Request('http://localhost:7001/testcacheshreddingsingle');
+    var endpointKey = persistenceUtils.buildEndpointKey(request);
+
+    var shreddedStoreName = 'department';
+    var shredder = oracleRestJsonShredding.getShredder(shreddedStoreName, 'DepartmentId');
+    var unshredder = oracleRestJsonShredding.getUnshredder();
+    var options = {jsonProcessor: {shredder: shredder, unshredder: unshredder}}
+    
+    var mockFetch = new MockFetch();
+    mockFetch.addRequestReply('GET', '/testcacheshreddingsingle', {
+      status: 200,
+      body: payloadJson
+    });
+
+    return new Promise(function (resolve, reject) {
+      var testCache;
+      offlineCacheManager.delete('cacheShreddingTestSingle').then(function(){
+        return offlineCacheManager.open('cacheShreddingTestSingle');
+      }).then(function (cache) {
+        assert.ok(cache);
+        testCache = cache;
+        return testCache.delete();
+      }).then(function () {
+        assert.ok(true);
+        assert.ok(testCache.getName() === 'cacheShreddingTestSingle');
+        cacheHandler.registerEndpointOptions(endpointKey, options);
+        return testCache.add(request);
+      }).then(function () {
+        assert.ok(true, "request is added to the cache");
+        return testCache.match(request);
+      }).then(function (response1) {
+        assert.ok(response1 != null, "request is found in the cache");
+        var hasStore = persistenceStoreManager.hasStore(shreddedStoreName);
+        assert.ok(hasStore, "shredded store exists");
+        return persistenceStoreManager.openStore(shreddedStoreName);
+      }).then(function (shreddedStore) {
+        assert.ok(shreddedStore, "shredded store is opened.");
+        return shreddedStore.keys();
+      }).then(function (keysArray) {
+        assert.ok(keysArray.length === 1, "found 1 entry in the shredded store.");
+        return testCache.delete(request);
+      }).then(function (deleted) {
+        assert.ok(deleted, "request is deleted from the cache");
+        return testCache.match(request);
+      }).then(function (response1) {
+        assert.ok(!response1, "no request is found in the cache.");
+        var hasStore = persistenceStoreManager.hasStore(shreddedStoreName);
+        assert.ok(hasStore, "shredded store still exits.");
+        return persistenceStoreManager.openStore(shreddedStoreName);
+      }).then(function (shreddedStore) {
+        assert.ok(shreddedStore, "shredded store can still be opened.");
+        return shreddedStore.keys();
+      }).then(function (keysArray) {
+        assert.ok(keysArray.length === 0, "no entry is found in the shredded store.");
+        resolve();
+      }).catch(function (err) {
+        assert.ok(false);
+        reject(err);
+      }).finally(function() {
+        cacheHandler.unregisterEndpointOptions(endpointKey);
+      });
     });
   });
 
