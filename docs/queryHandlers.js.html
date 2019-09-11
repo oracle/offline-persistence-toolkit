@@ -61,9 +61,10 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * @param {function=} createQueryExp Optional function takes URL query parameters
      * and returns a query expression which will be executed against the persistent store.
      * If null then use the ADFBc REST query parameter structure.
+     * @param {DataMapping=} dataMapping Optional dataMapping to apply to the data 
      * @return {Function} Returns the query handler
      */
-    function getOracleRestQueryHandler(storeName, createQueryExp) {
+    function getOracleRestQueryHandler(storeName, createQueryExp, dataMapping) {
       createQueryExp = createQueryExp || function (urlParams) {
         return _createQueryFromAdfBcParams(urlParams, null);
       }
@@ -107,7 +108,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
             }
           } while (!queryParamEntry['done']);
 
-          var findQuery = createQueryExp(queryParams);
+          var findQuery = persistenceUtils._mapFindQuery(createQueryExp(queryParams), dataMapping);
 
           var shredder;
           var unshredder;
@@ -376,10 +377,11 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * @memberof queryHandlers
      * @static
      * @param {string} storeName The store name against which queries should be executed
-     * @param {Array} ignoreUrlParams An array of URL params to be ignored
+     * @param {Array=} ignoreUrlParams An array of URL params to be ignored
+     * @param {DataMapping=} dataMapping Optional dataMapping to apply to the data
      * @return {Function} Returns the query handler
      */
-    function getSimpleQueryHandler(storeName, ignoreUrlParams) {
+    function getSimpleQueryHandler(storeName, ignoreUrlParams, dataMapping) {
       return function (request, options) {
         if (request.method == 'GET' ||
           request.method == 'HEAD') {
@@ -388,7 +390,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
           // then the keys in the parameter are directly mapped to the shredded
           // data fields and values to the shredded data values
           var urlParams = request.url.split('?');
-          var findQuery = _createQueryFromUrlParams(urlParams, ignoreUrlParams);
+          var findQuery = persistenceUtils._mapFindQuery(_createQueryFromUrlParams(urlParams, ignoreUrlParams), dataMapping);
 
           var shredder;
           var unshredder;
@@ -525,7 +527,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
 </nav>
 
 <br class="clear">

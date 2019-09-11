@@ -31,7 +31,7 @@
  * All rights reserved.
  */
 
-define(['./impl/logger'], function (logger) {
+define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, PersistenceStoreMetadata) {
   'use strict';
   
   /**
@@ -58,6 +58,11 @@ define(['./impl/logger'], function (logger) {
     // name to avoid such issue. This is to store the original store
     // name to the system replaced name.
     Object.defineProperty(this, '_storeNameMapping', {
+      value: {},
+      writable: true
+    });
+
+    Object.defineProperty(this, '_storeMetadataMapping', {
       value: {},
       writable: true
     });
@@ -147,6 +152,9 @@ define(['./impl/logger'], function (logger) {
       allVersions = allVersions || {};
       allVersions[version] = store;
       self._stores[storeName] = allVersions;
+      var metadata = new PersistenceStoreMetadata(storeName, factory, Object.keys(allVersions));;
+      self._storeMetadataMapping[storeName] = metadata;
+
       return store;
     });
   };
@@ -197,6 +205,7 @@ define(['./impl/logger'], function (logger) {
    */
   PersistenceStoreManager.prototype.deleteStore = function (name, options) {
     logger.log("Offline Persistence Toolkit PersistenceStoreManager: deleteStore() for name: " + name);
+    var self = this;
     var storeName = this._mapStoreName(name);
     var allversions = this._stores[storeName];
     if (!allversions) {
@@ -211,6 +220,14 @@ define(['./impl/logger'], function (logger) {
           logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
           return store.delete().then(function () {
             delete allversions[version];
+            var metadata = self._storeMetadataMapping[storeName];
+            if (metadata) {
+              if (allversions &amp;&amp; allversions.length > 0) {
+                metadata.versions = Object.keys(allversions);
+              } else {
+                delete self._storeMetadataMapping[storeName];
+              }
+            }
             return true;
           });
         }
@@ -225,11 +242,24 @@ define(['./impl/logger'], function (logger) {
         var self = this;
         return Promise.all(promises).then(function () {
           delete self._stores[storeName];
+          delete self._storeMetadataMapping[storeName];
           return true;
         });
       }
     }
   };
+
+  /**
+   * Returns a promise that resolves to a Map of store name and store metadata.
+   * @method
+   * @name getStoresMetadata
+   * @memberof! PersistenceStoreManager
+   * @instance
+   * @return {Promise&lt;Map&lt;String, PersistenceStoreMetadata>>} Returns a Map of store name and store metadata.
+   */
+  PersistenceStoreManager.prototype.getStoresMetadata = function() {
+    return Promise.resolve(this._storeMetadataMapping);
+  }
 
   PersistenceStoreManager.prototype._mapStoreName = function (name, options) {
     var mappedName = this._storeNameMapping[name];
@@ -254,7 +284,7 @@ define(['./impl/logger'], function (logger) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
 </nav>
 
 <br class="clear">

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: cacheStrategies</title>
+    <title>JSDoc: Interface: CompoundFilter</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: cacheStrategies</h1>
+    <h1 class="page-title">Interface: CompoundFilter</h1>
 
     
 
@@ -28,16 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>cacheStrategies</h2>
-        
-            <div class="class-description">Contains out of the box Cache Strategies which includes the HTTP Cache Header
-strategy. The cache strategy is applied to GET/HEAD requests by the defaultResponseProxy right after the
-fetch strategy is applied and the response is obtained. The cache strategy should be
-a function which takes the request and response as parameter and returns a Promise
-which resolves to the response. In the case the fetch strategy returns a server response.
-the cache strategy should determine whether the request/response should be cached
-and if so, persist the request/response by calling persistenceManager.getCache().put(). The
-cache strategy should also handle cached responses returned by the fetch strategy.</div>
+        <h2>CompoundFilter</h2>
         
     
 </header>
@@ -46,19 +37,10 @@ cache strategy should also handle cached responses returned by the fetch strateg
     <div class="container-overview">
     
         
+            <div class="description">The interface for CompoundFilter</div>
+        
 
-
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 <dl class="details">
@@ -90,7 +72,7 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cacheStrategies.js.html">cacheStrategies.js</a>, <a href="cacheStrategies.js.html#line9">line 9</a>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line207">line 207</a>
     </li></ul></dd>
     
 
@@ -102,22 +84,7 @@ cache strategy should also handle cached responses returned by the fetch strateg
 </dl>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
     
     </div>
 
@@ -134,34 +101,30 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
 
     
-
-    
-        <h3 class="subsection-title">Methods</h3>
+        <h3 class="subsection-title">Members</h3>
 
         
             
+<h4 class="name" id="criteria"><span class="type-signature"></span>criteria<span class="type-signature"> :Array.&lt;(<a href="AttributeFilter.html">AttributeFilter</a>|<a href="CompoundFilter.html">CompoundFilter</a>)></span></h4>
 
-    
-
-    
-    <h4 class="name" id=".getHttpCacheHeaderStrategy"><span class="type-signature">(static) </span>getHttpCacheHeaderStrategy<span class="signature">()</span><span class="type-signature"> &rarr; {function}</span></h4>
-    
-
-    
 
 
 
 <div class="description">
-    Returns the HTTP Cache Header strategy
+    Array of Filters on which to apply the operator
 </div>
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;(<a href="AttributeFilter.html">AttributeFilter</a>|<a href="CompoundFilter.html">CompoundFilter</a>)></span>
 
 
-
-
-
+        </li>
+    </ul>
 
 
 
@@ -196,7 +159,7 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cacheStrategies.js.html">cacheStrategies.js</a>, <a href="cacheStrategies.js.html#line23">line 23</a>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line229">line 229</a>
     </li></ul></dd>
     
 
@@ -212,42 +175,85 @@ cache strategy should also handle cached responses returned by the fetch strateg
 
 
 
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
         
-<div class="param-desc">
-    Returns the HTTP Cache Header strategy which conforms
-to the Cache Strategy API.
+            
+<h4 class="name" id="op"><span class="type-signature"></span>op<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    Operator to apply for the filter. Valid operators defined in the CompoundFilterOperator are the strings:
+<ul>
+  <li>$and The filters in the criteria array will be AND'd.</li>
+  <li>$or The filters in the criteria array will be OR'd.</li>
+</ul>
 </div>
 
 
 
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">function</span>
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
 
 
-    </dd>
-</dl>
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line214">line 214</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
 
 
 
 
         
+    
+
     
 
     

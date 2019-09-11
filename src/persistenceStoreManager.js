@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(['./impl/logger'], function (logger) {
+define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, PersistenceStoreMetadata) {
   'use strict';
   
   /**
@@ -30,6 +30,11 @@ define(['./impl/logger'], function (logger) {
     // name to avoid such issue. This is to store the original store
     // name to the system replaced name.
     Object.defineProperty(this, '_storeNameMapping', {
+      value: {},
+      writable: true
+    });
+
+    Object.defineProperty(this, '_storeMetadataMapping', {
       value: {},
       writable: true
     });
@@ -119,6 +124,9 @@ define(['./impl/logger'], function (logger) {
       allVersions = allVersions || {};
       allVersions[version] = store;
       self._stores[storeName] = allVersions;
+      var metadata = new PersistenceStoreMetadata(storeName, factory, Object.keys(allVersions));;
+      self._storeMetadataMapping[storeName] = metadata;
+
       return store;
     });
   };
@@ -169,6 +177,7 @@ define(['./impl/logger'], function (logger) {
    */
   PersistenceStoreManager.prototype.deleteStore = function (name, options) {
     logger.log("Offline Persistence Toolkit PersistenceStoreManager: deleteStore() for name: " + name);
+    var self = this;
     var storeName = this._mapStoreName(name);
     var allversions = this._stores[storeName];
     if (!allversions) {
@@ -183,6 +192,14 @@ define(['./impl/logger'], function (logger) {
           logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
           return store.delete().then(function () {
             delete allversions[version];
+            var metadata = self._storeMetadataMapping[storeName];
+            if (metadata) {
+              if (allversions && allversions.length > 0) {
+                metadata.versions = Object.keys(allversions);
+              } else {
+                delete self._storeMetadataMapping[storeName];
+              }
+            }
             return true;
           });
         }
@@ -197,11 +214,24 @@ define(['./impl/logger'], function (logger) {
         var self = this;
         return Promise.all(promises).then(function () {
           delete self._stores[storeName];
+          delete self._storeMetadataMapping[storeName];
           return true;
         });
       }
     }
   };
+
+  /**
+   * Returns a promise that resolves to a Map of store name and store metadata.
+   * @method
+   * @name getStoresMetadata
+   * @memberof! PersistenceStoreManager
+   * @instance
+   * @return {Promise<Map<String, PersistenceStoreMetadata>>} Returns a Map of store name and store metadata.
+   */
+  PersistenceStoreManager.prototype.getStoresMetadata = function() {
+    return Promise.resolve(this._storeMetadataMapping);
+  }
 
   PersistenceStoreManager.prototype._mapStoreName = function (name, options) {
     var mappedName = this._storeNameMapping[name];

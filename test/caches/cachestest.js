@@ -106,6 +106,12 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
         return testCache.keys();
       }).then(function (keysArray) {
         assert.ok(keysArray && keysArray.length === 2);
+        return testCache.clear();
+      }).then(function (deleted) {
+        assert.ok(deleted);
+        return testCache.keys();
+      }).then(function (keysArray) {
+        assert.ok(keysArray && keysArray.length === 0);
         resolve();
       }).catch(function (err) {
         assert.ok(false);

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: fileSystemPersistenceStoreFactory.js</title>
+    <title>JSDoc: Interface: ItemMetadata</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,68 +17,176 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: fileSystemPersistenceStoreFactory.js</h1>
+    <h1 class="page-title">Interface: ItemMetadata</h1>
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Copyright (c) 2017, Oracle and/or its affiliates.
- * All rights reserved.
- */
-
-define(["./impl/fileSystemPersistenceStore"], function (FileSystemPersistenceStore) {
-  'use strict';
-  
-  /**
-   * @export
-   * @class FileSystemPersistenceStoreFactory
-   * @classdesc PersistenceStoreFactory that creates filesystem backed 
-   *            PersistenceStore instance. Requires the device to have the
-   *            cordova-file-plugin installed. Each PersistenceStore will be
-   *            saved as a directory and each entry in that store will be a file
-   *            in the directory. Please configure the location where the directories
-   *            will be stored in the cordova-file-plugin.
-   * @hideconstructor
-   */
-  var FileSystemPersistenceStoreFactory = (function () {
-
-    /**
-     * @method
-     * @name createPersistenceStore
-     * @memberof! FileSystemPersistenceStoreFactory
-     * @export
-     * @instance
-     * @param {string} name The name to be associated with the store.
-     * @param {object} [options] The configratuion options to be applied to the store.
-     * @param {string} [options.version] The version of the store.
-     * @return {Promise&lt;FileSystemPersistenceStore>} returns a Promise that is resolved to a filesystem
-     * backed PersistenceStore instance.
-     */
+        <h2>ItemMetadata</h2>
+        
     
-    function _createPersistenceStore (name, options) {
-      var store = new FileSystemPersistenceStore(name);
-      return store.Init(options).then(function() {
-        return store;
-      });
-    };
+</header>
 
-    return {
-      'createPersistenceStore': function (name, options) {
-        return _createPersistenceStore(name, options);
-      }
-    };
-  }());
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">The interface for ItemMetadata.  Note that key is the only mandatory property,
+implementations can provide additional properties as needed.</div>
+        
 
-  return FileSystemPersistenceStoreFactory;
-});
-</code></pre>
-        </article>
-    </section>
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line132">line 132</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="key"><span class="type-signature"></span>key<span class="type-signature"> :any</span></h4>
+
+
+
+
+<div class="description">
+    The key for the row
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">any</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line140">line 140</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

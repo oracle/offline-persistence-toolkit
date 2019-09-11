@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: fileSystemPersistenceStoreFactory.js</title>
+    <title>JSDoc: Interface: Item</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,68 +17,247 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: fileSystemPersistenceStoreFactory.js</h1>
+    <h1 class="page-title">Interface: Item</h1>
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Copyright (c) 2017, Oracle and/or its affiliates.
- * All rights reserved.
- */
-
-define(["./impl/fileSystemPersistenceStore"], function (FileSystemPersistenceStore) {
-  'use strict';
-  
-  /**
-   * @export
-   * @class FileSystemPersistenceStoreFactory
-   * @classdesc PersistenceStoreFactory that creates filesystem backed 
-   *            PersistenceStore instance. Requires the device to have the
-   *            cordova-file-plugin installed. Each PersistenceStore will be
-   *            saved as a directory and each entry in that store will be a file
-   *            in the directory. Please configure the location where the directories
-   *            will be stored in the cordova-file-plugin.
-   * @hideconstructor
-   */
-  var FileSystemPersistenceStoreFactory = (function () {
-
-    /**
-     * @method
-     * @name createPersistenceStore
-     * @memberof! FileSystemPersistenceStoreFactory
-     * @export
-     * @instance
-     * @param {string} name The name to be associated with the store.
-     * @param {object} [options] The configratuion options to be applied to the store.
-     * @param {string} [options.version] The version of the store.
-     * @return {Promise&lt;FileSystemPersistenceStore>} returns a Promise that is resolved to a filesystem
-     * backed PersistenceStore instance.
-     */
+        <h2>Item</h2>
+        
     
-    function _createPersistenceStore (name, options) {
-      var store = new FileSystemPersistenceStore(name);
-      return store.Init(options).then(function() {
-        return store;
-      });
-    };
+</header>
 
-    return {
-      'createPersistenceStore': function (name, options) {
-        return _createPersistenceStore(name, options);
-      }
-    };
-  }());
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">The interface for Item</div>
+        
 
-  return FileSystemPersistenceStoreFactory;
-});
-</code></pre>
-        </article>
-    </section>
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="data"><span class="type-signature"></span>data<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    The data for the item
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line121">line 121</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="metadata"><span class="type-signature"></span>metadata<span class="type-signature"> :<a href="ItemMetadata.html">ItemMetadata</a></span></h4>
+
+
+
+
+<div class="description">
+    The metadata for the item
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="ItemMetadata.html">ItemMetadata</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line109">line 109</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

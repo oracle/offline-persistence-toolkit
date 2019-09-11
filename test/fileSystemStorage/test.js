@@ -35,7 +35,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
           console.log('\nSkipping filesystem store tests on Phantomjs. Please test in a browser.\n');
           done();
         } else {
-          assert.expect(12);
+          assert.expect(13);
           generateBlob().then(function(blob) {
             mockFetch.addRequestReply('GET', '/blobResponse1', {
               status: 200,
@@ -86,6 +86,12 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/i
                 return store.keys();
               }).then(function(keys){
                 assert.ok(keys.length == 2, '2 keys');
+                return localVars.store.updateKey('file:///blobResponse1', 'file:///blobResponse1A');
+              }).then(function() {
+                return localVars.store.keys();
+              }).then(function(keys){
+                assert.ok(keys[0] == 'file:///blobResponse1A' && keys[1] == 'file:///blobResponse2' ||
+                          keys[1] == 'file:///blobResponse1A' && keys[0] == 'file:///blobResponse2');
                 return localVars.store.delete();
               }).then(function() {
                 return localVars.store.keys();

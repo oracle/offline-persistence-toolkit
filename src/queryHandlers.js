@@ -33,9 +33,10 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * @param {function=} createQueryExp Optional function takes URL query parameters
      * and returns a query expression which will be executed against the persistent store.
      * If null then use the ADFBc REST query parameter structure.
+     * @param {DataMapping=} dataMapping Optional dataMapping to apply to the data 
      * @return {Function} Returns the query handler
      */
-    function getOracleRestQueryHandler(storeName, createQueryExp) {
+    function getOracleRestQueryHandler(storeName, createQueryExp, dataMapping) {
       createQueryExp = createQueryExp || function (urlParams) {
         return _createQueryFromAdfBcParams(urlParams, null);
       }
@@ -79,7 +80,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
             }
           } while (!queryParamEntry['done']);
 
-          var findQuery = createQueryExp(queryParams);
+          var findQuery = persistenceUtils._mapFindQuery(createQueryExp(queryParams), dataMapping);
 
           var shredder;
           var unshredder;
@@ -348,10 +349,11 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * @memberof queryHandlers
      * @static
      * @param {string} storeName The store name against which queries should be executed
-     * @param {Array} ignoreUrlParams An array of URL params to be ignored
+     * @param {Array=} ignoreUrlParams An array of URL params to be ignored
+     * @param {DataMapping=} dataMapping Optional dataMapping to apply to the data
      * @return {Function} Returns the query handler
      */
-    function getSimpleQueryHandler(storeName, ignoreUrlParams) {
+    function getSimpleQueryHandler(storeName, ignoreUrlParams, dataMapping) {
       return function (request, options) {
         if (request.method == 'GET' ||
           request.method == 'HEAD') {
@@ -360,7 +362,7 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
           // then the keys in the parameter are directly mapped to the shredded
           // data fields and values to the shredded data values
           var urlParams = request.url.split('?');
-          var findQuery = _createQueryFromUrlParams(urlParams, ignoreUrlParams);
+          var findQuery = persistenceUtils._mapFindQuery(_createQueryFromUrlParams(urlParams, ignoreUrlParams), dataMapping);
 
           var shredder;
           var unshredder;

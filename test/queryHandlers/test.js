@@ -38,6 +38,42 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       };
     }());
 
+    var dataMapping = {};
+    dataMapping.mapFields = function(item) {
+      var mappedItem = {};
+      mappedItem.data = {};
+      Object.keys(item.data).forEach(function(field) {
+        if (field == 'establishedDate') {
+          var date = new Date(item.data[field]);
+          mappedItem.data[field] = date.getTime();
+        } else {
+          mappedItem.data[field] = item.data[field];
+        }
+      });
+      mappedItem.metadata = item.metadata;
+      return mappedItem;
+    };
+    dataMapping.unmapFields = function(item) {
+      var unmappedItem = {};
+      unmappedItem.data = {};
+      Object.keys(item.data).forEach(function(field) {
+        if (field == 'establishedDate') {
+          var date = new Date(item.data[field]);
+          unmappedItem.data[field] = date.toISOString();
+        } else {
+          unmappedItem.data[field] = item.data[field];
+        }
+      });
+      unmappedItem.metadata = item.metadata;
+      return unmappedItem;
+    };
+    dataMapping.mapFilterCriterion = function(filterCriterion) {
+      if (filterCriterion && filterCriterion.attribute == 'establishedDate') {
+        filterCriterion.value = (new Date(filterCriterion.value)).getTime();
+      }
+      return filterCriterion;
+    };
+
     var mockFetch = new MockFetch();
     persistenceStoreManager.registerDefaultStoreFactory(versionedLocalPersistenceStoreFactory);
     persistenceManager.init().then(function () {
@@ -47,9 +83,9 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
         assert.expect(13);
         mockFetch.addRequestReply('GET', '/testSimpleQuery', {
           status: 200,
-          body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
-            {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
-            {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}])
+          body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', establishedDate: '1999-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 10, DepartmentName: 'Administration', establishedDate: '2005-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}])
         }, function () {
           assert.ok(true, 'Mock Fetch received Request when online');
         });
@@ -57,8 +93,8 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
         persistenceManager.register({
           scope: '/testSimpleQuery'
         }).then(function (registration) {
-          var options = {queryHandler: queryHandlers.getSimpleQueryHandler('departments'),
-                    jsonProcessor: {shredder: simpleJsonShredding.getShredder('departments', 'DepartmentId'), unshredder: simpleJsonShredding.getUnshredder()}};
+          var options = {queryHandler: queryHandlers.getSimpleQueryHandler('departments', null, dataMapping),
+                    jsonProcessor: {shredder: simpleJsonShredding.getShredder('departments', 'DepartmentId', dataMapping), unshredder: simpleJsonShredding.getUnshredder(dataMapping)}};
           var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
           registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
 
@@ -107,18 +143,18 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       });
       QUnit.test('getOracleRestQueryHandler', function (assert) {
         var done = assert.async();
-        assert.expect(56);
+        assert.expect(59);
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
-          body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300})
+          body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300})
         }, function () {
           assert.ok(true, 'Mock Fetch received Request when online');
         });
         mockFetch.addRequestReply('GET', '/testOracleRestQuery', {
           status: 200,
-          body: JSON.stringify({items: [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
-            {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
-            {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}]})
+          body: JSON.stringify({items: [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', establishedDate: '1999-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
+            {DepartmentId: 10, DepartmentName: 'Administration', establishedDate: '2005-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}]})
         }, function () {
           assert.ok(true, 'Mock Fetch received Request when online');
         });
@@ -126,8 +162,8 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
         persistenceManager.register({
           scope: '/testOracleRestQuery'
         }).then(function (registration) {
-          var options = {queryHandler: queryHandlers.getOracleRestQueryHandler('departments'),
-                    jsonProcessor: {shredder: oracleRestJsonShredding.getShredder('departments', 'DepartmentId'), unshredder: oracleRestJsonShredding.getUnshredder()}};
+          var options = {queryHandler: queryHandlers.getOracleRestQueryHandler('departments', null, dataMapping),
+                    jsonProcessor: {shredder: oracleRestJsonShredding.getShredder('departments', 'DepartmentId', dataMapping), unshredder: oracleRestJsonShredding.getUnshredder(dataMapping)}};
           var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
           registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
           var responseArray = [];
@@ -175,6 +211,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               assert.ok(responseData.items.length == 2, 'Returned the correct departments');  
               assert.ok(responseData.items[0].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[1].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
               assert.ok(responseData.items[1].DepartmentName == 'BB' || responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=establishedDate>'2005-01-01T08:30:40Z'&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1, 'Returned the correct departments');  
+              assert.ok(responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=DepartmentId<=556&offset=0&limit=10");
             }).then(function (response) {
               assert.ok(true, 'Received Response when offline');

@@ -51,9 +51,12 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
    * @memberof simpleJsonShredding
    * @param {string} storeName Name of the Persistent Store into which the shredded data should be stored
    * @param {string|Array} idAttr The id field or array of fields in the JSON data
+   * @param {DataMapping=} dataMapping Optional dataMapping to apply to the data 
    * @return {Function} shredder The shredder function takes a Response object as
    * parameter and returns a Promise which resolves to an array of objects which have the following
    * structure:
+   * &lt;code>
+   * &lt;pre>
    * {
    *  'name': storeName, 
    *  'resourceIdentifier': resourceIdentifier, 
@@ -61,8 +64,10 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
    *  'data': dataArray,
    *  'resourceType' : 'single' or 'collection'
    * }
+   * &lt;/pre>
+   * &lt;/code>
    */
-  var getShredder = function (storeName, idAttr) {
+  var getShredder = function (storeName, idAttr, dataMapping) {
     return function (response) {
       logger.log("Offline Persistence Toolkit simpleJsonShredding: Shredding Response");
       var responseClone = response.clone();
@@ -105,11 +110,12 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
             logger.log("Offline Persistence Toolkit simpleRestJsonShredding: Error during shredding: " + err);
           }
         }
+        var mappedData = persistenceUtils._mapData(idArray, dataArray, dataMapping);
         return [{
             'name': storeName,
             'resourceIdentifier': resourceIdentifier,
-            'keys': idArray,
-            'data': dataArray,
+            'keys': mappedData.keys,
+            'data': mappedData.data,
             'resourceType' : resourceType
           }];
       });
@@ -121,9 +127,12 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
    * @method
    * @name getUnshredder
    * @memberof simpleJsonShredding
+   * @param {DataMapping=} dataMapping Optional dataMapping to apply to the data 
    * @return {Function} unshredder The unshredder function takes an array of objects 
    * and a response object as parameters. The array of objects has the following
    * structure:
+   * &lt;code>
+   * &lt;pre>
    * {
    *  'name': storeName, 
    *  'resourceIdentifier': resourceIdentifier, 
@@ -131,13 +140,23 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
    *  'data': dataArray,
    *  'resourceType' : 'single' or 'collection'
    * }
+   * &lt;/pre>
+   * &lt;/code>
    * The unshredder returns a Promise which resolves to a Response object.
    */
-  var getUnshredder = function () {
+  var getUnshredder = function (dataMapping) {
     return function (data, response) {
       logger.log("Offline Persistence Toolkit simpleJsonShredding: Unshredding Response");
       return Promise.resolve().then(function () {
-        var dataContent = _retrieveDataContent(data);
+        if (!data || data.length !== 1) {
+          throw new Error({message: 'shredded data is not in the correct format.'});
+        }
+        var unmappedData = persistenceUtils._unmapData(data[0].keys, data[0].data, dataMapping);
+        var dataContent = _retrieveDataContent([{
+          'keys': unmappedData.keys,
+          'data': unmappedData.data,
+          'resourceType' : data[0].resourceType
+        }]);
         return persistenceUtils.setResponsePayload(response, dataContent);
       }).then(function (response) {
         response.headers.set('x-oracle-jscpt-cache-expiration-date', '');
@@ -152,9 +171,6 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
   // that store. For simple json shredder/unshredder, the valueArray should 
   // contain only one entry.
   function _retrieveDataContent(valueArray) {
-    if (!valueArray || valueArray.length !== 1) {
-      throw new Error({message: 'shredded data is not in the correct format.'});
-    }
     var data = valueArray[0].data;
     if (data &amp;&amp; data.length === 1 &amp;&amp; valueArray[0].resourceType === 'single') {
       return data[0];
@@ -178,7 +194,7 @@ define(['./persistenceUtils', './impl/logger'], function (persistenceUtils, logg
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
 </nav>
 
 <br class="clear">

@@ -1,5 +1,5 @@
-define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'persist/persistenceUtils', 'MockFetch', 'persist/impl/logger'],
-  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, persistenceUtils, MockFetch, logger) {
+define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory', 'persist/simpleJsonShredding', 'persist/persistenceUtils', 'persist/fetchStrategies', 'MockFetch', 'persist/impl/logger'],
+  function (persistenceManager, defaultResponseProxy, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, persistenceUtils, fetchStrategies, MockFetch, logger) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
     QUnit.module('persistenceSyncManager', {
@@ -294,7 +294,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
       });
       QUnit.test('getSyncLog()', function (assert) {
         var done = assert.async();
-        assert.expect(11);
+        assert.expect(19);
         mockFetch.addRequestReply('GET', '/testSyncLog', {
           status: 200,
           body: 'Ok'
@@ -305,13 +305,33 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
         persistenceManager.register({
           scope: '/testSyncLog'
         }).then(function (registration) {
-          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy({fetchStrategy: fetchStrategies.getCacheFirstStrategy()});
           registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
 
           fetch('/testSyncLog').then(function (response) {
             assert.ok(true, 'Received Response when online');
             persistenceManager.forceOffline(true);
             fetch('/testSyncLog').then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return persistenceManager.getSyncManager().getSyncLog();
+            }).then(function (syncLog) {
+              assert.ok(syncLog.length == 1, 'SyncLog contains one item');
+              assert.ok(syncLog[0].request instanceof Request, 'SyncLog item contains request');
+              assert.ok(syncLog[0].requestId >= 0, 'SyncLog item contains requestId');
+              assert.ok(syncLog[0].undo instanceof Function, 'SyncLog item contains undo');
+              assert.ok(syncLog[0].redo instanceof Function, 'SyncLog item contains redo');
+              return Promise.resolve(syncLog[0]);
+            }).then(function (syncLogItem) {
+              return syncLogItem.undo().then(function (undoResult) {
+                assert.ok(!undoResult, 'No undo data');
+                return syncLogItem.redo();
+              }).then(function (redoResult) {
+                assert.ok(!redoResult, 'No redo data');
+              });
+            }).then(function () {
+              persistenceManager.forceOffline(false);
+              return fetch('/testSyncLog');
+            }).then(function (response) {
               assert.ok(true, 'Received Response when online');
               return persistenceManager.getSyncManager().getSyncLog();
             }).then(function (syncLog) {
@@ -322,13 +342,6 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
               assert.ok(syncLog[0].redo instanceof Function, 'SyncLog item contains redo');
               return Promise.resolve(syncLog[0]);
             }).then(function (syncLogItem) {
-              syncLogItem.undo().then(function (undoResult) {
-                assert.ok(!undoResult, 'No undo data');
-                return syncLogItem.redo();
-              }).then(function (redoResult) {
-                assert.ok(!redoResult, 'No redo data');
-              });
-            }).then(function () {
               registration.unregister().then(function (unregistered) {
                 assert.ok(unregistered == true, 'unregistered scope');
                 done();

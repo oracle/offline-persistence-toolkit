@@ -183,6 +183,16 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
         return testStore.keys();
       }).then(function (keysArray) {
         assert.ok(matchResultSetIgnoreOrder(keysArray, ['testBasicStorageKey1', 'testBasicStorageKey2', 'testBasicStorageKey3']), 'all rows are found.');
+        return testStore.updateKey('testBasicStorageKey1', 'testBasicStorageKey1A');
+      }).then(function() {
+        return testStore.keys();
+      }).then(function (keysArray) {
+        assert.ok(matchResultSetIgnoreOrder(keysArray, ['testBasicStorageKey1A', 'testBasicStorageKey2', 'testBasicStorageKey3']), 'all rows are found.');
+        return testStore.findByKey('testBasicStorageKey1A');
+      }).then(function(valueFound){
+        assert.ok(valueFound.name === 'testname', 'found first row.');
+        return testStore.updateKey('testBasicStorageKey1A', 'testBasicStorageKey1');
+      }).then(function() {
         return testStore.removeByKey('testBasicStorageKey1');
       }).then(function () {
         assert.ok(true, 'first row is deleted.');
@@ -441,6 +451,14 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
         assert.ok(true);
         return testStore.upsertAll(dataset);
       }).then(function(){
+        return persistenceStoreManager.getStoresMetadata();
+      }).then(function(storesMetadata) {
+        assert.ok(storesMetadata != null && Object.keys(storesMetadata).length > 0);
+        Object.keys(storesMetadata).forEach(function(storeName) {
+          assert.ok(storesMetadata[storeName].name != null);
+          assert.ok(storesMetadata[storeName].persistenceStoreFactory != null);
+          assert.ok(storesMetadata[storeName].versions instanceof Array);
+        });
         assert.ok(true);
         var executeTestCaseArray = function (testCases) {
           if (testCases.length === 0) {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: oracleRestJsonShredding</title>
+    <title>JSDoc: Interface: DataMapping</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: oracleRestJsonShredding</h1>
+    <h1 class="page-title">Interface: DataMapping</h1>
 
     
 
@@ -28,9 +28,10 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>oracleRestJsonShredding</h2>
+        <h2>DataMapping</h2>
         
-            <div class="class-description">Shredder for REST services which conform to the Oracle REST standard.</div>
+            <div class="class-description">Interface for DataMapping which can be supplied to shredders/unshredders
+and queryHandlers</div>
         
     
 </header>
@@ -40,18 +41,7 @@
     
         
 
-
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 <dl class="details">
@@ -83,7 +73,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oracleRestJsonShredding.js.html">oracleRestJsonShredding.js</a>, <a href="oracleRestJsonShredding.js.html#line9">line 9</a>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line6">line 6</a>
     </li></ul></dd>
     
 
@@ -95,22 +85,7 @@
 </dl>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
     
     </div>
 
@@ -137,7 +112,7 @@
     
 
     
-    <h4 class="name" id=".getShredder"><span class="type-signature">(static) </span>getShredder<span class="signature">(storeName, idAttr, dataMapping<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    <h4 class="name" id="mapFields"><span class="type-signature"></span>mapFields<span class="signature">(item)</span><span class="type-signature"> &rarr; {<a href="Item.html">Item</a>}</span></h4>
     
 
     
@@ -145,7 +120,7 @@
 
 
 <div class="description">
-    Return the shredder for Oracle REST JSON
+    Field mapping function which takes an item and returns the mapped item
 </div>
 
 
@@ -169,8 +144,6 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -183,98 +156,23 @@
 
         <tr>
             
-                <td class="name"><code>storeName</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="Item.html">Item</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">Name of the Persistent Store into which the shredded data should be stored</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>idAttr</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The id field or array of fields in the JSON data</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>dataMapping</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Optional dataMapping to apply to the data</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -315,7 +213,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oracleRestJsonShredding.js.html">oracleRestJsonShredding.js</a>, <a href="oracleRestJsonShredding.js.html#line16">line 16</a>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line14">line 14</a>
     </li></ul></dd>
     
 
@@ -342,20 +240,28 @@
 
         
 <div class="param-desc">
-    shredder The shredder function takes a Response object as
-parameter and returns a Promise which resolves to an array of objects which have the following
-structure:
-<code>
+    Returns the mapped item.
 <pre>
-{
- 'name': storeName, 
- 'resourceIdentifier': resourceIdentifier, 
- 'keys': idArray, 
- 'data': dataArray,
- 'resourceType' : 'single' or 'collection'
-}
-</pre>
+This is typically used when there is a need to tranform the data before
+it is stored in the database. One use case would be for converting ISO Datetime
+string values to numbers to enable querying and sorting in the DB. e.g.
+<code>
+dataMapping.mapFields = function(item) {
+  var mappedItem = {};
+  mappedItem.data = {};
+  Object.keys(item.data).forEach(function(field) {
+    if (field == 'hireDate') {
+      var date = new Date(item.data[field]);
+      mappedItem.data[field] = date.getTime();
+    } else {
+      mappedItem.data[field] = item.data[field];
+    }
+  });
+  mappedItem.metadata = item.metadata;
+  return mappedItem;
+};
 </code>
+</pre>
 </div>
 
 
@@ -366,7 +272,7 @@ structure:
     </dt>
     <dd>
         
-<span class="param-type">function</span>
+<span class="param-type"><a href="Item.html">Item</a></span>
 
 
     </dd>
@@ -384,7 +290,7 @@ structure:
     
 
     
-    <h4 class="name" id=".getUnshredder"><span class="type-signature">(static) </span>getUnshredder<span class="signature">(dataMapping<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    <h4 class="name" id="mapFilterCriterion"><span class="type-signature"></span>mapFilterCriterion<span class="signature">(item)</span><span class="type-signature"> &rarr; {<a href="AttributeFilter.html">AttributeFilter</a>|<a href="CompoundFilter.html">CompoundFilter</a>}</span></h4>
     
 
     
@@ -392,7 +298,7 @@ structure:
 
 
 <div class="description">
-    Return the unshredder for Oracle REST JSON
+    FilterCriterion mapping function which takes filterCriterion and returns the mapped filterCriterion
 </div>
 
 
@@ -416,8 +322,6 @@ structure:
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -430,33 +334,26 @@ structure:
 
         <tr>
             
-                <td class="name"><code>dataMapping</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
+<span class="param-type"><a href="AttributeFilter.html">AttributeFilter</a></span>
+|
+
+<span class="param-type"><a href="CompoundFilter.html">CompoundFilter</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">Optional dataMapping to apply to the data</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -497,7 +394,7 @@ structure:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="oracleRestJsonShredding.js.html">oracleRestJsonShredding.js</a>, <a href="oracleRestJsonShredding.js.html#line94">line 94</a>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line79">line 79</a>
     </li></ul></dd>
     
 
@@ -524,21 +421,18 @@ structure:
 
         
 <div class="param-desc">
-    unshredder The unshredder function takes an array of objects 
-and a response object as parameters. The array of objects has the following
-structure:
-<code>
+    Returns the mapped filterCriterion.
 <pre>
-{
- 'name': storeName, 
- 'resourceIdentifier': resourceIdentifier, 
- 'keys': idArray, 
- 'data': dataArray,
- 'resourceType' : 'single' or 'collection'
-}
-</pre>
+This is required when mapFields was used and queries are processed. e.g.
+<code>
+dataMapping.mapFilterCriterion = function(filterCriterion) {
+  if (filterCriterion && filterCriterion.attribute == 'hireDate') {
+    filterCriterion.value = (new Date(filterCriterion.value)).getTime();
+  }
+  return filterCriterion;
+};
 </code>
-The unshredder returns a Promise which resolves to a Response object.
+</pre>
 </div>
 
 
@@ -549,7 +443,187 @@ The unshredder returns a Promise which resolves to a Response object.
     </dt>
     <dd>
         
-<span class="param-type">function</span>
+<span class="param-type"><a href="AttributeFilter.html">AttributeFilter</a></span>
+|
+
+<span class="param-type"><a href="CompoundFilter.html">CompoundFilter</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="unmapFields"><span class="type-signature"></span>unmapFields<span class="signature">(item)</span><span class="type-signature"> &rarr; {<a href="Item.html">Item</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Field unmapping function which takes a mapped item and returns the item
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Item.html">Item</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataMapping.js.html">DataMapping.js</a>, <a href="DataMapping.js.html#line47">line 47</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Returns the unmapped item.
+<pre>
+This is required when mapFields was used so that we can transform
+back the data. e.g.
+<code>
+dataMapping.unmapFields = function(item) {
+  var unmappedItem = {};
+  unmappedItem.data = {};
+  Object.keys(item.data).forEach(function(field) {
+    if (field == 'hireDate') {
+      var date = new Date(item.data[field]);
+      unmappedItem.data[field] = date.toISOString();
+    } else {
+      unmappedItem.data[field] = item.data[field];
+    }
+  });
+  unmappedItem.metadata = item.metadata;
+  return unmappedItem;
+};
+</code>
+</pre>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Item.html">Item</a></span>
 
 
     </dd>

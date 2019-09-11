@@ -560,6 +560,108 @@ define(['./impl/logger'], function (logger) {
     });
   };
 
+  function _mapData(idArray, dataArray, dataMapping) {
+    var mappedIdArray = idArray || [];
+    var mappedDataArray = dataArray || [];
+
+    if (dataMapping) {
+      mappedIdArray = [];
+      mappedDataArray = [];
+      var totalCount = idArray != null ? idArray.length : dataArray.length;
+      var i;
+      for (i = 0; i &lt; totalCount; i ++) {
+        var itemMetadata = idArray != null ? {key: idArray[i]} : {key: null};
+        var item = dataArray != null ? {metadata: itemMetadata, data: dataArray[i]} : {metadata: itemMetadata, data: null};
+        var mappedItem = dataMapping.mapFields(item);
+        mappedIdArray[i] = mappedItem.metadata.key;
+        mappedDataArray[i] = mappedItem.data;
+      };
+    }
+
+    return {keys: mappedIdArray, data: mappedDataArray};
+  };
+
+  function _unmapData(idArray, dataArray, dataMapping) {
+    var unmappedIdArray = idArray || [];
+    var unmappedDataArray = dataArray || [];
+
+    if (dataMapping) {
+      unmappedIdArray = [];
+      unmappedDataArray = [];
+      var totalCount = idArray != null ? idArray.length : dataArray.length;
+      var i;
+      for (i = 0; i &lt; totalCount; i ++) {
+        var itemMetadata = idArray != null ? {key: idArray[i]} : {key: null};
+        var item = dataArray != null ? {metadata: itemMetadata, data: dataArray[i]} : {metadata: itemMetadata, data: null};
+        var unmappedItem = dataMapping.unmapFields(item);
+        unmappedIdArray[i] = unmappedItem.metadata.key;
+        unmappedDataArray[i] = unmappedItem.data;
+      }
+    }
+
+    return {keys: unmappedIdArray, data: unmappedDataArray};
+  };
+
+  function _mapFindQuery(findQuery, dataMapping) {
+    if (findQuery  &amp;&amp; dataMapping) {
+      var filterCriterion = _transformFindQuerySelectorToFilterCriterion(findQuery.selector);
+
+      if (filterCriterion) {
+        findQuery.selector = _transformFilterCriterionToFindQuerySelector(dataMapping.mapFilterCriterion(filterCriterion));
+      }
+    }
+    return findQuery;
+  };
+
+  function _transformFindQuerySelectorToFilterCriterion(findQuery) {
+    if (findQuery) {
+      var filterCriterion = {};
+      Object.keys(findQuery).forEach(function(lhs) {
+        if (!lhs.startsWith('value.')) {
+          var operand = lhs;
+          if (operand == '$and' || operand == '$or') {
+            filterCriterion['op'] = operand;
+            filterCriterion['value'] = [];
+            findQuery[operand].forEach(function(innerQuery, index) {
+              filterCriterion['value'][index] = _transformFindQuerySelectorToFilterCriterion(innerQuery);
+            });
+          }
+        } else {
+          var rhs = findQuery[lhs];
+          if (rhs instanceof Object) {
+            filterCriterion['op'] = Object.keys(rhs)[0];
+            filterCriterion['value'] = rhs[filterCriterion['op']];
+          } else {
+            filterCriterion['op'] = '$eq';
+            filterCriterion['value'] = rhs;
+          }
+          filterCriterion['attribute'] = lhs.substr(6, lhs.length);
+        }
+      });
+      return filterCriterion;
+    }
+    return null;
+  };
+
+  function _transformFilterCriterionToFindQuerySelector(filterCriterion) {
+    if (filterCriterion) {
+      var findQuery = {};
+      var operand = filterCriterion.op;
+      if (operand == '$and' || operand == '$or') {
+        findQuery[operand] = [];
+        filterCriterion.value.forEach(function(innerFilterCriterion, index) {
+          findQuery[operand][index] = _transformFilterCriterionToFindQuerySelector(innerFilterCriterion);
+        });
+      } else {
+        findQuery['value.' + filterCriterion.attribute] = {};
+        findQuery['value.' + filterCriterion.attribute][filterCriterion.op] = filterCriterion.value; 
+      }
+      return findQuery;
+    }
+    return null;
+  };
+
+
   return {
     requestToJSON: requestToJSON,
     requestFromJSON: requestFromJSON,
@@ -573,7 +675,10 @@ define(['./impl/logger'], function (logger) {
     buildEndpointKey: buildEndpointKey,
     _cloneRequest: _cloneRequest,
     _cloneResponse: _cloneResponse,
-    _derivePayloadType: _derivePayloadType
+    _derivePayloadType: _derivePayloadType,
+    _mapData: _mapData,
+    _unmapData: _unmapData,
+    _mapFindQuery: _mapFindQuery
   };
 });
 
@@ -587,7 +692,7 @@ define(['./impl/logger'], function (logger) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
 </nav>
 
 <br class="clear">

@@ -137,7 +137,7 @@
     
 
     
-    <h4 class="name" id=".getOracleRestQueryHandler"><span class="type-signature">(static) </span>getOracleRestQueryHandler<span class="signature">(storeName, createQueryExp<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    <h4 class="name" id=".getOracleRestQueryHandler"><span class="type-signature">(static) </span>getOracleRestQueryHandler<span class="signature">(storeName, createQueryExp<span class="signature-attributes">opt</span>, dataMapping<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
     
 
     
@@ -255,6 +255,39 @@ If null then use the ADFBc REST query parameter structure.</td>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>dataMapping</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional dataMapping to apply to the data</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -348,7 +381,7 @@ If null then use the ADFBc REST query parameter structure.</td>
     
 
     
-    <h4 class="name" id=".getSimpleQueryHandler"><span class="type-signature">(static) </span>getSimpleQueryHandler<span class="signature">(storeName, ignoreUrlParams)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    <h4 class="name" id=".getSimpleQueryHandler"><span class="type-signature">(static) </span>getSimpleQueryHandler<span class="signature">(storeName, ignoreUrlParams<span class="signature-attributes">opt</span>, dataMapping<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
     
 
     
@@ -381,6 +414,8 @@ against the store's field/value pairs.
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -406,6 +441,14 @@ against the store's field/value pairs.
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -429,10 +472,53 @@ against the store's field/value pairs.
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last">An array of URL params to be ignored</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dataMapping</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional dataMapping to apply to the data</td>
         </tr>
 
     
@@ -473,7 +559,7 @@ against the store's field/value pairs.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line343">line 343</a>
+        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line344">line 344</a>
     </li></ul></dd>
     
 
@@ -539,7 +625,7 @@ against the store's field/value pairs.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
 </nav>
 
 <br class="clear">
