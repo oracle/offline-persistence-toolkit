@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, PersistenceStoreMetadata) {
+define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenceStoreFactory'], function (logger, PersistenceStoreMetadata, pouchDBPersistenceStoreFactory) {
   'use strict';
   
   /**
@@ -25,16 +25,15 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, P
       value: '_defaultFactory',
       writable: false
     });
+    Object.defineProperty(this, '_METADATA_STORE_NAME', {
+      value: 'systemCache-metadataStore',
+      writable: false
+    });
     // some pattern of store name (e.g. http://) will cause issues
     // for the underlying storage system. We'll rename the store
     // name to avoid such issue. This is to store the original store
     // name to the system replaced name.
     Object.defineProperty(this, '_storeNameMapping', {
-      value: {},
-      writable: true
-    });
-
-    Object.defineProperty(this, '_storeMetadataMapping', {
       value: {},
       writable: true
     });
@@ -124,10 +123,13 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, P
       allVersions = allVersions || {};
       allVersions[version] = store;
       self._stores[storeName] = allVersions;
-      var metadata = new PersistenceStoreMetadata(storeName, factory, Object.keys(allVersions));;
-      self._storeMetadataMapping[storeName] = metadata;
-
-      return store;
+      var metadata = new PersistenceStoreMetadata(storeName, factory, Object.keys(allVersions));
+      return self._getMetadataStore().then(function(store) {
+        var encodedStoreName = self.encodeString(storeName);
+        return store.upsert(encodedStoreName, {}, Object.keys(allVersions));
+      }).then(function() {
+        return store;
+      });
     });
   };
 
@@ -192,14 +194,15 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, P
           logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
           return store.delete().then(function () {
             delete allversions[version];
-            var metadata = self._storeMetadataMapping[storeName];
-            if (metadata) {
-              if (allversions && allversions.length > 0) {
-                metadata.versions = Object.keys(allversions);
+            return self._getMetadataStore().then(function(store) {
+              if (allversions &&  Object.keys(allversions).length > 0) {
+                var encodedStoreName = self.encodeString(storeName);
+                return store.upsert(encodedStoreName, null,  Object.keys(allversions));
               } else {
-                delete self._storeMetadataMapping[storeName];
+                return store.removeByKey(storeName);
               }
-            }
+            });
+          }).then(function() {
             return true;
           });
         }
@@ -214,8 +217,12 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, P
         var self = this;
         return Promise.all(promises).then(function () {
           delete self._stores[storeName];
-          delete self._storeMetadataMapping[storeName];
-          return true;
+          return self._getMetadataStore().then(function(store) {
+            var encodedStoreName = self.encodeString(storeName);
+            return store.removeByKey(encodedStoreName);
+          }).then(function() {
+            return true;
+          });
         });
       }
     }
@@ -230,7 +237,25 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, P
    * @return {Promise<Map<String, PersistenceStoreMetadata>>} Returns a Map of store name and store metadata.
    */
   PersistenceStoreManager.prototype.getStoresMetadata = function() {
-    return Promise.resolve(this._storeMetadataMapping);
+    var self = this;
+    return this._getMetadataStore().then(function(store) {
+      return store.keys().then(function(encodedStoreNames) {
+        var allKeysPromiseArray = [];
+        encodedStoreNames.forEach(function(encodedStoreName) {
+          allKeysPromiseArray.push(store.findByKey(encodedStoreName).then(function(entry) {
+            var allVersionsKeys = entry;
+            var storeName = self.decodeString(encodedStoreName);
+            var factory = self._factories[storeName];
+            if (!factory) {
+              factory = self._factories[self._DEFAULT_STORE_FACTORY_NAME];
+            }
+            var metadata = new PersistenceStoreMetadata(storeName, factory, allVersionsKeys);
+            return metadata;
+          }));
+        });
+        return Promise.all(allKeysPromiseArray);
+      });
+    });
   }
 
   PersistenceStoreManager.prototype._mapStoreName = function (name, options) {
@@ -244,6 +269,42 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata'], function (logger, P
       return mappedName;
     }
   };
+
+  PersistenceStoreManager.prototype._getMetadataStore = function () {
+    var self = this;
+    if (!self._metadataStore) {
+      // check if there is a default store factory
+      var factory = this._factories[this._DEFAULT_STORE_FACTORY_NAME];
+      if (!factory) {
+        // if not, register the pouchdb store
+        this._factories[self._METADATA_STORE_NAME] = pouchDBPersistenceStoreFactory;
+      }
+      return this.openStore(self._METADATA_STORE_NAME).then(function (store) {
+        self._metadataStore = store;
+        return self._metadataStore;
+      });
+    }
+    return Promise.resolve(self._metadataStore);
+  }
+
+  PersistenceStoreManager.prototype.encodeString = function(value) {
+	  var i, arr = [];
+	  for (var i = 0; i < value.length; i++) {
+		  var hex = Number(value.charCodeAt(i)).toString(16);
+		  arr.push(hex);
+	  }
+	  return arr.join('');
+  }
+
+  PersistenceStoreManager.prototype.decodeString = function (value) {
+	  var hex  = value.toString();
+    var str = '';
+    var i;
+	  for (i = 0; i < hex.length; i += 2) {
+		  str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+	  }
+	  return str;
+  }
 
   return new PersistenceStoreManager();
 });
