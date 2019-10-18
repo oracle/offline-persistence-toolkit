@@ -125,7 +125,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
       self._stores[storeName] = allVersions;
       var metadata = new PersistenceStoreMetadata(storeName, factory, Object.keys(allVersions));
       return self._getMetadataStore().then(function(store) {
-        var encodedStoreName = self.encodeString(storeName);
+        var encodedStoreName = self._encodeString(storeName);
         return store.upsert(encodedStoreName, {}, Object.keys(allVersions));
       }).then(function() {
         return store;
@@ -196,7 +196,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
             delete allversions[version];
             return self._getMetadataStore().then(function(store) {
               if (allversions &&  Object.keys(allversions).length > 0) {
-                var encodedStoreName = self.encodeString(storeName);
+                var encodedStoreName = self._encodeString(storeName);
                 return store.upsert(encodedStoreName, null,  Object.keys(allversions));
               } else {
                 return store.removeByKey(storeName);
@@ -218,7 +218,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
         return Promise.all(promises).then(function () {
           delete self._stores[storeName];
           return self._getMetadataStore().then(function(store) {
-            var encodedStoreName = self.encodeString(storeName);
+            var encodedStoreName = self._encodeString(storeName);
             return store.removeByKey(encodedStoreName);
           }).then(function() {
             return true;
@@ -244,7 +244,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
         encodedStoreNames.forEach(function(encodedStoreName) {
           allKeysPromiseArray.push(store.findByKey(encodedStoreName).then(function(entry) {
             var allVersionsKeys = entry;
-            var storeName = self.decodeString(encodedStoreName);
+            var storeName = self._decodeString(encodedStoreName);
             var factory = self._factories[storeName];
             if (!factory) {
               factory = self._factories[self._DEFAULT_STORE_FACTORY_NAME];
@@ -287,7 +287,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
     return Promise.resolve(self._metadataStore);
   }
 
-  PersistenceStoreManager.prototype.encodeString = function(value) {
+  PersistenceStoreManager.prototype._encodeString = function(value) {
 	  var i, arr = [];
 	  for (var i = 0; i < value.length; i++) {
 		  var hex = Number(value.charCodeAt(i)).toString(16);
@@ -296,7 +296,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
 	  return arr.join('');
   }
 
-  PersistenceStoreManager.prototype.decodeString = function (value) {
+  PersistenceStoreManager.prototype._decodeString = function (value) {
 	  var hex  = value.toString();
     var str = '';
     var i;
