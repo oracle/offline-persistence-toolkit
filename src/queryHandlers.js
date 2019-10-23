@@ -21,8 +21,9 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
      * enforce a particular format for the query itself. Therefore this API takes a parameter
      * createQueryExp where the developer can plugin a function which takes the parameter
      * value and returns a persistence store query. If none if provided then the
-     * default is to use the ADFBc REST query parameter structure which has the form
-     * ?q=EmpId=100
+     * default is to use the ADFBc REST query parameter structure which has the form:
+     * ?q=EmpId=100. Offline supports the following ADFBc operators in the expression:
+     * >, <, >=, <=, =, !=, AND, OR, LIKE. 
      * In addition, the query handler supports the limit and offset query parameters
      * used for paging in the Oracle REST specification.
      * @method

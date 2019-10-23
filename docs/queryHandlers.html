@@ -151,8 +151,9 @@ requires queries to be specified in the q parameter e.g. ?q= but does not
 enforce a particular format for the query itself. Therefore this API takes a parameter
 createQueryExp where the developer can plugin a function which takes the parameter
 value and returns a persistence store query. If none if provided then the
-default is to use the ADFBc REST query parameter structure which has the form
-?q=EmpId=100
+default is to use the ADFBc REST query parameter structure which has the form:
+?q=EmpId=100. Offline supports the following ADFBc operators in the expression:
+>, <, >=, <=, =, !=, AND, OR, LIKE. 
 In addition, the query handler supports the limit and offset query parameters
 used for paging in the Oracle REST specification.
 </div>
@@ -559,7 +560,7 @@ against the store's field/value pairs.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line344">line 344</a>
+        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line345">line 345</a>
     </li></ul></dd>
     
 
