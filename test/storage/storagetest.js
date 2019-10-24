@@ -453,11 +453,11 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function(){
         return persistenceStoreManager.getStoresMetadata();
       }).then(function(storesMetadata) {
-        assert.ok(storesMetadata != null && Object.keys(storesMetadata).length > 0);
-        Object.keys(storesMetadata).forEach(function(storeName) {
-          assert.ok(storesMetadata[storeName].name != null);
-          assert.ok(storesMetadata[storeName].persistenceStoreFactory != null);
-          assert.ok(storesMetadata[storeName].versions instanceof Array);
+        assert.ok(storesMetadata != null && storesMetadata.size > 0);
+        storesMetadata.forEach(function(storeMetadata, storeName) {
+          assert.ok(storeMetadata.name == storeName);
+          assert.ok(storeMetadata.hasOwnProperty('persistenceStoreFactory'));
+          assert.ok(storeMetadata.versions instanceof Array);
         });
         assert.ok(true);
         var executeTestCaseArray = function (testCases) {

@@ -209,51 +209,75 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
     logger.log("Offline Persistence Toolkit PersistenceStoreManager: deleteStore() for name: " + name);
     var self = this;
     var storeName = this._mapStoreName(name);
-    var allversions = this._stores[storeName];
-    if (!allversions) {
-      return Promise.resolve(false);
-    } else {
-      var version = options &amp;&amp; options.version;
-      if (version) {
-        var store = allversions[version];
-        if (!store) {
-          return Promise.resolve(false);
-        } else {
-          logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
-          return store.delete().then(function () {
-            delete allversions[version];
-            return self._getMetadataStore().then(function(store) {
-              if (allversions &amp;&amp;  Object.keys(allversions).length > 0) {
-                var encodedStoreName = self._encodeString(storeName);
-                return store.upsert(encodedStoreName, null,  Object.keys(allversions));
-              } else {
-                return store.removeByKey(storeName);
-              }
+    return new Promise(function(resolve, reject) {
+      var localvars = {};
+      localvars.options = options;
+      localvars.self = self;
+      var allversions = self._stores[storeName];
+      if (!allversions) {
+        return self.getStoresMetadata().then(function(storeMetadataMap) {
+          var openStoresPromiseArray = [];
+          var storeMetadata = storeMetadataMap.get(storeName);
+          if (storeMetadata &amp;&amp; storeMetadata.versions) {
+            storeMetadata.versions.forEach(function(version) {
+              openStoresPromiseArray.push(self.openStore(storeName, version));
             });
-          }).then(function() {
-            return true;
+          }
+          return Promise.all(openStoresPromiseArray);
+        }).then(function() {
+          resolve(localvars);
+        });
+      } else {
+        resolve(localvars);
+      }
+    }).then(function(localvars) {
+      var self = localvars.self;
+      var options = localvars.options;
+      var allversions = self._stores[storeName];
+      if (!allversions) {
+        return Promise.resolve(false);
+      } else {
+        var version = options &amp;&amp; options.version;
+        if (version) {
+          var store = allversions[version];
+          if (!store) {
+            return Promise.resolve(false);
+          } else {
+            logger.log("Offline Persistence Toolkit PersistenceStoreManager: Calling delete on store");
+            return store.delete().then(function () {
+              delete allversions[version];
+              return self._getMetadataStore().then(function(store) {
+                if (allversions &amp;&amp;  Object.keys(allversions).length > 0) {
+                  var encodedStoreName = self._encodeString(storeName);
+                  return store.upsert(encodedStoreName, null,  Object.keys(allversions));
+                } else {
+                  return store.removeByKey(storeName);
+                }
+              });
+            }).then(function() {
+              return true;
+            });
+          }
+        } else {
+          var mapcallback = function (origObject) {
+            return function (version) {
+              var value = origObject[version];
+              return value.delete();
+            };
+          };
+          var promises = Object.keys(allversions).map(mapcallback(allversions), this);
+          return Promise.all(promises).then(function () {
+            delete self._stores[storeName];
+            return self._getMetadataStore().then(function(store) {
+              var encodedStoreName = self._encodeString(storeName);
+              return store.removeByKey(encodedStoreName);
+            }).then(function() {
+              return true;
+            });
           });
         }
-      } else {
-        var mapcallback = function (origObject) {
-          return function (version) {
-            var value = origObject[version];
-            return value.delete();
-          };
-        };
-        var promises = Object.keys(allversions).map(mapcallback(allversions), this);
-        var self = this;
-        return Promise.all(promises).then(function () {
-          delete self._stores[storeName];
-          return self._getMetadataStore().then(function(store) {
-            var encodedStoreName = self._encodeString(storeName);
-            return store.removeByKey(encodedStoreName);
-          }).then(function() {
-            return true;
-          });
-        });
       }
-    }
+    })
   };
 
   /**
@@ -282,6 +306,12 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
           }));
         });
         return Promise.all(allKeysPromiseArray);
+      }).then(function(storeMetadataArray) {
+        var storesMetadataMap = new Map();
+        storeMetadataArray.forEach(function(storeMetadata) {
+          storesMetadataMap.set(storeMetadata.name, storeMetadata);
+        });
+        return storesMetadataMap;
       });
     });
   }
