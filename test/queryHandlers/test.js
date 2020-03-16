@@ -81,11 +81,17 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       QUnit.test('getSimpleQueryHandler', function (assert) {
         var done = assert.async();
         assert.expect(13);
+        mockFetch.addRequestReply('GET', '/testSimpleQuery?DepartmentName=BB', {
+          status: 200,
+          body: JSON.stringify([{DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}])
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when online');
+        });
         mockFetch.addRequestReply('GET', '/testSimpleQuery', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', establishedDate: '1999-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
             {DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
-            {DepartmentId: 10, DepartmentName: 'Administration', establishedDate: '2005-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}])
+            {DepartmentId: 10, DepartmentName: 'Administration', establishedDate: '2005-01-01T08:30:40Z', LocationId: 200, ManagerId: 300,lastModified:'2005-01-01T08:30:40Z'}])
         }, function () {
           assert.ok(true, 'Mock Fetch received Request when online');
         });
@@ -143,7 +149,13 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       });
       QUnit.test('getOracleRestQueryHandler', function (assert) {
         var done = assert.async();
-        assert.expect(59);
+        assert.expect(84);
+        mockFetch.addRequestReply('GET', '/testOracleRestQuery?q=DepartmentName=BB&offset=0&limit=10', {
+          status: 200,
+          body: JSON.stringify({items: [{DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}]})
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when online');
+        });
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
           body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300})
@@ -154,7 +166,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
           status: 200,
           body: JSON.stringify({items: [{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', establishedDate: '1999-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
             {DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
-            {DepartmentId: 10, DepartmentName: 'Administration', establishedDate: '2005-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}]})
+            {DepartmentId: 10, DepartmentName: 'Administration', establishedDate: '2005-01-01T08:30:40Z', LocationId: 200, ManagerId: 300,lastModified:'2005-01-01T08:30:40Z'}]})
         }, function () {
           assert.ok(true, 'Mock Fetch received Request when online');
         });
@@ -208,7 +220,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               assert.ok(true, 'Received Response when offline');
               return response.json();
             }).then(function (responseData) {
-              assert.ok(responseData.items.length == 2, 'Returned the correct departments');  
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments');
               assert.ok(responseData.items[0].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[1].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
               assert.ok(responseData.items[1].DepartmentName == 'BB' || responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=establishedDate>'2005-01-01T08:30:40Z'&offset=0&limit=10");
@@ -216,14 +228,14 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               assert.ok(true, 'Received Response when offline');
               return response.json();
             }).then(function (responseData) {
-              assert.ok(responseData.items.length == 1, 'Returned the correct departments');  
+              assert.ok(responseData.items.length == 1, 'Returned the correct departments');
               assert.ok(responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=DepartmentId<=556&offset=0&limit=10");
             }).then(function (response) {
               assert.ok(true, 'Received Response when offline');
               return response.json();
             }).then(function (responseData) {
-              assert.ok(responseData.items.length == 2, 'Returned the correct departments');  
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments');
               assert.ok(responseData.items[0].DepartmentName == 'Administration' || responseData.items[1].DepartmentName == 'Administration', 'Returned the correct department');
               assert.ok(responseData.items[1].DepartmentName == 'BB' || responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=DepartmentId!=556&offset=0&limit=10");
@@ -231,7 +243,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               assert.ok(true, 'Received Response when offline');
               return response.json();
             }).then(function (responseData) {
-              assert.ok(responseData.items.length == 2, 'Returned the correct departments');  
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments');
               assert.ok(responseData.items[0].DepartmentName == 'Administration' || responseData.items[1].DepartmentName == 'Administration', 'Returned the correct department');
               assert.ok(responseData.items[1].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[0].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=DepartmentId=556%20OR%20DepartmentId=10&offset=0&limit=10");
@@ -239,7 +251,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               assert.ok(true, 'Received Response when offline');
               return response.json();
             }).then(function (responseData) {
-              assert.ok(responseData.items.length == 2, 'Returned the correct departments');  
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments');
               assert.ok(responseData.items[0].DepartmentName == 'Administration' || responseData.items[1].DepartmentName == 'Administration', 'Returned the correct department');
               assert.ok(responseData.items[1].DepartmentName == 'BB' || responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=DepartmentId=556%20AND%20DepartmentName=Administration&offset=0&limit=10");
@@ -308,6 +320,60 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               assert.ok(responseData.hasMore == false, 'hasMore is false');
               assert.ok(responseData.count == 2, 'count is 2');
               assert.ok(responseData.totalResults == 3, 'totalResults is 3');
+              return fetch('/testOracleRestQuery?q=DepartmentId%20IN%201001');
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentId === 1001, '1 document found using $in');
+              return fetch('/testOracleRestQuery?q=DepartmentId%20IN%2010,1001');
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 2 || responseData.count == 2 , '2 document found using $in');
+              assert.ok( responseData.items[0].DepartmentId === 1001 || responseData.items[0].DepartmentId === 10 , 'DepartmentId is Correct');
+              assert.ok( responseData.items[1].DepartmentId === 1001 || responseData.items[1].DepartmentId === 10 , 'DepartmentId is Correct');
+              assert.ok( responseData.items[0].DepartmentId != responseData.items[1].DepartmentId , 'Not the same Department');
+              return fetch('/testOracleRestQuery?q=DepartmentName IN ("BB","ADFPM 1001 neverending")');
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 2 || responseData.count == 2 , 'found 2 documents');
+              assert.ok( responseData.items[0].DepartmentName === "BB" || responseData.items[0].DepartmentName === "ADFPM 1001 neverending" , 'DepartmentName is Correct');
+              assert.ok( responseData.items[1].DepartmentName === "BB" || responseData.items[1].DepartmentName === "ADFPM 1001 neverending" , 'DepartmentName is Correct');
+              assert.ok( responseData.items[0].DepartmentName != responseData.items[1].DepartmentName , 'Not the same Department');
+              return fetch('/testOracleRestQuery?q=LocationId IN (200,201,202,203)');
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 3 || responseData.count == 3 , 'found 3 documents');
+              assert.ok( responseData.items[0].LocationId === 200 && responseData.items[1].LocationId === 200 && responseData.items[2].LocationId === 200 , 'LocationId is Correct');
+              return fetch("/testOracleRestQuery?q=DepartmentId<>556&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments');
+              assert.ok(responseData.items[0].DepartmentName == 'Administration' || responseData.items[1].DepartmentName == 'Administration', 'Returned the correct department');
+              assert.ok(responseData.items[1].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[0].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
+
+              return fetch("/testOracleRestQuery?q=images IS NULL");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 3, 'Returned the correct departments');
+              return fetch("/testOracleRestQuery?q=lastModified IS NULL");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments');
+              assert.ok(responseData.items[0].DepartmentName == 'BB' || responseData.items[1].DepartmentName == 'BB', 'Returned the correct department');
+              assert.ok(responseData.items[1].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[0].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
               return registration.unregister();
             }).then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');

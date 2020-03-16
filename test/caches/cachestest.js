@@ -78,7 +78,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function (cache) {
         assert.ok(cache);
         testCache = cache;
-        return testCache.delete();
+        return testCache.clear();
       }).then(function () {
         assert.ok(true);
         assert.ok(testCache.getName() === 'basicCacheTest');
@@ -331,7 +331,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function (cache) {
         assert.ok(true);
         testCache = cache;
-        return testCache.delete();
+        return testCache.clear();
       }).then(function () {
         assert.ok(true);
         return prepareTest(dataSet, testCache);
@@ -349,7 +349,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
               assert.ok(true);
               return checkMatchResult(response.clone(), testCases[0].matchResult);
             }).then(function (matchTestPassed) {
-              assert.ok(matchTestPassed);
+              assert.ok(matchTestPassed, testName);
               return testCache.matchAll(requestToMatch, options);
             }).then(function (responseArray) {
               assert.ok(true);
@@ -379,7 +379,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function (cache1) {
         assert.ok(cache1);
         testCache1 = cache1;
-        return testCache1.delete();
+        return testCache1.clear();
       }).then(function () {
         assert.ok(true);
         return offlineCacheManager.delete('cacheManagerMatchTestCache2');
@@ -389,7 +389,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function(cache2){
         assert.ok(cache2);
         testCache2 = cache2;
-        return testCache2.delete();
+        return testCache2.clear();
       }).then(function () {
         assert.ok(true);
         var request1 = new Request('http://localhost/cachemanagermatchtest', {
@@ -471,7 +471,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function (cache) {
         assert.ok(cache);
         testCache = cache;
-        return testCache.delete();
+        return testCache.clear();
       }).then(function () {
         assert.ok(true);
         assert.ok(testCache.getName() === 'cacheShreddingTestCollection');
@@ -540,7 +540,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
       }).then(function (cache) {
         assert.ok(cache);
         testCache = cache;
-        return testCache.delete();
+        return testCache.clear();
       }).then(function () {
         assert.ok(true);
         assert.ok(testCache.getName() === 'cacheShreddingTestSingle');

@@ -1,4 +1,4 @@
-# offline-persistence-toolkit 1.4.1 #
+# offline-persistence-toolkit 1.4.2 #
 
 offline-persistence-toolkit is a client-side JavaScript library that provides caching and offline support at the HTTP request layer. This support is transparent to the user and is done through the Fetch API and an XHR adapter. HTTP requests made while the client device is offline are captured for replay when connection to the server is restored. Additional capabilities include a persistent storage layer, synchronization manager, binary data support and various configuration APIs for customizing the default behavior. This framework can be used in both ServiceWorker and non-ServiceWorker contexts within web and hybrid mobile apps.
 
@@ -10,11 +10,11 @@ There are various approaches to addressing this issue, most of which involve cac
 
 - Caching resources via the [HTML5 application cache](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache "HTML5 application cache").  This feature is now deprecated.
 - Caching resources via the [HTML5 Service Workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API "HTML5 Service Workers").  This Service Worker API is an excellent addition to the web platform that will help application developers address a range of connectivity requirements.  However, this feature is [not available](http://caniuse.com/#feat=serviceworkers "not available") in some browsers (Safari, IE) and is still under development in others (Edge).
-- Application-specific managing of persistent storage.  Applications have access to a range of local storage APIs, including those directly provided by the browsers ([localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage "localStorage"), [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API "IndexedDB")), along with various third party storage libraries (e.g. [PouchDB](https://pouchdb.com/ "PouchDB")).  Industrious application developers can leverage these APIs to meet their caching needs, though this is typically a tedious manual exercise. 
+- Application-specific managing of persistent storage.  Applications have access to a range of local storage APIs, including those directly provided by the browsers ([localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage "localStorage"), [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API "IndexedDB")), along with various third party storage libraries (e.g. [PouchDB](https://pouchdb.com/ "PouchDB")).  Industrious application developers can leverage these APIs to meet their caching needs, though this is typically a tedious manual exercise.
 
 The Offline Persistence Toolkit simplifies life for application developers by providing a response caching solution that works well across modern browsers.  The toolkit covers common caching cases with a minimal amount of application-specific coding, but provides flexibility to cover non-trivial cases as well.  In addition to providing the ability to cache complete response payloads, the toolkit supports "shredding" of REST response payloads into objects that can be stored, queried and updated on the client while offline.
 
-The following sections provide an introduction to the Offline Persistence Toolkit.  
+The following sections provide an introduction to the Offline Persistence Toolkit.
 
 After reading this document, you can find more information about how to implement a range of common and advanced use cases with the toolkit in the [Usage guide](https://github.com/oracle/offline-persistence-toolkit/blob/master/USAGE.md "Usage").
 
@@ -53,23 +53,23 @@ copyCustomLibsToStaging: {
 ```
 
 
-If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the library configuration paths to reference the toolkit. To do this, open `appDir/src/js/main.js` and edit `requirejs.config()`, as illustrated by the following example. 
+If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the library configuration paths to reference the toolkit. To do this, open `appDir/src/js/main.js` and edit `requirejs.config()`, as illustrated by the following example.
 
 ```javascript
   requirejs.config({
     paths: {
-      'persist' : 'js/libs/persist/v1.4.1/min'
+      'persist' : 'js/libs/persist/v1.4.2/min'
 
       // Other path mappings here
  }
 ```
-For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.4.1/min'` entry to the list of paths.
+For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.4.2/min'` entry to the list of paths.
 
 You can choose the name of the paths prefix. That is, you can use a different value to the ‘persist’ value shown in the examples.
 
-It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.4.1/min'`.
+It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.4.2/min'`.
 
-Versions of the toolkit are also available on CDN under the latest JET release. e.g. 
+Versions of the toolkit are also available on CDN under the latest JET release. e.g.
 
 https://static.oracle.com/cdn/jet/v6.2.0/3rdparty/opt/debug
 
@@ -83,7 +83,7 @@ The toolkit does not have a dependency on a specific client-side storage solutio
 
     npm install pouchdb pouchdb-find
 
-And again, if you are using RequireJS, you will need to map paths for these packages, e.g.: 
+And again, if you are using RequireJS, you will need to map paths for these packages, e.g.:
 
 ```javascript
 
@@ -91,7 +91,7 @@ And again, if you are using RequireJS, you will need to map paths for these pack
     paths: {
       'pouchdb': 'js/libs/pouchdb-7.0.0',
       'pouchfind': 'js/libs/pouchdb.find',
-      'persist' : 'js/libs/persist/v1.4.1/min'
+      'persist' : 'js/libs/persist/v1.4.2/min'
 
       // Other path mappings here
  }
@@ -188,10 +188,10 @@ The most trivial use of the DefaultResponseProxy looks like this:
 By default, the fetch event listener produced by the DefaultResponseProxy handles GET requests by first checking see whether the browser/device is online.  If the browser is online, the GET request is sent to the endpoint and the response is cached by writing the response payload to local persistence storage.  If the browser is offline, the default fetch listener will return a previously cached response, if one is available.
 
 This is the simplest form of response caching supported by the Offline Persistence Toolkit.  As we will see in later sections, this behavior is configurable, allowing the application to address more interesting use cases.
- 
 
 
- 
+
+
 
 
 ### What Storage? ###
@@ -235,7 +235,7 @@ require([
           });
       });
   });
- 
+
 
 ```
 
@@ -324,7 +324,7 @@ _handlePost = function (request) {
     // application logic
   });
 };
-var responseProxy = defaultResponseProxy.getResponseProxy({requestHandlerOverride: {handlePost: _handlePost}}); 
+var responseProxy = defaultResponseProxy.getResponseProxy({requestHandlerOverride: {handlePost: _handlePost}});
 
 ```
 
@@ -333,9 +333,9 @@ A common use case involving POST requests is for the creation of resources. Freq
 ```javascript
 //  register the listener with sync manager on 'syncRequest' to handle any cleanup.
 //  For example, replace client generated id with server generated id
- 
+
 self.afterRequestListener = function(event) {
-    var statusCode = event.response.status; 
+    var statusCode = event.response.status;
     if (statusCode == 200) {
         // sync is successful, do any clean up as needed.
     }
@@ -403,7 +403,7 @@ var responseProxy = defaultResponseProxy.getResponseProxy(
                 requestHandlerOverride.handleGet: customGetHandler,
                 requestHandlerOverride.handlePost: customPostHandler,
 			  });
- 
+
 
 ```
 
@@ -414,7 +414,7 @@ To enable detailed logging information, please set the log level on the toolkit 
 
 
 logger.option('level',  logger.LEVEL_LOG);
- 
+
 
 ```
 
