@@ -3,9 +3,11 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
         'persist/fetchStrategies', 
         'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
         'persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 
-        'MockFetch', 'persist/impl/logger'],
+        'MockFetch', 'persist/impl/logger', 'persist/impl/defaultCacheHandler'],
   function (persistenceManager, persistenceUtils, defaultResponseProxy, 
-    queryHandlers, fetchStrategies, persistenceStoreManager, localPersistenceStoreFactory, simpleJsonShredding, oracleRestJsonShredding, MockFetch, logger) {
+    queryHandlers, fetchStrategies, persistenceStoreManager, 
+    localPersistenceStoreFactory, simpleJsonShredding, 
+    oracleRestJsonShredding, MockFetch, logger, cacheHandler) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
     QUnit.module('persist/integration', {
@@ -24,6 +26,14 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           return store.delete();
         }).then(function () {
           return persistenceStoreManager.openStore('Departments');
+        }).then(function (store) {
+          if (store) {
+            return store.delete();
+          } else {
+            return Promise.resolve();
+          }
+        }).then(function () {
+          return persistenceStoreManager.openStore('SyncCache');
         }).then(function (store) {
           if (store) {
             return store.delete();
@@ -110,7 +120,88 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
             });
           });
         });
-    
+        
+      QUnit.test('Integration - sync replay with cache handling', function (assert) {
+        var done = assert.async();
+        //assert.expect(6);
+        mockFetch.addRequestReply('GET', '/testSyncCacheHandling/1001', {
+          status: 200,
+          body: JSON.stringify({DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300})
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when online');
+        });
+        mockFetch.addRequestReply('GET', '/testSyncCacheHandling', {
+          status: 200,
+          body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
+                                {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
+                                {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}])
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when online');
+        });
+
+        persistenceManager.register({
+          scope: '/testSyncCacheHandling'
+        }).then(function (registration) {
+          var options = {
+            jsonProcessor: {
+              shredder: simpleJsonShredding.getShredder('SyncCache', 'DepartmentId'), 
+              unshredder: simpleJsonShredding.getUnshredder()
+            }, 
+            queryHandler: queryHandlers.getSimpleQueryHandler('SyncCache'),
+            fetchStrategy: fetchStrategies.getCacheIfOfflineStrategy({
+              backgroundFetch: 'disabled'
+            })
+          };
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+          var store;
+          var endpointKey;
+          fetch('/testSyncCacheHandling').then(function (response) {
+            assert.ok(true, 'Received Response when online');
+            return persistenceStoreManager.openStore('SyncCache');
+          }).then(function (pstore) {
+            store = pstore;
+            return store.findByKey(1001);
+          }).then(function (data) {
+            assert.ok(data.DepartmentName == 'ADFPM 1001 neverending', 'Found DepartmentId 1001 in localStore');
+            return store.findByKey(556);
+          }).then(function (data) {
+            assert.ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
+            return store.findByKey(10);
+          }).then(function (data) {
+            assert.ok(data.DepartmentName == 'Administration', 'Found DepartmentId 10 in localStore');
+            persistenceManager.forceOffline(true);
+            return fetch('/testSyncCacheHandling/1001');
+          }).then(function(response) {
+            return response.text();
+          }).then(function(payload) {
+            var data = JSON.parse(payload);
+            assert.ok(data.DepartmentName === 'ADFPM 1001 neverending');
+            persistenceManager.forceOffline(true);
+            return persistenceManager.getSyncManager().sync();
+          }).then(function() {
+            return fetch('/testSyncCacheHandling/1001');
+          }).then(function(response) {
+            return response.text();
+          }).then(function(payload) {
+            var data = JSON.parse(payload);
+            assert.ok(data.DepartmentName === 'ADFPM 1001 neverending');
+            var request = new Request('/testSyncCacheHandling/1001');
+            endpointKey = persistenceUtils.buildEndpointKey(request);
+            cacheHandler.registerEndpointOptions(endpointKey, options);
+            return options.queryHandler(request, options);
+          }).then(function(response) {
+            assert.ok(response != null);
+            return response.text();
+          }).then(function(payload) {
+            var data = JSON.parse(payload);
+            assert.ok(data.DepartmentName === 'ADFPM 1001 neverending');
+            cacheHandler.unregisterEndpointOptions(endpointKey);
+            done();
+          });
+        });
+      });
+                
 /*
       QUnit.test('Integration', function (assert) {
         var done = assert.async();

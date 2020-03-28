@@ -218,17 +218,7 @@ define(['require', '../persistenceUtils', '../persistenceStoreManager', './defau
                             logger.log("Offline Persistence Toolkit PersistenceSyncManager: Removing replayed request");
                             self._internalRemoveRequest(requestId, request).then(function () {
                               requests.shift();
-                              if (request.method == 'GET' ||
-                                request.method == 'HEAD') {
-                                persistenceUtils._cloneResponse(responseClone, {url: request.url}).then(function(responseClone) {
-                                  self._cache().put(request, responseClone).then(function () {
-                                    logger.log("Offline Persistence Toolkit PersistenceSyncManager: Replayed request/response is cached.");
-                                    replayRequestArray(requests);
-                                  });
-                                });
-                              } else {
-                                replayRequestArray(requests);
-                              }
+                              replayRequestArray(requests);
                             }, function (err) {
                               reject({'error': err, 'requestId': requestId, 'request': requestClone.clone()});
                             });
