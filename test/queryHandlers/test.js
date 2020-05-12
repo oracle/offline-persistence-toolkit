@@ -81,12 +81,6 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       QUnit.test('getSimpleQueryHandler', function (assert) {
         var done = assert.async();
         assert.expect(13);
-        mockFetch.addRequestReply('GET', '/testSimpleQuery?DepartmentName=BB', {
-          status: 200,
-          body: JSON.stringify([{DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}])
-        }, function () {
-          assert.ok(true, 'Mock Fetch received Request when online');
-        });
         mockFetch.addRequestReply('GET', '/testSimpleQuery', {
           status: 200,
           body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', establishedDate: '1999-01-01T08:30:40Z', LocationId: 200, ManagerId: 300},
@@ -150,12 +144,6 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       QUnit.test('getOracleRestQueryHandler', function (assert) {
         var done = assert.async();
         assert.expect(84);
-        mockFetch.addRequestReply('GET', '/testOracleRestQuery?q=DepartmentName=BB&offset=0&limit=10', {
-          status: 200,
-          body: JSON.stringify({items: [{DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300}]})
-        }, function () {
-          assert.ok(true, 'Mock Fetch received Request when online');
-        });
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
           body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300})

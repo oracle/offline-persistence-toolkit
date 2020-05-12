@@ -1,12 +1,12 @@
-define(['persist/persistenceManager', 'persist/persistenceUtils', 
+define(['persist/persistenceManager', 'persist/persistenceUtils',
         'persist/defaultResponseProxy', 'persist/queryHandlers',
-        'persist/fetchStrategies', 
+        'persist/fetchStrategies',
         'persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory',
-        'persist/simpleJsonShredding', 'persist/oracleRestJsonShredding', 
+        'persist/simpleJsonShredding', 'persist/oracleRestJsonShredding',
         'MockFetch', 'persist/impl/logger', 'persist/impl/defaultCacheHandler'],
-  function (persistenceManager, persistenceUtils, defaultResponseProxy, 
-    queryHandlers, fetchStrategies, persistenceStoreManager, 
-    localPersistenceStoreFactory, simpleJsonShredding, 
+  function (persistenceManager, persistenceUtils, defaultResponseProxy,
+    queryHandlers, fetchStrategies, persistenceStoreManager,
+    localPersistenceStoreFactory, simpleJsonShredding,
     oracleRestJsonShredding, MockFetch, logger, cacheHandler) {
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
@@ -50,77 +50,6 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
     persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
     persistenceManager.init().then(function () {
 
-      QUnit.test('Integration - shredder, queryHandler, resourceHanlder', function (assert) {
-        var done = assert.async();
-        //assert.expect(6);
-        mockFetch.addRequestReply('GET', '/testResourceIdentifierHandling', {
-          status: 200,
-          body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
-                                {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
-                                {DepartmentId: 10, DepartmentName: 'Administration', LocationId: 200, ManagerId: 300}]),
-          headers: {'ETag': 'XYZ123'}
-        }, function () {
-          assert.ok(true, 'Mock Fetch received Request when online');
-        });
-
-        persistenceManager.register({
-          scope: '/testResourceIdentifierHandling'
-        }).then(function (registration) {
-          var options = {
-            jsonProcessor: {
-              shredder: simpleJsonShredding.getShredder('Departments', 'DepartmentId'), 
-              unshredder: simpleJsonShredding.getUnshredder()
-            }, 
-            queryHandler: queryHandlers.getSimpleQueryHandler('Departments'),
-            fetchStrategy: fetchStrategies.getCacheIfOfflineStrategy({
-              backgroundFetch: 'disabled'
-            })
-          };
-          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
-          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
-            var store;
-            fetch('/testResourceIdentifierHandling').then(function (response) {
-              assert.ok(true, 'Received Response when online');
-              return persistenceStoreManager.openStore('Departments');
-            }).then(function (pstore) {
-              store = pstore;
-              return store.findByKey(1001);
-            }).then(function (data) {
-              assert.ok(data.DepartmentName == 'ADFPM 1001 neverending', 'Found DepartmentId 1001 in localStore');
-              return store.findByKey(556);
-            }).then(function (data) {
-              assert.ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
-              return store.findByKey(10);
-            }).then(function (data) {
-              assert.ok(data.DepartmentName == 'Administration', 'Found DepartmentId 10 in localStore');
-              //remove a row from server, and add a new etag value on the response
-              mockFetch.clearAllRequestReplies();
-              mockFetch.addRequestReply('GET', '/testResourceIdentifierHandling', {
-                status: 200,
-                body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300},
-                                      {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300}]),
-                headers: {'ETag': 'ABC123'}
-              }, function () {
-                assert.ok(true, 'Mock Fetch received Request when online');
-              });
-              return fetch('/testResourceIdentifierHandling');
-            }).then(function(response) {
-              return response.text();
-            }).then(function(payload) {
-              var rows = JSON.parse(payload);
-              assert.ok(rows.length === 2, 'Should only get 2 rows back when online');
-              persistenceManager.forceOffline(true);
-              return fetch('/testResourceIdentifierHandling');
-            }).then(function(response) {
-              return response.text();
-            }).then(function(payload) {
-              var rows = JSON.parse(payload);
-              assert.ok(rows.length === 2, 'Should only get 2 rows back when offline');
-              done();
-            });
-          });
-        });
-        
       QUnit.test('Integration - sync replay with cache handling', function (assert) {
         var done = assert.async();
         //assert.expect(6);
@@ -144,9 +73,9 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
         }).then(function (registration) {
           var options = {
             jsonProcessor: {
-              shredder: simpleJsonShredding.getShredder('SyncCache', 'DepartmentId'), 
+              shredder: simpleJsonShredding.getShredder('SyncCache', 'DepartmentId'),
               unshredder: simpleJsonShredding.getUnshredder()
-            }, 
+            },
             queryHandler: queryHandlers.getSimpleQueryHandler('SyncCache'),
             fetchStrategy: fetchStrategies.getCacheIfOfflineStrategy({
               backgroundFetch: 'disabled'
@@ -201,7 +130,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           });
         });
       });
-                
+
 /*
       QUnit.test('Integration', function (assert) {
         var done = assert.async();
@@ -232,7 +161,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           scope: '/testIntegration'
         }).then(function (registration) {
           var options = {jsonProcessor: {
-              shredder: simpleJsonShredding.getShredder('Departments', 'DepartmentId'), 
+              shredder: simpleJsonShredding.getShredder('Departments', 'DepartmentId'),
               unshredder: simpleJsonShredding.getUnshredder()
             },
             queryHandler: queryHandlers.getSimpleQueryHandler('Departments'),
@@ -242,7 +171,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
           registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
           var store;
-          
+
           fetch('/testIntegration').then(function (response) {
             assert.ok(true, 'Received Response when online');
             return persistenceStoreManager.openStore('Departments');
@@ -262,7 +191,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
             return response.text();
           }).then(function(payload) {
             var data = JSON.parse(payload);
-            assert.ok(data.length === 1 && 
+            assert.ok(data.length === 1 &&
                       data[0].DepartmentName === 'ADFPM 1001 neverending');
             return fetch('/testIntegration/1001');
           }).then(function (response) {
@@ -331,7 +260,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
               console.log("2");
               return new Response(JSON.stringify({
                 DepartmentId: 1001,
-                DepartmentName: 'ADFPM 1001 modified', 
+                DepartmentName: 'ADFPM 1001 modified',
                 LocationId: 200,
                 ManagerId: 300
               }), {
@@ -342,7 +271,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           };
           var options = {
             jsonProcessor: {
-              shredder: simpleJsonShredding.getShredder('Departments', 'DepartmentId'), 
+              shredder: simpleJsonShredding.getShredder('Departments', 'DepartmentId'),
               unshredder: simpleJsonShredding.getUnshredder()
             },
             queryHandler: queryHandlers.getSimpleQueryHandler('Departments'),
@@ -376,5 +305,5 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
         });
       });
     });
-    
+
   });

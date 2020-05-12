@@ -331,7 +331,7 @@ module.exports = function (grunt) {
       jscover: {
         command: 'java',
         jarName: 'coverage/JSCover-all.jar',
-        javaArgs: '-fs dist/debug coverage/dist/debug --no-instrument=impl/fetch.js --no-instrument=<%= pouchdb_bundle %>'
+        javaArgs: '-fs dist/debug coverage/dist/debug --no-instrument=impl/sql-where-parser.min.js --no-instrument=impl/fetch.js --no-instrument=<%= pouchdb_bundle %>'
       }
     }
   });

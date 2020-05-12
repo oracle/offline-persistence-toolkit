@@ -2,7 +2,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
         'persist/oracleRestJsonShredding', 'persist/persistenceUtils',
         'persist/impl/offlineCacheManager', 'persist/impl/defaultCacheHandler',
         'MockFetch', 'persist/impl/logger'],
-  function(persistenceStoreManager, localPersistenceStoreFactory, 
+  function(persistenceStoreManager, localPersistenceStoreFactory,
            oracleRestJsonShredding, persistenceUtils, offlineCacheManager,
            cacheHandler, MockFetch, logger){
   'use strict';
@@ -10,6 +10,299 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
   QUnit.module('cachestest');
 
   persistenceStoreManager.registerDefaultStoreFactory(localPersistenceStoreFactory);
+
+  QUnit.test('cache match test for 1.4.1 and below', function (assert) {
+
+    var dataSet = [{
+      request : new Request('http://localhost/employees', {
+                      method: 'GET'
+                    }),
+      response: new Response('response body for all employees.', {
+                      status: 200
+                    })
+    }, {
+      request : new Request('http://localhost/employees?FirstName=Bob', {
+                      method: 'GET'
+                    }),
+      response: new Response('response body for employees whose first name is Bob.', {
+                      status: 200
+                    })
+    }, {
+      request:  new Request('http://localhost/employees/209', {
+                      method: 'PUT',
+                      body: 'update employee with id 209.'
+                    }),
+      response: new Response('response body for updating employee with id 209.', {
+                      status: 200
+                    })
+    }, {
+      request : new Request('http://localhost/employees/209', {
+                      method: 'DELETE',
+                      body: 'delete employee with id 209.'
+                    }),
+      response: new Response('response body for deleting employee with id 209.', {
+                      status: 200
+                    })
+    }, {
+      request : new Request('http://localhost/employees/209', {
+                      method: 'GET'
+                    }),
+      response: new Response('response body for getting employee with id 209.', {
+                      status: 200
+                    })
+    }, {
+      request : new Request('http://localhost/departments', {
+                      method: 'GET'
+                    }),
+      response: new Response('response body for all departments uncompressed', {
+                      headers: new Headers({'Vary': 'test-accept-encoding'})
+                    })
+    }, {
+      request : new Request('http://localhost/departments', {
+                      headers: new Headers({'test-accept-encoding': 'gzip'}),
+                      method: 'GET'
+                    }),
+      response: new Response('response body for all departments compressed with gzip', {
+                      headers: new Headers({
+                        'Content-Encoding': 'gzip',
+                        'Vary': 'test-accept-encoding'
+                      })
+                    })
+    }, {
+      request : new Request('http://localhost/departments', {
+                      method: 'GET',
+                      headers: new Headers({'test-accept-encoding': 'random'})
+                    }),
+      response: new Response('response body for all departments compressed with random', {
+                      headers: new Headers({
+                        'Content-Encoding': 'random',
+                         'Vary': 'test-accept-encoding'
+                      })
+                    })
+    }, {
+      request:  new Request('http://localhost/departments', {
+                      method: 'GET',
+                      headers: new Headers({'test-accept-encoding': 'gzip, random'})
+                    }),
+      response: new Response('response body for all departments compressed with gzip random', {
+                      headers: new Headers({
+                        'Content-Encoding': 'gzip random',
+                        Vary: 'test-accept-encoding, test-accept-encoding1'
+                      })
+                    })
+    }];
+
+    var testCases = [
+      {
+      name: 'defaultOptionMatch0',
+      requestToMatch: 0,
+      matchResult: 'response body for all employees.',
+      matchAllResult: ['response body for all employees.']
+    }, {
+      name: 'defaultOptionMatch1',
+      requestToMatch: 1,
+      matchResult: 'response body for employees whose first name is Bob.',
+      matchAllResult: ['response body for employees whose first name is Bob.']
+    }, {
+      name: 'defaultOptionMatch2',
+      requestToMatch: 2,
+      matchResult: 'response body for updating employee with id 209.',
+      matchAllResult: ['response body for updating employee with id 209.']
+    }, {
+      name: 'defaultOptionMatch3',
+      requestToMatch: 3,
+      matchResult: 'response body for deleting employee with id 209.',
+      matchAllResult: ['response body for deleting employee with id 209.']
+    }, {
+      name: 'defaultOptionMatch4',
+      requestToMatch: 4,
+      matchResult: 'response body for getting employee with id 209.',
+      matchAllResult: ['response body for getting employee with id 209.']
+    }, {
+      name: 'ignoreSearchMatchTest0',
+      requestToMatch: 0,
+      options: {ignoreSearch: true},
+      matchResult: 'response body for all employees.',
+      matchAllResult: ['response body for all employees.', 'response body for employees whose first name is Bob.']
+    }, {
+      name: 'ignoreSearchMatchTest1',
+      requestToMatch: 1,
+      options: {ignoreSearch: true},
+      matchResult: 'response body for all employees.',
+      matchAllResult: ['response body for all employees.', 'response body for employees whose first name is Bob.']
+    }, {
+      name: 'ignoreMethodMatchTest0',
+      requestToMatch: 2,
+      options: {ignoreMethod: true},
+      matchResult: 'response body for updating employee with id 209.',
+      matchAllResult: ['response body for updating employee with id 209.',
+                       'response body for deleting employee with id 209.',
+                       'response body for getting employee with id 209.']
+    }, {
+      name: 'ignoreMethodMatchTest1',
+      requestToMatch: 3,
+      options: {ignoreMethod: true},
+      matchResult: 'response body for updating employee with id 209.',
+      matchAllResult: ['response body for updating employee with id 209.',
+                       'response body for deleting employee with id 209.',
+                       'response body for getting employee with id 209.']
+    }, {
+      name: 'ignoreMethodMatchTest2',
+      requestToMatch: 4,
+      options: {ignoreMethod: true},
+      matchResult: 'response body for updating employee with id 209.',
+      matchAllResult: ['response body for updating employee with id 209.',
+                       'response body for deleting employee with id 209.',
+                       'response body for getting employee with id 209.']
+    }, {
+      name: 'ignoreVaryMatchTest0',
+      requestToMatch: 5,
+      options: {ignoreVary: true},
+      matchResult: 'response body for all departments uncompressed',
+      matchAllResult: ['response body for all departments uncompressed',
+                       'response body for all departments compressed with gzip',
+                       'response body for all departments compressed with random',
+                       'response body for all departments compressed with gzip random']
+    }, {
+      name: 'VaryMatchTest0',
+      requestToMatch: 5,
+      options: {ignoreVary: false},
+      matchResult: 'response body for all departments uncompressed',
+      matchAllResult: ['response body for all departments uncompressed']
+    }, {
+      name: 'ignoreVaryMatchTest1',
+      requestToMatch: 6,
+      options: {ignoreVary: true},
+      matchResult: 'response body for all departments uncompressed',
+      matchAllResult: ['response body for all departments uncompressed',
+                       'response body for all departments compressed with gzip',
+                       'response body for all departments compressed with random',
+                       'response body for all departments compressed with gzip random']
+    }, {
+      name: 'VaryMatchTest1',
+      requestToMatch: 6,
+      options: {ignoreVary: false},
+      matchResult: 'response body for all departments compressed with gzip',
+      matchAllResult: ['response body for all departments compressed with gzip']
+    }, {
+      name: 'ignoreVaryMatchTest2',
+      requestToMatch: 7,
+      options: {ignoreVary: true},
+      matchResult: 'response body for all departments uncompressed',
+      matchAllResult: ['response body for all departments uncompressed',
+                       'response body for all departments compressed with gzip',
+                       'response body for all departments compressed with random',
+                       'response body for all departments compressed with gzip random']
+    }, {
+      name: 'VaryMatchTest2',
+      requestToMatch: 7,
+      options: {ignoreVary: false},
+      matchResult: 'response body for all departments compressed with random',
+      matchAllResult: ['response body for all departments compressed with random']
+    }, {
+      name: 'ignoreVaryMatchTest3',
+      requestToMatch: 8,
+      options: {ignoreVary: true},
+      matchResult: 'response body for all departments uncompressed',
+      matchAllResult: ['response body for all departments uncompressed',
+                       'response body for all departments compressed with gzip',
+                       'response body for all departments compressed with random',
+                       'response body for all departments compressed with gzip random']
+    }, {
+      name: 'VaryMatchTest3',
+      requestToMatch: 8,
+      options: {ignoreVary: false},
+      matchResult: 'response body for all departments compressed with gzip random',
+      matchAllResult: ['response body for all departments compressed with gzip random']
+    }];
+    function correctLog(cache) {
+      // this function is to remove the delimiters added by the new cache method
+      // and then replacing the keys in the cache so that it will
+
+      var keys = Object.keys(localStorage)
+      console.log('original cache keys',cache['_cacheKeys'])
+      var originalKeys = cache['_cacheKeys']
+      var placeHolderKeys = []
+      var cacheName = cache['_store']['_name']+cache['_store']['_version']
+      for( var i =0; i < keys.length;i++){
+        var item;
+        try{
+          item = JSON.parse(localStorage.getItem(keys[i]));
+          if( keys[i].startsWith(cacheName)){
+            var currentKey = keys[i];
+            var correctedKey = currentKey.split('$').join('');
+            var oldVaryArray = correctedKey.split(';')
+            correctedKey = oldVaryArray.join('')
+            item.key = correctedKey.slice(cacheName.length);
+            localStorage.setItem(correctedKey,JSON.stringify(item));
+            localStorage.removeItem(currentKey);
+            placeHolderKeys.push(correctedKey.slice(cacheName.length));
+          }
+        }catch(e){
+          // pass
+        }
+      }
+      if (placeHolderKeys.length == originalKeys.length){
+        for( i = 0; i < originalKeys.length; i++){
+          var tempKey = originalKeys[i].split('$').join('');
+          var tempKey2 = tempKey.split(';')
+          tempKey = tempKey2.join('')
+          originalKeys[i] = tempKey
+        }
+      }else {
+        cache['_cacheKeys'] = placeHolderKeys
+      }
+      console.log('new cache keys',cache['_cacheKeys'])
+      console.log('keys have been updated')
+    }
+    return new Promise(function (resolve, reject) {
+      var testCache;
+      offlineCacheManager.delete('cacheMatchTest141').then(function(){
+        return offlineCacheManager.open('cacheMatchTest141');
+      }).then(function (cache) {
+        assert.ok(true,'opened');
+        testCache = cache;
+        return testCache.clear();
+      }).then(function () {
+        assert.ok(true,'cleared');
+        return prepareTest(dataSet, testCache);
+      }).then(function () {
+        correctLog(testCache)
+        assert.ok(true,'testpreped and corrected');
+        return Promise.resolve()
+      }).then(function(){
+        var executeTestCase = function (testCases) {
+          if (testCases.length === 0) {
+            resolve();
+          } else {
+            var testName = testCases[0].name;
+            console.log('test case: ' + testName);
+            var requestToMatch = dataSet[testCases[0].requestToMatch].request;
+            var options = testCases[0].options;
+            testCache.match(requestToMatch, options).then(function (response) {
+              assert.ok(true,testName+'match found');
+              return checkMatchResult(response.clone(), testCases[0].matchResult);
+            }).then(function (matchTestPassed) {
+              assert.ok(matchTestPassed, 'check results for:'+testName);
+              return testCache.matchAll(requestToMatch, options);
+            }).then(function (responseArray) {
+              assert.ok(true, testName+':matchAll');
+              return checkMatchAllResult(responseArray, testCases[0].matchAllResult);
+            }).then(function (matchAllTestPassed) {
+              assert.ok(matchAllTestPassed,testName+':matchedall check');
+              testCases.shift();
+              executeTestCase(testCases);
+            });
+          }
+        };
+        executeTestCase(testCases);
+
+      }).catch(function (error) {
+        assert.ok(false);
+        reject(error);
+      });
+    });
+  });
 
   QUnit.test("basic cache manager test", function (assert) {
     var testCache;
@@ -457,7 +750,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
     var shredder = oracleRestJsonShredding.getShredder(shreddedStoreName, 'DepartmentId');
     var unshredder = oracleRestJsonShredding.getUnshredder();
     var options = {jsonProcessor: {shredder: shredder, unshredder: unshredder}}
-    
+
     var mockFetch = new MockFetch();
     mockFetch.addRequestReply('GET', '/testcacheshreddingcollection', {
       status: 200,
@@ -526,7 +819,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
     var shredder = oracleRestJsonShredding.getShredder(shreddedStoreName, 'DepartmentId');
     var unshredder = oracleRestJsonShredding.getUnshredder();
     var options = {jsonProcessor: {shredder: shredder, unshredder: unshredder}}
-    
+
     var mockFetch = new MockFetch();
     mockFetch.addRequestReply('GET', '/testcacheshreddingsingle', {
       status: 200,
@@ -632,6 +925,7 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
           if (text === expectedText) {
             resolve(true);
           } else {
+            console.warn(text,expectedText)
             resolve(false);
           }
         }).catch(function (error) {
