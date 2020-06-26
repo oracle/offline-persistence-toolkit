@@ -2,38 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: persistenceStoreManager.js</title>
+    <title>Source: persistenceStoreManager.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script>
+      window.onload = function() {
+        var nav = document.getElementById("nav")
+        var currentId = nav.getAttribute("data-current-item");
+        if (!currentId) return;
+        var link = document.getElementById(currentId);
+        if (!link) return;
+        link.className = link.className ? link.className + " current-nav-item" : "current-nav-item";
+        nav.scrollTop = link.offsetTop + (link.offsetHeight - nav.offsetHeight)/2;
+      }
+    </script>
+
     <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
 </head>
 
 <body>
 
-<div id="main">
 
+<nav id="nav" data-current-item="none">
+    <h2 id="navIndex"><a href="index.html">Index</a></h2><h3>Classes</h3><ul class="subList"><li id="navItem0"><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li id="navItem1"><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li id="navItem2"><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li id="navItem3"><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li id="navItem4"><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li id="navItem5"><a href="OfflineCache.html">OfflineCache</a></li><li id="navItem6"><a href="PersistenceManager.html">PersistenceManager</a></li><li id="navItem7"><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li id="navItem8"><a href="PersistenceStore.html">PersistenceStore</a></li><li id="navItem9"><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li id="navItem10"><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li id="navItem11"><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li id="navItem12"><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li id="navItem13"><a href="cacheStrategies.html">cacheStrategies</a></li><li id="navItem14"><a href="fetchStrategies.html">fetchStrategies</a></li><li id="navItem15"><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li id="navItem16"><a href="persistenceUtils.html">persistenceUtils</a></li><li id="navItem17"><a href="queryHandlers.html">queryHandlers</a></li><li id="navItem18"><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li id="navItem19"><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul class="subList"><li id="navItem20"><a href="AttributeFilter.html">AttributeFilter</a></li><li id="navItem21"><a href="CompoundFilter.html">CompoundFilter</a></li><li id="navItem22"><a href="DataMapping.html">DataMapping</a></li><li id="navItem23"><a href="Item.html">Item</a></li><li id="navItem24"><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
+</nav>
+
+<div id="main">
     <h1 class="page-title">Source: persistenceStoreManager.js</h1>
 
     
+    <p class="product-docs-header">
+
+    
+
+
+
+
+
 
 
 
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
+            <pre class="prettyprint source"><code>/**
  * Copyright (c) 2017, Oracle and/or its affiliates.
  * All rights reserved.
  */
 
 define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenceStoreFactory'], function (logger, PersistenceStoreMetadata, pouchDBPersistenceStoreFactory) {
   'use strict';
-  
+
   /**
    * @export
    * @class PersistenceStoreManager
@@ -66,13 +90,13 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
       writable: true
     });
   }
-  
+
   /**
    * Register a PersistenceStoreFactory to create PersistenceStore for the
    * specified name. Only one factory is allowed to be registered per name.
    * @method
    * @name registerStoreFactory
-   * @memberof! PersistenceStorageManager
+   * @memberof PersistenceStorageManager
    * @instance
    * @param {string} name Name of the store the factory is registered under.
    *                      Must not be null / undefined.
@@ -83,7 +107,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
     if (!factory) {
       throw TypeError("A valid factory must be provided.");
     }
-    
+
     if (!name) {
       throw TypeError("A valid name must be provided.");
     }
@@ -102,7 +126,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
    * @method
    * @instance
    * @name registerDefaultStoreFactory
-   * @memberof! PersistenceStoreManager
+   * @memberof PersistenceStoreManager
    * @param {Object} factory The factory instance used to create
    *                         PersistenceStore
    */
@@ -116,7 +140,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
    * that's ready to be used.
    * @method
    * @name openStore
-   * @memberof! PersistenceStoreManager
+   * @memberof PersistenceStoreManager
    * @instance
    * @param {string} name Name of the store.
    * @param {{index: Array, version: string}|null} options Optional options to
@@ -125,7 +149,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
    * &lt;li>options.index array of fields to create index for&lt;/li>
    * &lt;li>options.version The version of this store to open, default to be '0'. &lt;/li>
    * &lt;/ul>
-   * @return {Promise} Returns an instance of a PersistenceStore.
+   * @return {Promise&lt;PersistenceStore>} Returns an instance of a PersistenceStore.
    */
   PersistenceStoreManager.prototype.openStore = function (name, options) {
     logger.log("Offline Persistence Toolkit PersistenceStoreManager: openStore() for name: " + name);
@@ -188,16 +212,16 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
    * Check whether a specific version of a specific store exists or not.
    * @method
    * @name hasStore
-   * @memberof! PersistenceStoreManager
+   * @memberof PersistenceStoreManager
    * @instance
    * @param {string} name The name of the store to check for existence
    * @param {{version: string}|null} options Optional options when perform the
-   *                                 check. 
+   *                                 check.
    * &lt;ul>
    * &lt;li>options.version The version of this store to check. If not specified,
    *                     any version of the store counts.&lt;/li>
-   * &lt;/ul>             
-   * @return {boolean} Returns true if the store with the name exists of the 
+   * &lt;/ul>
+   * @return {boolean} Returns true if the store with the name exists of the
    *                   specific version, false otherwise.
    */
   PersistenceStoreManager.prototype.hasStore = function (name, options) {
@@ -216,16 +240,16 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
    * Delete the specific store, including all the content stored in the store.
    * @method
    * @name deleteStore
-   * @memberof! PersistenceStoreManager
+   * @memberof PersistenceStoreManager
    * @instance
    * @param {string} name The name of the store to delete
    * @param {{version: string}|null} options Optional options when perform the
-   *                                 delete. 
+   *                                 delete.
    * &lt;ul>
    * &lt;li>options.version The version of this store to delete. If not specified,
    *                     all versions of the store will be deleted.&lt;/li>
-   * &lt;/ul>  
-   * @return {Promise} Returns a Promise which resolves to true if the store is
+   * &lt;/ul>
+   * @return {Promise&lt;Boolean>} Returns a Promise which resolves to true if the store is
    *                   actually deleted, and false otherwise.
    */
   PersistenceStoreManager.prototype.deleteStore = function (name, options) {
@@ -234,7 +258,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
     var storeName = this._mapStoreName(name);
     return self._getStoresMetadata(storeName).then(function(storeMetadata) {
       if (!storeMetadata) {
-        // no metadata for this store, could be that no store instances have 
+        // no metadata for this store, could be that no store instances have
         // ever been created, or skipMetadata was true when the store is created;
         var storesToDelete = [];
         if (options &amp;&amp; options.version) {
@@ -284,7 +308,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
             return self.openStore(storeName, {version: version, skipMetadata: true}).then(function(store) {
               delete self._stores[storeName][version];
               return store.delete();
-            }); 
+            });
           }, self);
           return Promise.all(promises).then(function() {
             // update metadata store.
@@ -311,7 +335,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
    * Returns a promise that resolves to a Map of store name and store metadata.
    * @method
    * @name getStoresMetadata
-   * @memberof! PersistenceStoreManager
+   * @memberof PersistenceStoreManager
    * @instance
    * @return {Promise&lt;Map&lt;String, PersistenceStoreMetadata>>} Returns a Map of store name and store metadata.
    */
@@ -365,7 +389,7 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
     if (mappedName) {
       return mappedName;
     } else {
-      // remove '://' from the string. 
+      // remove '://' from the string.
       mappedName = name.replace(/(.*):\/\/(.*)/gi, '$1$2');
       this._storeNameMapping[name] = mappedName;
       return mappedName;
@@ -409,26 +433,21 @@ define(['./impl/logger', './impl/PersistenceStoreMetadata', './pouchDBPersistenc
   }
 
   return new PersistenceStoreManager();
-});</code></pre>
+});
+</code></pre>
         </article>
     </section>
 
 
 
 
+    <footer>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Jun 26 2020 12:21:08 GMT-0700 (Pacific Daylight Time)<br>
+        <span class="product-docs-footer">Copyright © 2017, 2020
+        Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.<span>
+    </footer>
 </div>
 
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a>
-</footer>
-
 <script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
 </body>
 </html>

@@ -1,0 +1,27 @@
+<?js
+var data = obj;
+var self = this;
+?>
+
+<?js if (data.kind === 'package') { ?>
+    <h3><?js= data.name ?> <?js= data.version ?></h3>
+<?js } ?>
+
+<?js if (data.readme) { ?>
+  <section>
+    <article>
+      <p><img alt="alt text" title="Oracle Logo" src="oracle_logo_sm.png"></p>
+      <h1>Offline Persistence Toolkit API Reference</h1>
+      <p>
+          This document provides a reference to the offline-persistence-toolkit's JavaScript API.
+          Links to JSDoc for each class can be found to the left.
+      </p>
+      <p>
+        The toolkit's <a href='https://github.com/oracle/offline-persistence-toolkit/'>README</a>
+        file provides an overview of the toolkit’s capabilities. Having read that document, you can find more
+        information about how to implement a range of common and advanced use cases with the toolkit in the
+        <a href='https://github.com/oracle/offline-persistence-toolkit/blob/master/USAGE.md'>Usage guide</a>.
+      </p>
+    </article>
+  </section>
+<?js } ?>

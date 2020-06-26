@@ -1,0 +1,22 @@
+<table class="params">
+  <thead>
+    <tr>		
+      <th>Since</th>		
+      <th>Description</th>				
+    </tr>
+	</thead>
+	
+	<tbody>
+    <?js
+      var self = this;    
+      var deprObjs = obj;
+	    deprObjs.forEach(function(depr) {
+        if (!depr) { return; }
+    ?>	
+    <tr>    
+      <td class="name"><code><?js= depr.since ?></code></td>                        
+      <td class="description last"><?js= depr.description ?></td>            
+    </tr>
+	<?js }); ?>
+	</tbody>
+</table>

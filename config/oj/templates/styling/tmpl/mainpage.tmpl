@@ -1,0 +1,21 @@
+<?js
+var data = obj;
+var self = this;
+?>
+
+<?js if (data.kind === 'package') { ?>
+    <h3><?js= data.name ?> <?js= data.version ?></h3>
+<?js } ?>
+
+<?js if (data.readme) { ?>
+    <section>
+      <article>
+        <p><img alt="alt text" title="Oracle Logo" src="oracle_logo_sm.png"></p>
+        <h1>Oracle JavaScript Extension Toolkit (JET) Styling Reference</h1>
+        <p>These pages document JET styling information of interest to the page author.  (For theming information, see the 
+           code comments in the SCSS source.)</p>
+        <p>To see how each component is implemented, with both HTML markup and JavaScript code, please visit 
+           the <a href="<?js= env.opts.query.jetsite ?>">Oracle JET Website</a> under the <em>Use Cookbook</em> section.</p>
+      </article>
+    </section>
+<?js } ?>

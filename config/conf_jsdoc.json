@@ -1,21 +1,35 @@
 {
-    "plugins": [],
-    "recurseDepth": 10,
-    "source": {
-        "includePattern": ".+\\.js(doc|x)?$",
-        "excludePattern": "(^|\\/|\\\\)_"
-    },
-    "sourceType": "module",
-    "tags": {
-        "allowUnknownTags": true,
-        "dictionaries": ["jsdoc","closure"]
-    },
-    "templates": {
-        "cleverLinks": false,
-        "monospaceLinks": false,
-        "default": {
-            "includeDate": false
-        }
+  "plugins": [],
+  "recurseDepth": 10,
+  "source": {
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "includeDate": false
     }
+  },
+  "opts": {
+    "template": "oj/templates/custom",
+    "destination": "../docs",
+    "recurse": true,
+    "violations": {
+      "MISSING_LINKS": false,
+      "TYPEDEF_IN_TYPE": true,
+      "INVALID_GLOBAL_MEMBER": true,
+      "MISSING_OJCOMPONENT_TYPE": true,
+      "MISSING_CLASS_TYPE": true,
+      "INVALID_ATTRIBUTE_TYPE": true,
+      "INVALID_DEFAULT_VALUE": true
+    },
+    "violationLevel": "error"
+  }
 }
-

@@ -242,15 +242,11 @@ define(['persist/persistenceStoreManager', 'persist/localPersistenceStoreFactory
           // pass
         }
       }
-      if (placeHolderKeys.length == originalKeys.length){
-        for( i = 0; i < originalKeys.length; i++){
-          var tempKey = originalKeys[i].split('$').join('');
-          var tempKey2 = tempKey.split(';')
-          tempKey = tempKey2.join('')
-          originalKeys[i] = tempKey
-        }
-      }else {
-        cache['_cacheKeys'] = placeHolderKeys
+      for( i = 0; i < originalKeys.length; i++){
+        var tempKey = originalKeys[i].split('$').join('');
+        var tempKey2 = tempKey.split(';')
+        tempKey = tempKey2.join('')
+        originalKeys[i] = tempKey
       }
       console.log('new cache keys',cache['_cacheKeys'])
       console.log('keys have been updated')

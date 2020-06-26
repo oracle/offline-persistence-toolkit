@@ -1,0 +1,185 @@
+<?js
+
+    // [jim] properties.tmpl is now used by the ojvalue tag, not just by details.tmpl.
+    // If needs diverge, copy properties.tmpl as ojvalues.tmpl, for use by ojvalue tag.
+    
+    var props = obj;
+    
+    /* sort subprops under their parent props (like opts.classname) */
+    var parentProp = null;
+    props.forEach(function(prop, i) {
+        if (!prop) { return; }
+        if ( parentProp && prop.name.indexOf(parentProp.name + '.') === 0 ) {
+            prop.name = prop.name.substr(parentProp.name.length+1);
+            parentProp.subprops = parentProp.subprops || [];
+            parentProp.subprops.push(prop);
+            props[i] = null;
+        }
+        else {
+            parentProp = prop;
+        }
+    });
+    
+    /* determine if we need extra columns, "attributes" and "default" */
+    props.hasAttributes = false;
+    props.hasDefault = false;
+    props.hasName = false;
+    props.hasDescriptionOrSubprops = false;
+    
+    props.forEach(function(prop) {
+        if (!prop) { return; }
+        
+        if (prop.optional || typeof prop.nullable !== 'undefined'){
+            props.hasAttributes = true;
+        }
+        
+        if (prop.name) {
+            props.hasName = true;
+        }
+        
+        if (typeof prop.defaultvalue !== 'undefined') {
+            props.hasDefault = true;
+        }       
+        
+        if (typeof prop.description !== 'undefined' || typeof prop.subprops !== 'undefined') {
+            props.hasDescriptionOrSubprops = true;
+        }
+    });
+?>
+
+<table class="props">
+    <thead>
+	<tr>
+		<?js if (props.hasName) {?>
+		<th>Name</th>
+		<?js } ?>
+		
+		<th>Type</th>
+		
+		<?js if (props.hasAttributes) {?>
+		<th>Argument</th>
+		<?js } ?>
+		
+		<?js if (props.hasDefault) {?>
+		<th>Default</th>
+		<?js } ?>
+       		
+		<?js if (props.hasDescriptionOrSubprops) {?>
+		<th class="last">Description</th>
+		<?js } ?>
+	</tr>
+	</thead>
+	
+	<tbody>
+	<?js
+      var self = this;
+      var skipSubProperties = false;
+	    props.forEach(function(prop) {
+	        if (!prop) { return; }
+	?>
+	
+        <tr>
+            <?js if (props.hasName) {?>
+                <td class="name"><code><?js= prop.name ?></code></td>
+            <?js } ?>
+            
+            <td class="type">
+            <?js 
+            if (prop.type && prop.type.names) {
+              //[csaba]: in jsdoc 3.4 (and above) the names array will not contain any more the exact function signature 
+              //         (if a function was used in constructing the type), only the string "function".
+              //         in order not to loose any return type or arguments to the function we will look for the
+              //         parsedType attribute of the type Object. This will contain the whole expression used for type
+              //         as it was defined by comp. developer in the jsdoc comment section.
+              var typeHandled = false;
+              if (prop.tstype){
+                //[csaba]: this is the use-case where ojsignature was used with a jsdocOverride property set to true
+                //         in this case the original type will be replaced with the ojsignature type
+                if (prop.tstype.target.toLowerCase() === 'type'){                  
+                  typeHandled = true;
+                  //TODO if the sign. type is actually a TypeDef we probably don't want to display subproperties table
+                  // but in order to know if type is actually a TypeDef we need to search with self.find                   
+                  if (self.find({kind:"typedef", longname: prop.tstype.value}).length){                    
+                    skipSubProperties = true;
+                  }
+                  var ojsigntype = prop.tstype.value.split('|'); ?>
+                    <?js= self.partial('type.tmpl', ojsigntype) ?>   
+                <?js 
+                }
+              }
+              else 
+              if (prop.type.parsedType){
+                if (prop.type.parsedType.typeExpression){                  
+                  if (prop.type.parsedType.typeExpression.indexOf('function') >= 0 || prop.type.parsedType.typeExpression.indexOf('Function') >= 0 ||
+                      (prop.type.parsedType.typeExpression.indexOf('{') >=0 && prop.type.parsedType.typeExpression.indexOf('}') >0)){
+                    typeHandled = true;
+                    var _expression = prop.type.parsedType.typeExpression; 
+                    // remove the 'optional' operator if exists
+                    if (_expression.endsWith('=')){
+                      _expression = _expression.substr(0, _expression.length - 1);
+                    }
+                    // remove any not-null operator
+                    if (_expression.startsWith('!')){
+                      _expression = _expression.substr(1);
+                    }
+                    // remove the parenthesis of they exists
+                    if (_expression.charCodeAt(0) == 40 && _expression.charCodeAt(_expression.length - 1) == 41){
+                      _expression = _expression.substr(1, _expression.length - 2);
+                    }                    
+                    var data = _expression.split('|'); ?>
+                    <?js= self.partial('type.tmpl', data) ?>                                   
+                <?js 
+                  }
+                }
+              }
+              if (!typeHandled) {
+            ?>
+                <?js= self.partial('type.tmpl', prop.type.names) ?>
+            <?js }} ?>
+            </td>
+            
+            <?js if (props.hasAttributes) {?>
+                <td class="attributes">
+                <?js if (prop.optional) { ?>
+                    &lt;optional><br>
+                <?js } ?>
+                    
+                <?js 
+                  if (typeof prop.nullable !== 'undefined') {
+                    if (prop.nullable){?>
+                      &lt;nullable><br>
+                <?js } 
+                    else{?>  
+                      &lt;not nullable><br>
+                <?js} 
+                 } ?>
+                </td>
+            <?js } ?>
+            
+            <?js if (props.hasDefault) {?>
+                <td class="default">
+                <?js if (typeof prop.defaultvalue !== 'undefined') { ?>
+                    <?js= self.htmlsafe(prop.defaultvalue) ?>
+                <?js } ?>
+                </td>
+            <?js } ?>
+                                                                                        
+            <?js if (props.hasDescriptionOrSubprops || prop.tsdeprecated) {?>
+                <td class="description last"><?js= prop.description ?>
+                  <?js 
+                    if (prop.tsdeprecated && Array.isArray(prop.tsdeprecated)){ ?>                                            
+                      <dl class="deprecated">
+                        <dt class="important">Deprecated:</dt>
+                        <dd><?js= self.partial('deprecated.tmpl', prop.tsdeprecated) ?></dd>
+                      </dl>
+                  <?js                      
+                    }                                                              
+                    if (prop.subprops && !skipSubProperties) { ?>
+                    <h6>Properties</h6><?js= self.partial('properties.tmpl', prop.subprops) ?>
+                <?js } ?></td>
+            <?js } ?>
+        </tr>
+	
+	<?js }); ?>
+	</tbody>
+</table>

@@ -2,60 +2,130 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: queryHandlers</title>
+    <title>Class: queryHandlers</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script>
+      window.onload = function() {
+        var nav = document.getElementById("nav")
+        var currentId = nav.getAttribute("data-current-item");
+        if (!currentId) return;
+        var link = document.getElementById(currentId);
+        if (!link) return;
+        link.className = link.className ? link.className + " current-nav-item" : "current-nav-item";
+        nav.scrollTop = link.offsetTop + (link.offsetHeight - nav.offsetHeight)/2;
+      }
+    </script>
+
     <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
 </head>
 
 <body>
 
-<div id="main">
 
+<nav id="nav" data-current-item="navItem17">
+    <h2 id="navIndex"><a href="index.html">Index</a></h2><h3>Classes</h3><ul class="subList"><li id="navItem0"><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li id="navItem1"><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li id="navItem2"><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li id="navItem3"><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li id="navItem4"><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li id="navItem5"><a href="OfflineCache.html">OfflineCache</a></li><li id="navItem6"><a href="PersistenceManager.html">PersistenceManager</a></li><li id="navItem7"><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li id="navItem8"><a href="PersistenceStore.html">PersistenceStore</a></li><li id="navItem9"><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li id="navItem10"><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li id="navItem11"><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li id="navItem12"><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li id="navItem13"><a href="cacheStrategies.html">cacheStrategies</a></li><li id="navItem14"><a href="fetchStrategies.html">fetchStrategies</a></li><li id="navItem15"><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li id="navItem16"><a href="persistenceUtils.html">persistenceUtils</a></li><li id="navItem17"><a href="queryHandlers.html">queryHandlers</a></li><li id="navItem18"><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li id="navItem19"><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul class="subList"><li id="navItem20"><a href="AttributeFilter.html">AttributeFilter</a></li><li id="navItem21"><a href="CompoundFilter.html">CompoundFilter</a></li><li id="navItem22"><a href="DataMapping.html">DataMapping</a></li><li id="navItem23"><a href="Item.html">Item</a></li><li id="navItem24"><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
+</nav>
+
+<div id="main">
     <h1 class="page-title">Class: queryHandlers</h1>
 
     
+    <p class="product-docs-header">
+
+    
 
 
 
+
+
+
+
+
+
+
+<section id="quick-nav">
+    <header><h2>QuickNav</h2></header>
+    
+
+    
+
+    
+
+    
+    <div class="quick-nav-section1">
+        <h3><a href="#methods-section">Methods</a></h3>
+        <ul class="subList">
+            
+                <li><a href="#.getOracleRestQueryHandler">.getOracleRestQueryHandler</a></li>
+            
+                <li><a href="#.getSimpleQueryHandler">.getSimpleQueryHandler</a></li>
+            
+        </ul>
+        
+    </div>
+    
+    
+</section>
 
 <section>
-
 <header>
+  
+  
+    <h2>
+    queryHandlers
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>queryHandlers</h2>
-        
-            <div class="class-description">Contains out of the box query handlers.</div>
-        
     
+    </h2>
+  
+
+  <dl class="details">
+
+      
+      
+  </dl>
+
+  
+  
+
+  
+    <div class="class-description">Contains out of the box query handlers.</div>
+  
 </header>
+
 
 <article>
     <div class="container-overview">
     
+
+    
         
+<dt>
+        
+    
+    
+        
+    
 
+    
+</dt>
+<dd>
+    
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
+    
+    
+    
+    
+    
+    
+    
+  <dl class="details">
     
 
     
@@ -65,6 +135,12 @@
     
 
     
+    
+
+    
+
+    
+
 
     
 
@@ -72,19 +148,6 @@
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line10">line 10</a>
-    </li></ul></dd>
     
 
     
@@ -94,24 +157,15 @@
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
 
     
     </div>
@@ -129,25 +183,40 @@
     
 
     
+    
+    
 
     
-        <h3 class="subsection-title">Methods</h3>
 
+    
         
+        <h3 id="methods-section" class="subsection-title">
+            Methods
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#methods-section"></a>
+        </h3>
+
+        <dl>
             
-
+                
+<dt>
+        
+    
+        
+      <h4 id=".getOracleRestQueryHandler" class="name">
+        <span class="type-signature">(static) </span>getOracleRestQueryHandler<span class="signature">(storeName, <span class="optional">createQueryExp</span>, <span class="optional">dataMapping</span>)</span><span class="type-signature"> &rarr; {Function}</span>
+        <a class="bookmarkable-link" title="Bookmarkable Link" href="#.getOracleRestQueryHandler"></a>
+      </h4>
+    
+        
     
 
     
-    <h4 class="name" id=".getOracleRestQueryHandler"><span class="type-signature">(static) </span>getOracleRestQueryHandler<span class="signature">(storeName, createQueryExp<span class="signature-attributes">opt</span>, dataMapping<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
+</dt>
+<dd>
     
-
     
-
-
-
-<div class="description">
-    Returns the Oracle Rest Query Handler which handles the query parameters
+    <div class="description">
+        Returns the Oracle Rest Query Handler which handles the query parameters
 according to the Oracle Rest Specification. Note the Oracle Rest Specification
 requires queries to be specified in the q parameter e.g. ?q= but does not
 enforce a particular format for the query itself. Therefore this API takes a parameter
@@ -158,149 +227,137 @@ default is to use the ADFBc REST query parameter structure which has the form:
 >, <, >=, <=, =, !=, AND, OR, LIKE, IN.
 In addition, the query handler supports the limit and offset query parameters
 used for paging in the Oracle REST specification.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
+    </div>
     
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		        
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>storeName</code></td>
             
-
+            
             <td class="type">
             
                 
-<span class="param-type">string</span>
-
+      <span class="param-type">string</span>
+    
 
             
             </td>
-
             
                 <td class="attributes">
                 
-
-                
-
+                    
                 
                 </td>
             
-
             
-
-            <td class="description last">The store name against which queries should be executed</td>
+            
+                                                           
+            <td class="description last">The store name against which queries should be executed
+            </td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>createQueryExp</code></td>
             
-
+            
             <td class="type">
             
+                    
+      <span class="param-type">function</span>
+    
+                                   
                 
-<span class="param-type">function</span>
-
-
-            
             </td>
-
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
-                
-
+                    
                 
                 </td>
             
-
             
-
+            
+                                                           
             <td class="description last">Optional function takes URL query parameters
 and returns a query expression which will be executed against the persistent store.
-If null then use the ADFBc REST query parameter structure.</td>
+If null then use the ADFBc REST query parameter structure.
+            </td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>dataMapping</code></td>
             
-
+            
             <td class="type">
             
                 
-<span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
-
+      <span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
+    
 
             
             </td>
-
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
-                
-
+                    
                 
                 </td>
             
-
             
-
-            <td class="description last">Optional dataMapping to apply to the data</td>
+            
+                                                           
+            <td class="description last">Optional dataMapping to apply to the data
+            </td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
-
-
-
-
-
-
-<dl class="details">
-
+    
+    
+    
+  <dl class="details">
     
 
     
@@ -310,6 +367,12 @@ If null then use the ADFBc REST query parameter structure.</td>
     
 
     
+    
+
+    
+
+    
+
 
     
 
@@ -317,19 +380,6 @@ If null then use the ADFBc REST query parameter structure.</td>
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line17">line 17</a>
-    </li></ul></dd>
     
 
     
@@ -339,204 +389,190 @@ If null then use the ADFBc REST query parameter structure.</td>
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
+    
+    
+    
+    
+    
+    
+        <h5>Returns:</h5>
         
+                
 <div class="param-desc">
     Returns the query handler
 </div>
 
 
-
-<dl>
-    <dt>
+                
+    <dl>
+      <dt>
         Type
-    </dt>
-    <dd>
+      </dt>
+      <dd>
         
-<span class="param-type">function</span>
-
-
-    </dd>
-</dl>
-
+      <span class="param-type">function</span>
     
 
+      </dd>
+    </dl>
+ 
 
-
-
-
-        
             
+    
+    
+</dd>
 
+            
+                
+<dt>
+        
+    
+        
+      <h4 id=".getSimpleQueryHandler" class="name">
+        <span class="type-signature">(static) </span>getSimpleQueryHandler<span class="signature">(storeName, <span class="optional">ignoreUrlParams</span>, <span class="optional">dataMapping</span>)</span><span class="type-signature"> &rarr; {Function}</span>
+        <a class="bookmarkable-link" title="Bookmarkable Link" href="#.getSimpleQueryHandler"></a>
+      </h4>
+    
+        
     
 
     
-    <h4 class="name" id=".getSimpleQueryHandler"><span class="type-signature">(static) </span>getSimpleQueryHandler<span class="signature">(storeName, ignoreUrlParams<span class="signature-attributes">opt</span>, dataMapping<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
+</dt>
+<dd>
     
-
     
-
-
-
-<div class="description">
-    Returns the Simple Query Handler which matches the URL query parameter/value pairs
+    <div class="description">
+        Returns the Simple Query Handler which matches the URL query parameter/value pairs
 against the store's field/value pairs.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
+    </div>
     
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		        
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>storeName</code></td>
             
-
+            
             <td class="type">
             
                 
-<span class="param-type">string</span>
-
+      <span class="param-type">string</span>
+    
 
             
             </td>
-
             
                 <td class="attributes">
                 
-
-                
-
+                    
                 
                 </td>
             
-
             
-
-            <td class="description last">The store name against which queries should be executed</td>
+            
+                                                           
+            <td class="description last">The store name against which queries should be executed
+            </td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>ignoreUrlParams</code></td>
             
-
+            
             <td class="type">
             
                 
-<span class="param-type">Array</span>
-
+      <span class="param-type">Array</span>
+    
 
             
             </td>
-
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
-                
-
+                    
                 
                 </td>
             
-
             
-
-            <td class="description last">An array of URL params to be ignored</td>
+            
+                                                           
+            <td class="description last">An array of URL params to be ignored
+            </td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>dataMapping</code></td>
             
-
+            
             <td class="type">
             
                 
-<span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
-
+      <span class="param-type"><a href="DataMapping.html">DataMapping</a></span>
+    
 
             
             </td>
-
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
-                
-
+                    
                 
                 </td>
             
-
             
-
-            <td class="description last">Optional dataMapping to apply to the data</td>
+            
+                                                           
+            <td class="description last">Optional dataMapping to apply to the data
+            </td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
-
-
-
-
-
-
-<dl class="details">
-
+    
+    
+    
+  <dl class="details">
     
 
     
@@ -546,6 +582,12 @@ against the store's field/value pairs.
     
 
     
+    
+
+    
+
+    
+
 
     
 
@@ -553,19 +595,6 @@ against the store's field/value pairs.
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="queryHandlers.js.html">queryHandlers.js</a>, <a href="queryHandlers.js.html#line399">line 399</a>
-    </li></ul></dd>
     
 
     
@@ -575,73 +604,62 @@ against the store's field/value pairs.
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
+    
+    
+    
+    
+    
+    
+        <h5>Returns:</h5>
         
+                
 <div class="param-desc">
     Returns the query handler
 </div>
 
 
-
-<dl>
-    <dt>
+                
+    <dl>
+      <dt>
         Type
-    </dt>
-    <dd>
+      </dt>
+      <dd>
         
-<span class="param-type">function</span>
+      <span class="param-type">function</span>
+    
 
+      </dd>
+    </dl>
+ 
 
-    </dd>
-</dl>
+            
+    
+    
+</dd>
+
+            
+        </dl>
+    
 
     
 
-
-
-
-
-        
     
 
-    
-
-    
 </article>
+
 
 </section>
 
 
 
 
+    <footer>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Jun 26 2020 12:21:08 GMT-0700 (Pacific Daylight Time)<br>
+        <span class="product-docs-footer">Copyright © 2017, 2020
+        Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.<span>
+    </footer>
 </div>
 
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a>
-</footer>
-
 <script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
 </body>
 </html>

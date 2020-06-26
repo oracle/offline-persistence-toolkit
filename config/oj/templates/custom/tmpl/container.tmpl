@@ -1,0 +1,691 @@
+<?js
+    var self = this,
+        elemId;
+    //ccsenter: moved the message declaration outside the loop
+    self.previewMessage = "<strong>PREVIEW:</strong> This is a preview API. Preview APIs are production quality, but can be changed on a major version without a deprecation path."
+    // [jim] use central ivar, not at-version tag on every single component,
+    // so we can update the version in one place when branching.
+    docs.forEach(function(doc, i) {
+        self.propertyNameToAttribute = doc.propertyNameToAttribute;
+        self.componentCamelCaseName = doc.camelCaseName;
+        self.componentKebabCaseName = doc.tagWithoutBrackets;
+        var sortMembers = function(data) {
+            var public = [], nonPublic = [], bindingOnly = [], subIds = [], contextObjects = [], fragments = {}, children = [], slots = [];
+            data.forEach(function(m) {
+                if (m.ojsubid){
+                    //subIds.push(m);
+                    if(m.ojnodecontext){
+                      contextObjects.push(m);
+                    }
+                }
+                else if(m.ojnodecontext){
+                  contextObjects.push(m);
+                }
+                else if (m.ojbindingonly)
+                    bindingOnly.push(m);
+                else if (m.ojfragment)
+                    fragments[m.name] = m.description;
+                else if (m.ojchild)
+                    children.push(m);
+                else if (m.ojslot)
+                    slots.push(m);
+                else if (m.access === 'protected' || m.access === 'private') {
+                    // for components, don't doc internal API's.
+                    //if (!doc.ojcomponent) nonPublic.push(m);
+                } else
+                    public.push(m);
+            });
+
+            return {all: public.concat(nonPublic, bindingOnly, contextObjects, subIds, children, slots), // TODO: can we get rid of this field?
+                    public: public, nonPublic: nonPublic, bindingOnly: bindingOnly, subIds: subIds, fragments:fragments, contextObjects: contextObjects, children: children, slots: slots};
+        };
+
+        var members = self.find({kind: 'member', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+        if (members && members.length) {
+            // Normally, members is returned in sorted order, so that the original OOTB JSDoc template didn't need a sort here,
+            // but without this sort, we get this incorrect order:
+            // valueFormats.y  valueFormats.y2  valueFormats.y.converter  valueFormats.y2.converter
+            // which is not only undesirable, but it breaks the ordering needed for the tree functionality of the QuickNav.
+            members.sort(function(a, b) {
+              // ccsenter: we need to make sure that if we have ids such as columns, columns[].row, etc and we also have other ids
+              // like columnsDefault, columnsDefault.row, the sort order will actually try to keep the parent-child hierarchies so
+              // the correct order would actually be columns, columns[].<subprops>, columnsDefault, columnsDefault.<subprops>
+              // right now the order is as follows:
+              // columns, columnsDefault, columnsDefault.<sub-properties>, columns[].<sub-properties> which is wrong
+              // because we loose the hierarchy.
+              var aid, bid;
+
+              aid = a.id.replace(/\[\]/, '');
+              bid = b.id.replace(/\[\]/, '');
+
+              //var aid = a.id;
+              //var bid = b.id;
+                return (aid < bid) ? -1 : (aid > bid) ? 1 : 0;
+            });
+
+            var membersObj = sortMembers(members);
+            members = membersObj.all; // TODO: do we need this?  Used anywhere?
+            doc.fragments = membersObj.fragments;
+        } else {
+            doc.fragments = {};
+        }
+
+        var methods = self.find({kind: 'function', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+        if (methods && methods.length) {
+            var methodsObj = sortMembers(methods);
+            methods = methodsObj.all; // TODO: do we need this?  Used anywhere?
+        }
+
+        var typedefs = self.find({kind: 'typedef', memberof: title === 'Global' ? {isUndefined: true} : doc.longname, access:{"!is":["private", "protected"]}});
+?>
+
+<?js self.inJetComponent = doc.ojcomponent; ?>
+<?js //[csaba] oj-defer is not yet an ojbindingelement (4.1.0) but will eventually be one. Then this needs to be corrected ?>
+<?js self.isBindingElement = (doc.ojbindingelement || doc.longname === 'oj.ojDefer' || doc.ojslotcomponent); ?>
+
+<?js
+// if this doc is not related to any JS API's, such as non-component styling doc
+// (i.e. @ojstylingdoc) or any similar thing added in the future
+self.nonJsDoc = doc.ojstylingdoc || doc.ojoverviewdoc ; // || doc.ojsomefuturething || ... ?>
+
+<?js if (doc.kind === 'mainpage' || (doc.kind === 'package')) { ?>
+    <?js= self.partial('mainpage.tmpl', doc) ?>
+<?js } else if (doc.kind === 'source') { ?>
+    <?js= self.partial('source.tmpl', doc) ?>
+<?js } else { ?>
+
+<?js
+var events = self.find({kind: 'event', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+var hasChildren = membersObj && membersObj.children.length;
+var hasSlots = membersObj && membersObj.slots.length;
+
+//var hasDomColumn = hasChildren && hasSlots;
+//[csaba] we want to show the Slots section even if there's just the inherited Default slot (in many cases)
+var hasDomColumn = hasChildren || hasSlots;
+var hasFieldsColumn = members && (members.length - (membersObj ? membersObj.slots.length : 0));
+var hasEventsColumn = events && events.length && events.forEach;
+var hasMethodsColumn = methods && methods.length;
+var hasTypeDefColumn = typedefs && typedefs.length;
+
+var columnCount = !!hasDomColumn + !!hasFieldsColumn + !!hasEventsColumn + !!hasMethodsColumn + !!hasTypeDefColumn;
+
+
+// only show QuickNav if is non-empty
+if (columnCount) {
+
+// TODO: this tag should be a nav, not a section, but the JSDoc theming assumes that the site-wide nav
+// down the left-hand side is the only nav on the page, so this will require redoing that theming. ?>
+<section id="quick-nav">
+    <header><h2>QuickNav</h2></header>
+    <?js if (hasDomColumn) { ?>
+    <div class="quick-nav-section<?js= columnCount ?>">
+        <?js if (hasChildren || hasSlots) { ?>
+        <h3> <a href="#slots-section">Slots</a></h3>
+        <ul class="subList">
+            <?js for (var i=0; i<membersObj.children.length; i++){ ?>
+                <li><a href="#<?js= membersObj.children[i].id ?>"><?js= membersObj.children[i].id ?></a></li>
+            <?js } ?>
+            <?js for (var i=0; i<membersObj.slots.length; i++){ ?>
+                <li><a href="#<?js= membersObj.slots[i].id ?>"><?js= membersObj.slots[i].id ?></a></li>
+            <?js } ?>
+        </ul>
+        <?js } ?>
+    </div>
+    <?js } ?>
+
+    <?js if (hasFieldsColumn) { ?>
+    <div class="quick-nav-section<?js= columnCount ?>">
+        <h3> <a href="#members-section"><?js= self.inJetComponent ? 'Attributes' : 'Fields' ?></a></h3>
+        <ul class="optionsSubList">
+            <?js // Generate nested lists with onclick listeners to collapse/expand for sub-properties ?>
+            <?js var currentLevel = 1; ?>
+            <?js for (var i=0; i<membersObj.public.length; i++) { ?>
+                <?js var property = membersObj.public[i].alias? membersObj.public[i].alias.split('.') : membersObj.public[i].id.split('.'); ?>
+                <?js if (property.length > 1) {
+                        var parentEntryExists = false;
+                        if(i > 0)
+                        {
+                            var currentProperty = membersObj.public[i].id;
+                            var prevProperty = membersObj.public[i-1].id;
+                            var propertyPrefix = currentProperty.substring(0,currentProperty.lastIndexOf("."));
+
+                            // if *any* ancestor prop contains '[' then is subproperty of array-valued property
+                            membersObj.public[i].isSubpropOfArray = propertyPrefix.indexOf('[') > -1;
+
+                            // For properties of array objects, ignore square parents when checking parent name
+                            if (propertyPrefix.slice(propertyPrefix.length-2) === '[]') {
+                             propertyPrefix = propertyPrefix.substring(0, propertyPrefix.length-2);
+                            }
+                            if(prevProperty.lastIndexOf(propertyPrefix, 0) === 0){
+                                    parentEntryExists = true;
+                            }
+                        }
+
+                        if(!parentEntryExists) {
+                            throw new Error("Parent doc entry is required for nested property's field. \"" + currentProperty +"\" in " + doc.id);
+                        }
+                     }
+                     if (property.length > currentLevel) {
+                ?>
+                    <?js // Create nested list if in a sub-properties ?>
+                    <ul class='optionsInnerSubList'>
+                    <?js currentLevel = property.length; ?>
+                <?js } else if (property.length < currentLevel) { ?>
+                    <?js // Close nested lists if out of sub-properties ?>
+                    <?js var numClosedLists = 0; ?>
+                    <?js while (numClosedLists < (currentLevel - property.length)) { ?>
+                        </ul></li>
+                        <?js numClosedLists++; ?>
+                    <?js } ?>
+                    <?js currentLevel = property.length; ?>
+                <?js } else if (i > 0) { ?>
+                    <?js // Close previous list item if at the same level ?>
+                    </li>
+                <?js } ?>
+
+                <?js // Create the list item for the current property and create link to js doc if not direct parent of sub-properties ?>
+                <?js var membName = (self.inJetComponent && !membersObj.public[i].isSubpropOfArray) ? self.propertyNameToAttribute(property[currentLevel-1]) : property[currentLevel-1]; ?>
+                <?js if (i < (membersObj.public.length - 1)) { ?>
+                    <?js var nextProperty = membersObj.public[i+1].id.split('.'); ?>
+                    <?js if (nextProperty.length > currentLevel) { ?>
+                        <li><div><a href="javascript:void(0)" ><b><?js= membName ?></b></a></div>
+                    <?js } else {
+                            var hasTypeDef = false;
+                            if (hasTypeDefColumn){
+                                for (var v = 0; v < typedefs.length; v++){
+                                    if (membersObj.public[i].signature){
+                                        if (membersObj.public[i].signature.indexOf(typedefs[v].longname) > 0){
+                                            hasTypeDef = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (hasTypeDef) {?>
+                                <li><div><a href="#<?js= membersObj.public[i].id ?>"><b><?js= membName ?></b></a></div>
+                            <?js
+                            }
+                            else {?>
+                                <li><div><a href="#<?js= membersObj.public[i].id ?>"><?js= membName ?></a></div>
+                            <?js
+                            }
+                    } ?>
+                <?js } else { ?>
+                    <li><div><a href="#<?js= membersObj.public[i].id ?>"><?js= membName ?></a></div>
+                <?js } ?>
+                <?js // When we get to the end, close any remaining open lists ?>
+                <?js if (i == (membersObj.public.length - 1)) { ?>
+                    <?js var numClosedLists = 0; ?>
+                    <?js while (numClosedLists < (currentLevel - 1)) { ?>
+                        </ul></li>
+                        <?js numClosedLists++; ?>
+                    <?js } ?>
+                <?js } ?>
+            <?js } ?>
+        </ul>
+        <script type="text/javascript" >
+        var innerSubLists = document.getElementsByClassName('optionsInnerSubList');
+        for (var i=0; i<innerSubLists.length; i++) {
+            innerSubLists[i].parentNode.onclick=function(event) {
+                event.stopPropagation();
+                // Only interpret the click event if the <a> element is the target and do nothing if click occurred elsewhere on the div
+                if (event.target.parentNode == this.firstChild.firstChild) {
+                    // toggle only the clicked sub properties list and not any nested ones
+                    var subProperties = this.getElementsByClassName('optionsInnerSubList');
+                    subProperties[0].style.display = (subProperties[0].style.display=='block' ? 'none' : 'block');
+                }
+            }
+        }
+        </script>
+        <?js if (membersObj.nonPublic.length){ ?>
+            <br><a class="nonpublic-mem-link" href="#nonpublic-members-section">Non-public Fields <?js= self.inJetComponent ? '(internal use only)' : '' ?></a>
+        <?js } ?>
+        <?js if (membersObj.bindingOnly.length){ ?>
+            <br><a class="nonpublic-mem-link" href="#bindingonly-section">Binding Attributes</a>
+        <?js } ?>
+        <?js if (membersObj.contextObjects.length){ ?>
+            <br><a class="nonpublic-mem-link" href="#contextobjects-section">Context Objects</a>
+        <?js } ?>
+        <?js if (membersObj.subIds.length){ ?>
+            <br><a class="nonpublic-mem-link" href="#subids-section">Sub-ID's</a>
+        <?js } ?>
+
+    </div>
+    <?js } ?>
+
+    <?js
+    if (hasEventsColumn) { ?>
+    <div class="quick-nav-section<?js= columnCount ?>">
+        <h3><a  href="#events-section">Events</a></h3>
+        <ul class="subList">
+            <?js events.forEach(function(e){
+                 e.fullName = "oj" + e.name.charAt(0).toUpperCase() + e.name.slice(1); ?>
+            <li><a href="#<?js= e.id ?>"><?js= e.fullName ?></a></li>
+            <?js }); ?>
+        </ul>
+    </div>
+    <?js } ?>
+
+    <?js
+    if (hasMethodsColumn) { ?>
+    <div class="quick-nav-section<?js= columnCount ?>">
+        <h3><a href="#methods-section">Methods</a></h3>
+        <ul class="subList">
+            <?js for (var i=0; i<methodsObj.public.length; i++){ ?>
+                <li><a href="#<?js= methodsObj.public[i].id ?>"><?js= methodsObj.public[i].id ?></a></li>
+            <?js } ?>
+        </ul>
+        <?js if (methodsObj.nonPublic.length){ ?>
+            <br><a class="nonpublic-mem-link" href="#nonpublic-methods-section">Non-public Methods <?js= self.inJetComponent ? '(internal use only)' : '' ?></a>
+        <?js } ?>
+    </div>
+    <?js } ?>
+    <?js
+    if (hasTypeDefColumn) { ?>
+    <div class="quick-nav-section<?js= columnCount ?>">
+        <h3><a href="#typedefs-section">Type Definitions</a></h3>
+        <ul class="subList">
+            <?js for (var i=0; i < typedefs.length; i++){ ?>
+                <li><a href="#<?js= typedefs[i].name ?>"><?js= typedefs[i].name ?></a></li>
+            <?js } ?>
+        </ul>
+    </div>
+    <?js } ?>
+</section>
+<?js } // end of "if quickNav section non-empty then render it" ?>
+<section>
+<header>
+  <?js
+    if (!self.nonJsDoc && self.inJetComponent && !self.isBindingElement) {?>
+      <h3>JET Dynamic Component Custom Elements</h3>
+        <p>JET dynamic components are implemented as custom HTML elements. In addition to the component
+        attributes documented in this page, JET components also support standard HTML <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes">global attributes</a>
+        like <code>id</code> and <code>aria-label</code>.</p>
+        <p>The JET <?js= self.linkto('CustomElementOverview', 'data binding syntax', null, 'ce-databind-section')?>
+        can be used to define both component and global attributes through the use of dynamically
+        evaluated expressions. All attributes (component and global) support attribute-level
+        binding by prefixing the attribute name with ":" (e.g. <code>:id="[...]"</code>). When
+        using attribute-level binding, all expression values are treated as strings.
+        Additionally, component attributes support property-level binding by using the attribute
+        name directly with no ":" prefix. When using property-level binding, the expressions
+        should evaluate to the types documented by the corresponding attributes. Property-level
+        binding is strongly recommended over attribute-level binding for component attributes.</p>
+        <p>A detailed description of working with custom HTML elements can be found in:
+        <?js= self.linkto('CustomElementOverview', 'JET Custom Element Usage')?>.</p>
+      </h3>
+      <br>
+  <?js
+    }
+    if (doc.ojpreview) { ?>
+      <p><?js= self.previewMessage ?></p>
+  <?js
+    } ?>
+  <?js
+  if (doc.ojcomponent) { ?>
+    <!--ccsenter: comment out until we have "instanceof" support (ER26540130)
+         <h2><?js= "DOM Interface: " + doc.domInterface ?> </h2>-->
+
+  <?js // For non-JS doc, no need to repeat the title that publish.js already put at
+  // the very top, since there's no intervening content (like QuickNav) so the title
+  // would simply appear twice, and all the embellishments, like "extends Foo", are n/a.
+  } else if (!self.nonJsDoc) { ?>
+    <h2><?js if (doc.ancestors && doc.ancestors.length) { ?>
+        <span class="ancestors"><?js= doc.ancestors.join('') ?></span>
+    <?js } ?>
+    <?js= doc.name ?>
+    <?js if (doc.variation) { ?>
+        <sup class="variation"><?js= doc.variation ?></sup>
+    <?js } ?>
+    <?js if (doc.augments && doc.augments.length) { ?>
+        <span class="extends"> extends
+        <?js doc.augments.forEach(function(a, i) { ?>
+            <?js= self.linkto(a, a) ?><?js= (i<doc.augments.length-1) ? ', ' : '' ?>
+        <?js }); ?></span>
+    <?js } ?>
+    </h2>
+  <?js } // end of if (!self.nonJsDoc) ?>
+
+  <dl class="details">
+
+      <?js if (doc.since) { // In JET, "since" belongs to class, not constructor ?>
+        <dt class="tag-since">Since:</dt>
+        <dd class="tag-since"><ul class="dummy"><li><?js= doc.since ?></li></ul></dd>
+      <?js } ?>
+      <?js
+      //[csaba]: expose the module name the component/class belongs to
+      if (doc.meta && doc.meta.filename && doc.meta.filename.indexOf('/') >=0 && !self.nonJsDoc) {
+        var moduleName;
+        if (doc.ojmodule) {
+            moduleName = doc.ojmodule.replace(/\"/g,'').replace(/'/g, '');
+        }
+        else{
+            var _tmparr = doc.meta.filename.split('/');
+            // last element is the js file name, the element before that is the src folder which is the module name
+            moduleName = _tmparr[_tmparr.length - 2];
+        }
+        if (moduleName.toLowerCase() !== 'none') {
+      ?>
+        <dt class="tag-module">Module:</dt>
+        <dd class="tag-module"><ul class="dummy"><li><?js= moduleName ?></li></ul></dd>
+      <?js }} ?>
+  </dl>
+
+  <?js // [csaba] for now (4.1) oj-defer is still not a ojbindingelement so we have to make a one off case for it ?>
+  <?js if (!self.nonJsDoc && doc.ojcomponent && !self.isBindingElement ) { ?>
+    </br>
+  <?js } ?>
+
+  <?js if (doc.classdesc) { ?>
+    <div class="class-description"><?js= doc.classdesc ?></div>
+  <?js } ?>
+</header>
+
+<?js
+// Hide the entire <article> for non-JS doc. The only part of it that would otherwise
+// actually show up today is the Constructor section, but that could change given bug
+// 22314026: "always show jsdoc sections for linkability".  Could fine-tune this later if
+// (say) we ever want non-JS doc to support @requires someModuleName.
+if (!self.nonJsDoc) { ?>
+<article>
+    <div class="container-overview">
+    <?js if (doc.kind === 'module' && doc.module) { ?>
+        <?js= self.partial('method.tmpl', doc.module) ?>
+    <?js } ?>
+
+    <?js if (doc.kind === 'class' && !doc.ojcomponent) { // [jim] only non-component classes have a constructor ?>
+        <?js= self.partial('method.tmpl', doc) ?>
+    <?js } else { ?>
+        <?js if (doc.description) { ?>
+            <div class="description"><?js= doc.description ?></div>
+        <?js } ?>
+        <?js if (doc.ojcomponent && !self.isBindingElement) { //[csaba] we only display this message for components that are not binding elements ?>
+          <p class="important">Note: Application logic should not interact with the component's properties or invoke its methods
+          until the <?js= self.linkto('oj.BusyContext', 'BusyContext')?> indicates that the component is ready for interaction.</p>
+        <?js } ?>
+        <?js= self.partial('details.tmpl', doc) ?>
+
+        <?js if (doc.examples && doc.examples.length) { ?>
+            <?js elemId = "examples-section"; ?>
+            <h3 id="<?js= elemId ?>">
+                Example<?js= doc.examples.length > 1? 's':'' ?>
+                <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+            </h3>
+            <?js= self.partial('examples.tmpl', doc.examples) ?>
+        <?js } ?>
+    <?js } ?>
+    </div>
+
+    <?js if (doc.mixes && doc.mixes.length) { ?>
+        <?js elemId = "mixesIn-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Mixes In
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <ul><?js doc.mixes.forEach(function(a) { ?>
+            <li><?js= self.linkto(a, a) ?></li>
+        <?js }); ?></ul>
+    <?js } ?>
+
+    <?js if (doc.requires && doc.requires.length) { ?>
+        <?js elemId = "requires-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Requires
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <ul><?js doc.requires.forEach(function(r) { ?>
+            <li><?js= self.linkto(r, r) ?></li>
+        <?js }); ?></ul>
+    <?js } ?>
+
+    <?js
+        var classes = self.find({kind: 'class', memberof: doc.longname});
+        if (doc.kind !== 'globalobj' && classes && classes.length) {
+    ?>
+        <?js elemId = "classes-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Classes
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <dl><?js classes.forEach(function(c) { ?>
+            <dt><?js= self.linkto(c.longname, c.name) ?></dt>
+            <dd><?js if (c.summary) { ?><?js= c.summary ?><?js } ?></dd>
+        <?js }); ?></dl>
+    <?js } ?>
+
+    <?js
+        var namespaces = self.find({kind: 'namespace', memberof: doc.longname});
+        if (doc.kind !== 'globalobj' && namespaces && namespaces.length) {
+    ?>
+        <?js elemId = "namespaces-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Namespaces
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <dl><?js namespaces.forEach(function(n) { ?>
+            <dt><a href="namespaces.html#<?js= n.longname ?>"><?js= self.linkto(n.longname, n.name) ?></a></dt>
+            <dd><?js if (n.summary) { ?><?js= n.summary ?><?js } ?></dd>
+        <?js }); ?></dl>
+    <?js } ?>
+
+    <?js var memberNames = '';
+
+    if (membersObj && (membersObj.children.length + membersObj.slots.length)) {
+      var hasSlots = membersObj.slots.length > 0;
+      var hasDefault = membersObj.children.length > 0;
+    ?>
+        <?js elemId = "slots-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Slots
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <p>JET components that allow child content support slots.
+            Please see the <a href="CustomElementOverview.html#ce-slots-section">slots section</a>
+            of the JET component overview doc for more information on allowed slot content and slot types.</p>
+
+        <dl>
+            <?js for (var i=0; i<membersObj.children.length; i++) {
+                memberNames = memberNames + ' ' +membersObj.children[i].id; ?>
+                <?js= self.partial('members.tmpl', membersObj.children[i]) ?>
+            <?js } ?>
+            <?js for (var i=0; i<membersObj.slots.length; i++) {
+                memberNames = memberNames + ' ' +membersObj.slots[i].id; ?>
+                <?js= self.partial('members.tmpl', membersObj.slots[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js }
+
+    if (membersObj && membersObj.public.length) {  ?>
+        <?js elemId = "members-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            <?js= self.inJetComponent ? 'Attributes' : 'Fields' ?>
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <dl>
+            <?js for (var i=0; i<membersObj.public.length; i++) {
+                memberNames = memberNames + ' ' +membersObj.public[i].id; ?>
+                <?js= self.partial('members.tmpl', membersObj.public[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js } ?>
+
+    <?js if (membersObj && membersObj.nonPublic.length) {  ?>
+        <?js elemId = "nonpublic-members-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Non-public Fields
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <?js if (self.inJetComponent) { ?>
+            <p class="important"><span style="text-decoration:underline">Note</span>: Extending JET components
+               is not currently supported.  Thus, non-public fields are for internal use only.</p>
+        <?js } ?>
+
+        <dl>
+            <?js for (var i=0; i<membersObj.nonPublic.length; i++) { ?>
+                <?js= self.partial('members.tmpl', membersObj.nonPublic[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js }
+        if(searchMetadata[doc.longname]){
+            searchMetadata[doc.longname]['members'] = memberNames;
+        }
+    ?>
+
+    <?js if (membersObj && membersObj.bindingOnly.length) {  ?>
+        <?js elemId = "bindingonly-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Binding Attributes
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <p>Binding attributes are similar to component properties, but are exposed only via the
+           <code class="prettyprint">ojComponent</code> binding.</p>
+
+        <dl>
+            <?js for (var i=0; i< membersObj.bindingOnly.length; i++) { ?>
+                <?js= self.partial('members.tmpl', membersObj.bindingOnly[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js } ?>
+    <?js if (membersObj && membersObj.contextObjects.length) {  ?>
+        <?js elemId = "contextobjects-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Context Objects
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <p> Each context object contains, at minimum, a <code class="prettyprint">subId</code> property,
+            whose value is a string that identifies a particular DOM node in this element. It can have additional properties to further specify the desired node. See  <a href="#getContextByNode">getContextByNode</a> for more details. </p>
+        <dd>
+            <h5 class="subsection-title">Properties:</h5>
+            <dl><?js= self.partial('properties.tmpl', [{name:'subId',type:{names:['string']},description:'Sub-id string to identify a particular dom node.'}]) ?></dl>
+        </dd>
+        <p>Following are the valid subIds:</p>
+        <dl>
+            <?js for (var i=0; i< membersObj.contextObjects.length; i++) {
+                var id = membersObj.contextObjects[i].id;
+                //Add namespace to id.
+                membersObj.contextObjects[i].id = "contextObject:" + id; ?>
+                <?js= self.partial('members.tmpl', membersObj.contextObjects[i]) ?>
+            <?js
+             //Restore old id, as same doclet object could be used for rendering subid section.
+            membersObj.contextObjects[i].id = id; } ?>
+        </dl>
+    <?js } ?>
+    <?js if (membersObj && membersObj.subIds.length) {  ?>
+        <?js elemId = "subids-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Sub-ID's
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <p> Each subId locator object contains, at minimum, a <code class="prettyprint">subId</code> property,
+            whose value is a string that identifies a particular DOM node in this element. It can have additional properties to further specify the desired node. See <a href="#getNodeBySubId">getNodeBySubId</a> and <a href="#getSubIdByNode">getSubIdByNode</a> methods for more details. </p>
+        <dd>
+            <h5 class="subsection-title">Properties:</h5>
+            <dl><?js= self.partial('properties.tmpl', [{name:'subId',type:{names:['string']},description:'Sub-id string to identify a particular dom node.'}]) ?></dl>
+        </dd>
+        <p>Following are the valid subIds:</p>
+        <dl>
+            <?js for (var i=0; i< membersObj.subIds.length; i++) { ?>
+                <?js= self.partial('members.tmpl', membersObj.subIds[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js } ?>
+
+    <?js
+        var events = self.find({kind: 'event', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+        if (events && events.length && events.forEach) {
+    ?>
+        <?js elemId = "events-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Events
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <dl><?js var eventNames = '';
+            events.forEach(function(e) {
+                eventNames = eventNames + ' ' + e.id; ?>
+            <?js= self.partial('method.tmpl', e) ?>
+        <?js });
+            if(searchMetadata[doc.longname]){
+                searchMetadata[doc.longname]['events'] = eventNames;
+            }
+        ?></dl>
+    <?js } ?>
+
+    <?js var methodNames = '';
+         if (methodsObj && methodsObj.public.length) { ?>
+        <?js elemId = "methods-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Methods
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <dl>
+            <?js for (var i=0; i<methodsObj.public.length; i++) {
+                methodNames = methodNames + ' ' + methods[i].id; ?>
+                <?js= self.partial('method.tmpl', methodsObj.public[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js } ?>
+
+    <?js if (methodsObj && methodsObj.nonPublic.length) { ?>
+        <?js elemId = "nonpublic-methods-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Non-public Methods
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <?js if (self.inJetComponent) { ?>
+            <p class="important"><span style="text-decoration:underline">Note</span>: Extending JET components
+               is not currently supported.  Thus, non-public methods are for internal use only.</p>
+        <?js } ?>
+
+        <dl>
+            <?js for (var i=0; i<methodsObj.nonPublic.length; i++) { ?>
+                <?js= self.partial('method.tmpl', methodsObj.nonPublic[i]) ?>
+            <?js } ?>
+        </dl>
+    <?js }
+        if(searchMetadata[doc.longname]){
+            searchMetadata[doc.longname]['methods'] = methodNames;
+        } ?>
+
+    <?js
+        //var typedefs = self.find({kind: 'typedef', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+        if (typedefs && typedefs.length && typedefs.forEach) {
+    ?>
+        <?js elemId = "typedefs-section"; ?>
+        <h3 id="<?js= elemId ?>" class="subsection-title">
+            Type Definitions
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#<?js= elemId ?>"></a>
+        </h3>
+
+        <dl><?js typedefs.forEach(function(e) {
+                if (e.signature) {
+            ?>
+                <?js= self.partial('method.tmpl', e) ?>
+            <?js
+                }
+                else {
+            ?>
+                <?js= self.partial('members.tmpl', e) ?>
+            <?js
+                }
+            }); ?></dl>
+    <?js } ?>
+
+</article>
+<?js } // end of if (!self.nonJsDoc) ?>
+
+</section>
+<?js } ?>
+
+<?js }); ?>

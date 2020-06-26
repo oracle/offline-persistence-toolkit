@@ -2,35 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: cacheStrategies</title>
+    <title>Class: cacheStrategies</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script>
+      window.onload = function() {
+        var nav = document.getElementById("nav")
+        var currentId = nav.getAttribute("data-current-item");
+        if (!currentId) return;
+        var link = document.getElementById(currentId);
+        if (!link) return;
+        link.className = link.className ? link.className + " current-nav-item" : "current-nav-item";
+        nav.scrollTop = link.offsetTop + (link.offsetHeight - nav.offsetHeight)/2;
+      }
+    </script>
+
     <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
 </head>
 
 <body>
 
-<div id="main">
 
+<nav id="nav" data-current-item="navItem13">
+    <h2 id="navIndex"><a href="index.html">Index</a></h2><h3>Classes</h3><ul class="subList"><li id="navItem0"><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li id="navItem1"><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li id="navItem2"><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li id="navItem3"><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li id="navItem4"><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li id="navItem5"><a href="OfflineCache.html">OfflineCache</a></li><li id="navItem6"><a href="PersistenceManager.html">PersistenceManager</a></li><li id="navItem7"><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li id="navItem8"><a href="PersistenceStore.html">PersistenceStore</a></li><li id="navItem9"><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li id="navItem10"><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li id="navItem11"><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li id="navItem12"><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li id="navItem13"><a href="cacheStrategies.html">cacheStrategies</a></li><li id="navItem14"><a href="fetchStrategies.html">fetchStrategies</a></li><li id="navItem15"><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li id="navItem16"><a href="persistenceUtils.html">persistenceUtils</a></li><li id="navItem17"><a href="queryHandlers.html">queryHandlers</a></li><li id="navItem18"><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li id="navItem19"><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul class="subList"><li id="navItem20"><a href="AttributeFilter.html">AttributeFilter</a></li><li id="navItem21"><a href="CompoundFilter.html">CompoundFilter</a></li><li id="navItem22"><a href="DataMapping.html">DataMapping</a></li><li id="navItem23"><a href="Item.html">Item</a></li><li id="navItem24"><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
+</nav>
+
+<div id="main">
     <h1 class="page-title">Class: cacheStrategies</h1>
 
     
+    <p class="product-docs-header">
+
+    
 
 
 
+
+
+
+
+
+
+
+<section id="quick-nav">
+    <header><h2>QuickNav</h2></header>
+    
+
+    
+
+    
+
+    
+    <div class="quick-nav-section1">
+        <h3><a href="#methods-section">Methods</a></h3>
+        <ul class="subList">
+            
+                <li><a href="#.getHttpCacheHeaderStrategy">.getHttpCacheHeaderStrategy</a></li>
+            
+        </ul>
+        
+    </div>
+    
+    
+</section>
 
 <section>
-
 <header>
+  
+  
+    <h2>
+    cacheStrategies
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>cacheStrategies</h2>
-        
-            <div class="class-description">Contains out of the box Cache Strategies which includes the HTTP Cache Header
+    
+    </h2>
+  
+
+  <dl class="details">
+
+      
+      
+  </dl>
+
+  
+  
+
+  
+    <div class="class-description">Contains out of the box Cache Strategies which includes the HTTP Cache Header
 strategy. The cache strategy is applied to GET/HEAD requests by the defaultResponseProxy right after the
 fetch strategy is applied and the response is obtained. The cache strategy should be
 a function which takes the request and response as parameter and returns a Promise
@@ -38,31 +100,37 @@ which resolves to the response. In the case the fetch strategy returns a server 
 the cache strategy should determine whether the request/response should be cached
 and if so, persist the request/response by calling persistenceManager.getCache().put(). The
 cache strategy should also handle cached responses returned by the fetch strategy.</div>
-        
-    
+  
 </header>
+
 
 <article>
     <div class="container-overview">
     
+
+    
         
+<dt>
+        
+    
+    
+        
+    
 
+    
+</dt>
+<dd>
+    
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
+    
+    
+    
+    
+    
+    
+    
+  <dl class="details">
     
 
     
@@ -72,6 +140,12 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
 
     
+    
+
+    
+
+    
+
 
     
 
@@ -79,19 +153,6 @@ cache strategy should also handle cached responses returned by the fetch strateg
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cacheStrategies.js.html">cacheStrategies.js</a>, <a href="cacheStrategies.js.html#line9">line 9</a>
-    </li></ul></dd>
     
 
     
@@ -101,24 +162,15 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
 
     
     </div>
@@ -136,47 +188,51 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
 
     
+    
+    
 
     
-        <h3 class="subsection-title">Methods</h3>
 
+    
         
+        <h3 id="methods-section" class="subsection-title">
+            Methods
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#methods-section"></a>
+        </h3>
+
+        <dl>
             
-
+                
+<dt>
+        
+    
+        
+      <h4 id=".getHttpCacheHeaderStrategy" class="name">
+        <span class="type-signature">(static) </span>getHttpCacheHeaderStrategy<span class="signature">()</span><span class="type-signature"> &rarr; {Function}</span>
+        <a class="bookmarkable-link" title="Bookmarkable Link" href="#.getHttpCacheHeaderStrategy"></a>
+      </h4>
+    
+        
     
 
     
-    <h4 class="name" id=".getHttpCacheHeaderStrategy"><span class="type-signature">(static) </span>getHttpCacheHeaderStrategy<span class="signature">()</span><span class="type-signature"> &rarr; {function}</span></h4>
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the HTTP Cache Header strategy
+    </div>
     
 
     
-
-
-
-<div class="description">
-    Returns the HTTP Cache Header strategy
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
     
-
     
-
     
-
+    
+    
+    
+  <dl class="details">
     
 
     
@@ -186,6 +242,12 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
 
     
+    
+
+    
+
+    
+
 
     
 
@@ -193,13 +255,6 @@ cache strategy should also handle cached responses returned by the fetch strateg
 
     
 
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cacheStrategies.js.html">cacheStrategies.js</a>, <a href="cacheStrategies.js.html#line23">line 23</a>
-    </li></ul></dd>
     
 
     
@@ -209,74 +264,63 @@ cache strategy should also handle cached responses returned by the fetch strateg
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
+    
+    
+    
+    
+    
+    
+        <h5>Returns:</h5>
         
+                
 <div class="param-desc">
     Returns the HTTP Cache Header strategy which conforms
 to the Cache Strategy API.
 </div>
 
 
-
-<dl>
-    <dt>
+                
+    <dl>
+      <dt>
         Type
-    </dt>
-    <dd>
+      </dt>
+      <dd>
         
-<span class="param-type">function</span>
+      <span class="param-type">function</span>
+    
 
+      </dd>
+    </dl>
+ 
 
-    </dd>
-</dl>
+            
+    
+    
+</dd>
+
+            
+        </dl>
+    
 
     
 
-
-
-
-
-        
     
 
-    
-
-    
 </article>
+
 
 </section>
 
 
 
 
+    <footer>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Jun 26 2020 12:21:08 GMT-0700 (Pacific Daylight Time)<br>
+        <span class="product-docs-footer">Copyright © 2017, 2020
+        Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.<span>
+    </footer>
 </div>
 
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li><a href="cacheStrategies.html">cacheStrategies</a></li><li><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li><a href="fetchStrategies.html">fetchStrategies</a></li><li><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li><a href="OfflineCache.html">OfflineCache</a></li><li><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li><a href="PersistenceManager.html">PersistenceManager</a></li><li><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li><a href="PersistenceStore.html">PersistenceStore</a></li><li><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li><a href="persistenceUtils.html">persistenceUtils</a></li><li><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li><a href="queryHandlers.html">queryHandlers</a></li><li><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul><li><a href="AttributeFilter.html">AttributeFilter</a></li><li><a href="CompoundFilter.html">CompoundFilter</a></li><li><a href="DataMapping.html">DataMapping</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a>
-</footer>
-
 <script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
 </body>
 </html>

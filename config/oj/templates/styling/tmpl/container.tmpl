@@ -1,0 +1,92 @@
+<?js
+    var self = this,
+        elemId;
+
+    docs.forEach(function(doc, i) {
+        var sortMembers = function(data) {
+            var fragments = {};
+            data.forEach(function(m) {
+                // stylingDoc is a fragment, plus we want to
+                // grab all other fragments in case it "includes" any.
+                if (m.ojfragment) {
+                    fragments[m.name] = m.description;
+                }
+            });
+
+            return fragments;
+        };
+
+        // Only include non-abstract classes with styling doc.  Also keep the index page.
+        if (doc.kind !== "mainpage" && !self.includeClass(doc))
+            return;
+
+        var members = self.find({kind: 'member', memberof: title === 'Global' ? {isUndefined: true} : doc.longname});
+        var fragments = doc.fragments =
+            (members && members.length)
+                ? sortMembers(members)
+                : {};
+ ?>
+
+<?js
+// if this doc is not related to any JS API's, such as non-component styling doc
+// (i.e. @ojstylingdoc) or any similar thing added in the future
+self.nonJsDoc = doc.ojstylingdoc; // || doc.ojsomefuturething || ... ?>
+
+<?js if (doc.kind === 'mainpage' || (doc.kind === 'package')) { ?>
+    <?js= self.partial('mainpage.tmpl', doc) ?>
+<?js } else if (doc.kind !== 'source') { ?>
+
+<section>
+
+<header>
+<?js self.previewMessage = "<strong>PREVIEW:</strong> This is a preview API. Preview APIs are production quality, but can be changed on a major version without a deprecation path."
+if (doc.ojpreview) { ?>
+    <p><?js= self.previewMessage ?></p>
+<?js } ?>
+  <?js
+  if (doc.ojcomponent) { ?>
+    <h2> <?js= "DOM Interface: " + doc.domInterface ?> </h2>
+
+  <?js // For non-JS doc, no need to repeat the title that publish.js already put at
+  // the very top, since there's no intervening content (like QuickNav) so the title
+  // would simply appear twice, and all the embellishments, like "extends Foo", are n/a.
+  } else if (!self.nonJsDoc) { ?>
+    <h2><?js if (doc.ancestors && doc.ancestors.length) { ?>
+        <span class="ancestors"><?js= doc.ancestors.join('') ?></span>
+    <?js } ?>
+    <?js= doc.name ?>
+    <?js if (doc.variation) { ?>
+        <sup class="variation"><?js= doc.variation ?></sup>
+    <?js } ?>
+    <?js if (doc.augments && doc.augments.length) { ?>
+        <span class="extends"> extends
+        <?js doc.augments.forEach(function(a, i) { ?>
+            <?js= self.linkto(a, a) ?><?js= (i<doc.augments.length-1) ? ', ' : '' ?>
+        <?js }); ?></span>
+    <?js } ?>
+    </h2>
+  <?js } // end of if (!self.nonJsDoc) ?>
+
+    <dl class="details">
+
+        <?js if (doc.since) { // In JET, "since" belongs to class, not constructor ?>
+            <dt class="tag-since">Since:</dt>
+            <dd class="tag-since"><ul class="dummy"><li><?js= doc.since ?></dd>
+        <?js } ?>
+    </dl>
+</header>
+
+<article>
+    <dl>
+        <?js var fragId = "stylingDoc";
+        if (fragments[fragId]) { ?>
+            <?js= fragments[fragId] ?>
+        <?js } ?>
+    </dl>
+
+</article>
+
+</section>
+<?js } ?>
+
+<?js }); ?>

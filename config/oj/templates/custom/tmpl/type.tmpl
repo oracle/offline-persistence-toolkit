@@ -1,0 +1,21 @@
+<?js
+	var data = obj;
+  var self = this;  
+  data.forEach(function(name, i) {   
+    //[csaba] try parsing the type. if we don't succeed just call htmlsafe but
+    // don't try to create a link because catharsis parser won't be able to do it anyway 
+    // (the parser is called as part of linkto).
+    // Some odd type constructs: "?((param0: oj.ojListView.ItemContext) => boolean)|boolean"
+    // if it's not parse-able then just make sure that we have the arrow bracket represented as &lt.
+    // the type will be rendered as is, no links will be added to it.
+    var parseSuccess = self.tryTypeParsing(name); 
+    if (parseSuccess){?>
+      <span class="param-type"><?js= self.linkto(name, self.htmlsafe(name)) ?></span>
+    <?js 
+    }
+    else{?>
+      <span class="param-type"><?js= self.htmlsafe(name) ?></span>
+    <?js 
+    }          
+    if (i < data.length-1) { ?>|<?js } ?>
+<?js }); ?>

@@ -227,6 +227,14 @@ module.exports = function (grunt) {
         }
     },
     copy: {
+      oracle_logo: {
+        files: [
+          {expand: true,
+           cwd: '<%= paths.config %>/oj',
+           src: ['oracle_logo_sm.png'],
+           dest: '<%= paths.docs %>'}
+        ]
+      },
       dist_debug: {
         files: [
           {expand: true,
@@ -351,5 +359,27 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-string-replace');
 
   // Default task.
-  grunt.registerTask('build', ['clean:all', 'browserify', 'copy:dist_debug', 'copy:dist_ext_lib', 'copy:config_coverage', 'copy:test_coverage', 'copy:lib_coverage', 'eslint', 'copy:temp_debug', 'requirejs:compileBundles', 'requirejs:compileBundles_debug', 'run_java', 'rename', 'string-replace', 'copy:dist_bundles_debug', 'clean:bundles_debug', 'qunit', 'uglify', 'copy:dist_bundles_min', 'clean:bundles', 'jsdoc']);
+  grunt.registerTask('build', ['clean:all',
+                              'browserify',
+                              'copy:dist_debug',
+                              'copy:dist_ext_lib',
+                              'copy:config_coverage',
+                              'copy:test_coverage',
+                              'copy:lib_coverage',
+                              'eslint',
+                              'copy:temp_debug',
+                              'requirejs:compileBundles',
+                              'requirejs:compileBundles_debug',
+                              'run_java',
+                              'rename',
+                              'string-replace',
+                              'copy:dist_bundles_debug',
+                              'clean:bundles_debug',
+                              'qunit',
+                              'uglify',
+                              'copy:dist_bundles_min',
+                              'clean:bundles',
+                              'jsdoc',
+                              'copy:oracle_logo'
+                              ]);
 };

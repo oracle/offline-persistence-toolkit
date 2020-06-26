@@ -1,0 +1,444 @@
+html
+{
+    overflow: auto;
+    background-color: #fff;
+}
+
+body
+{
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.75em;
+	line-height: 130%;
+	color: #000;
+	background-color: #fff;
+    margin: 0;
+}
+
+a {
+    color: #444;
+}
+
+a:visited {
+    color: #444;
+}
+
+a:active {
+    color: #444;
+}
+
+header
+{
+	display: block;
+	padding: 6px 4px;
+}
+
+/* [jim] margin-top and margin-bottom were both 1em.  For other changes, see .class-summary. */
+.class-description {
+	margin-bottom: 0em;
+	margin-top: 2em;
+}
+
+/* [jim] Carved these styles out from .class-description to this new class, for anyone who wants to
+ * apply it manually to their class description.  These styles are appropriate for a one-liner, but
+ * not for the multi-page class descriptions that JET components have.
+ */
+.class-summary {
+    font-style: italic;
+	font-family: Palatino, 'Palatino Linotype', serif;
+	font-size: 130%;
+	line-height: 140%;
+}
+
+#main {
+    display: block;
+    margin-left: 240px;
+}
+
+#main, nav {
+    height: 100vh;
+    overflow: auto;
+    box-sizing: border-box;
+    margin-top: 0;
+    padding-top: 28px;
+}
+
+section
+{
+    background-color: #fff;
+    padding: 12px 24px;
+    border-bottom: 1px solid #ccc;
+    margin-right: 100px;
+}
+
+.variation {
+    display: none;
+}
+
+.optional:after {
+	content: "opt";
+	font-size: 60%;
+	color: #aaa;
+	font-style: italic;
+	font-weight: lighter;
+}
+
+.current-nav-item {
+    font-weight: bold;
+    background-color: aliceblue; // #f0f8ff
+}
+
+nav
+{
+    border-right: 1px solid #CCCCCC;
+    display: block;
+    float: left;
+    margin-left: 0;
+    margin-right: 9px;
+
+    width: 240px;
+    padding-left: 9px;
+}
+
+nav ul {
+    line-height: 17px;
+    padding:0;
+    margin:0;
+    list-style-type:none;
+}
+
+nav h2 a, nav h2 a:visited {
+    color: #A35A00;
+    text-decoration: none;
+}
+
+nav h3 {
+    margin-top: 12px;
+}
+
+nav li {
+    margin-top: 6px;
+}
+
+nav a {
+    color: #5C5954;
+}
+
+nav a:visited {
+    color: #5C5954;
+}
+
+nav a:active {
+    color: #5C5954;
+}
+
+ul.subList, ul.optionsSubList {
+    display: block;
+    margin-bottom: 15px;
+    padding: 0;
+    width: 100%;
+}
+
+ul.subList li, ul.optionsSubList li {
+    list-style: none outside none;
+    width: 100%;
+}
+
+ul.subList li:hover, #navIndex:hover {
+    background-color: #E4E8EA;
+}
+
+ul.subList li a, ul.optionsSubList li a {
+    color: #0572CE;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0;
+    min-height: 16px;
+    padding: 1px 7px 1px 13px;
+    text-decoration: none;
+}
+
+ul.optionsSubList li div:hover {
+    background-color: #E4E8EA;
+}
+
+ul.optionsInnerSubList {
+    display: none;
+    padding-left: 13px;
+}
+
+ul.optionsInnerSubList li {
+    font-weight: normal;
+}
+
+footer {
+    display: block;
+    padding: 6px;
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 90%;
+}
+
+h1
+{
+	font-size: 200%;
+	font-weight: bold;
+	letter-spacing: -0.01em;
+    margin: 6px 0 9px 0;
+    line-height: 1.2em;
+}
+
+h2
+{
+	font-size: 170%;
+	font-weight: bold;
+	letter-spacing: -0.01em;
+	margin: 6px 0 3px 0;
+}
+
+h3
+{
+	font-size: 150%;
+	font-weight: bold;
+	letter-spacing: -0.01em;
+	margin-top: 16px;
+	margin: 6px 0 3px 0;
+}
+
+h4
+{
+	font-size: 130%;
+	font-weight: bold;
+	letter-spacing: -0.01em;
+	margin-top: 16px;
+	margin: 18px 0 3px 0;
+	color: #A35A00;
+}
+
+h5
+{
+	font-size: 120%;
+	font-weight: bold;
+	letter-spacing: -0.01em;
+	margin: 8px 0 3px 0;
+}
+
+h6
+{
+	font-size: 100%;
+	letter-spacing: -0.01em;
+	margin: 6px 0 3px 0;
+	font-style: italic;
+}
+
+.container-overview .subsection-title
+{
+	font-size: 120%;
+	font-weight: bold;
+	letter-spacing: -0.01em;
+	margin: 8px 0 3px -16px;
+}
+
+.subsection-title
+{
+	margin-top: 30px;
+}
+
+
+kbd {
+    font-family: Consolas, "Lucida Console", Monaco, monospace;
+}
+
+.ancestors { color: #999; }
+.ancestors a
+{
+    color: #999 !important;
+    /*text-decoration: none;  w/o underline you can't tell it's a link! */
+}
+
+.extends {
+	font-size: 75%;
+    color: #999;
+}
+.extends a {
+    color: #999 !important;
+}
+
+.important
+{
+	font-weight: bold;
+	color: #950B02;
+}
+
+.yes-def {
+    text-indent: -1000px;
+}
+
+.type-signature {
+    color: #aaa;
+}
+
+.name, .signature {
+	font-family: Consolas, "Lucida Console", Monaco, monospace;
+}
+
+.details { margin-top: 14px; }
+.details dt { width:100px; float:left; border-left: 2px solid #DDD; padding-left: 10px;  padding-top: 6px; }
+.details dd { margin-left: 50px; }
+.details ul { margin: 0; }
+.details ul { list-style-type: none; }
+.details li { margin-left: 30px; padding-top: 6px; }
+
+.description {
+	margin-bottom: 1em;
+	margin-left: -16px;
+	margin-top: 1em;
+}
+
+.code-caption
+{
+	font-style: italic;
+	margin: 0;
+}
+
+.code-caption .prettyprint
+{
+  font-family: Consolas,'Lucida Console', Monaco, monospace;
+  font-style: normal;
+}
+
+.prettyprint
+{
+	border: 1px solid #ddd;
+    overflow: auto;
+    font-size: 1.2em;
+}
+
+.prettyprint.source {
+    width: inherit;
+}
+
+.prettyprint code
+{
+	font-family: Consolas, 'Lucida Console', Monaco, monospace;
+	line-height: 18px;
+	display: block;
+	padding: 4px 12px;
+	margin: 0;
+	background-color: #fff;
+	color: #000;
+	border-left: 3px #ddd solid;
+}
+
+.params, .props, .keyboard-table, .generic-table
+{
+	border-spacing: 0;
+	border: 0;
+	border-collapse: collapse;
+}
+
+.params .name, .props .name, .name code, .styling-table td:first-child {
+	color: #A35A00;
+	font-family: Consolas, 'Lucida Console', Monaco, monospace;
+	font-size: 100%;
+}
+
+.styling-table td:first-child {white-space: nowrap;}
+
+.params td, .params th, .props td, .props th,
+.keyboard-table td, .keyboard-table th, .generic-table td, .generic-table th
+{
+	border: 1px solid #ddd;
+	margin: 0px;
+	text-align: left;
+	vertical-align: top;
+	padding: 4px 6px;
+	display: table-cell;
+}
+
+.params thead tr, .props thead tr, .keyboard-table thead tr, .generic-table thead tr
+{
+	background-color: #ddd;
+	font-weight: bold;
+}
+
+.params .params thead tr, .props .props thead tr, .keyboard-table .keyboard-table thead tr
+{
+	background-color: #fff;
+	font-weight: bold;
+}
+
+.params th, .props th, .keyboard-table th, .generic-table th { border-right: 1px solid #aaa; }
+.params th:last-child, .props th:last-child , .keyboard-table th:last-child, .generic-table th:last-child { border-right: 1px solid #ddd; }
+
+
+.disabled {
+    color: #454545;
+}
+
+/*
+ * [jim] This rule and referenced image copied from JET cookbook.
+ * TODO: if/when cookbook and jsdoc share resources, replace this rule and image with references to cookbook's copy.
+ */
+.bookmarkable-link {
+    display: inline-block;
+    width: 24px;
+    height: 40px;
+    vertical-align: middle;
+    background-repeat: no-repeat;
+    background-position: 0px 4px;
+    background-image: url("images/bookmark.png");
+}
+
+/*
+ * [jim] Per Doc team request, we need to display this header when our doc is displayed as part
+ * of the Oracle product docs (i.e. alongside non-JET doc).  But we want to hide it for our
+ * JET doc, both standalone and embedded (in demos).  They don't pick up our CSS, so our
+ * display:none affects only our copies, as desired.
+ */
+.product-docs-header {
+    display: none;
+
+    // this was the (highly non-artistic) theming I used before we decided to hide it:
+    //margin-left:50px;
+    //font-style:italic;
+}
+
+#quick-nav {
+    border: 1px solid #CCCCCC;
+    overflow: auto;
+    margin-top: 15px;
+}
+
+#quick-nav h2 {
+    background: none repeat scroll 0 0 #A35A00;
+    border-bottom: 1px solid #CCCCCC;
+    color: #FFFFFF;
+    margin: -18px -28px 0;
+    padding: 10px;
+}
+
+.quick-nav-section {
+    float: left;
+    width: 33%;
+}
+
+.nonpublic-mem-link{
+    padding: 1px 7px 1px 13px;
+}
+
+@media screen and (max-width: 767px) {
+    .quick-nav-section {
+        float: none;
+        width: 100%;
+        padding-left: 3px;
+    }
+}
+
+#navIndex {
+	padding: 6px 0 3px 0;
+	margin: 0;
+}
+
+.jsdoc-deprecated {
+    color: red;
+}
