@@ -225,6 +225,267 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/p
       });
     });
 
+    QUnit.test('test timeout', function (assert) {
+      var done = assert.async();
+      assert.expect(4);
+      generateMultipartFormWithBlob({ firstName: 'Bob', lastName: 'Smith' }).then(function (multipartDataToTest) {
+        var headers = new Headers({ 'Content-Type': 'image/png' });
+        mockFetch.addRequestReply('GET', '/testTimeout', {
+          status: 200,
+          statusText: 'OK',
+          headers: headers,
+          body: multipartDataToTest.content
+        });
+        persistenceManager.register({
+          scope: 'http://localhost:3003/testOPT'
+        }).then(function (registration) {
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+
+          var xhr = new XMLHttpRequest();
+          xhr.ontimeout = function (event) {
+            assert.ok(event.type == 'timeout', 'timeout event');
+            if (this.readyState == 4) {
+              assert.ok(this.status === 0, 'status is 0');
+              assert.ok(this.statusText === '', 'statusText is ""');
+            }
+          };
+          xhr.onloadend = function (event) {
+            assert.ok(event.type == 'loadend', 'loadended event');
+            done();
+          }
+
+          // using an slc12lqa to test against
+          xhr.open('POST', 'http://localhost:3003/testOPT');
+          xhr.timeout = 1;
+          xhr.send();
+        });
+      });
+    });
+
+    QUnit.test('test abort', function (assert) {
+      var done = assert.async();
+      assert.expect(4);
+      generateMultipartFormWithBlob({ firstName: 'Bob', lastName: 'Smith' }).then(function (multipartDataToTest) {
+        var headers = new Headers({ 'Content-Type': 'image/png' });
+        mockFetch.addRequestReply('GET', '/testAbort', {
+          status: 200,
+          statusText: 'OK',
+          headers: headers,
+          body: multipartDataToTest.content
+        });
+        persistenceManager.register({
+          scope: 'http://localhost:3003/testOPT'
+        }).then(function (registration) {
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+
+          var xhr = new XMLHttpRequest();
+          xhr.onabort = function (event) {
+            assert.ok(event.type == 'abort', 'abort event');
+            if (this.readyState == 0) {
+              assert.ok(this.status === 0, 'status is 0');
+              assert.ok(this.statusText === '', 'statusText is ""');
+            }
+          };
+          xhr.onloadend = function (event) {
+            assert.ok(event.type == 'loadend', 'loadended event');
+            done();
+          }
+          // using an slc12lqa to test against
+          xhr.open('POST', 'http://localhost:3003/testOPT');
+          xhr.send();
+          xhr.abort();
+        });
+      });
+    });
+    QUnit.test('test upload:load (addEventListeners)', function (assert) {
+      var done = assert.async();
+      assert.expect(21);
+      generateMultipartFormWithBlob({ firstName: 'Bob', lastName: 'Smith' }).then(function (multipartDataToTest) {
+        var headers = new Headers({ 'Content-Type': 'image/png' });
+        mockFetch.addRequestReply('GET', '/testUpload', {
+          status: 200,
+          statusText: 'OK',
+          headers: headers,
+          body: multipartDataToTest.content
+        });
+        persistenceManager.register({
+          scope: 'http://localhost:3003/testOPT'
+        }).then(function (registration) {
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+          var tracker = 0;
+          var xhr = new XMLHttpRequest();
+          xhr.upload.addEventListener("loadstart", function (event) {
+            assert.ok(tracker == 0, "correct order");
+            assert.ok(event.type == 'loadstart', 'loadstart event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          });
+          xhr.upload.addEventListener("progress", function (event) {
+            assert.ok(tracker == 1, "correct order");
+            assert.ok(event.type == 'progress', 'progress event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          });
+
+          xhr.upload.addEventListener("load", function (event) {
+            assert.ok(tracker == 2, "correct order");
+            assert.ok(event.type == 'load', 'load event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          });
+          xhr.upload.addEventListener("loadend", function (event) {
+            assert.ok(tracker == 3, "correct order");
+            assert.ok(event.type == 'loadend', 'loadend event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          });
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              assert.ok(xhr.response == 'testComplete', "correct Response");
+              done();
+            }
+          }
+          // using an slc12lqa to test upload against since it needs to connect to start
+          // upload events
+          xhr.open('POST', 'http://localhost:3003/testOPT');
+          xhr.send(new FormData());
+        });
+      });
+    });
+
+    QUnit.test('test upload:abort', function (assert) {
+      var done = assert.async();
+      assert.expect(20);
+      generateMultipartFormWithBlob({ firstName: 'Bob', lastName: 'Smith' }).then(function (multipartDataToTest) {
+        var headers = new Headers({ 'Content-Type': 'image/png' });
+        mockFetch.addRequestReply('GET', '/testUpload', {
+          status: 200,
+          statusText: 'OK',
+          headers: headers,
+          body: multipartDataToTest.content
+        });
+        persistenceManager.register({
+          scope: 'http://localhost:3003/testOPT'
+        }).then(function (registration) {
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+          var tracker = 0;
+          var xhr = new XMLHttpRequest();
+          xhr.upload.onloadstart = function (event) {
+            assert.ok(tracker == 0, "correct order");
+            assert.ok(event.type == 'loadstart', 'loadstart event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          };
+          xhr.upload.onprogress = function (event) {
+            assert.ok(tracker == 1, "correct order");
+            assert.ok(event.type == 'progress', 'progress event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          };
+          xhr.upload.onabort = function (event) {
+            assert.ok(tracker == 2, "correct order");
+            assert.ok(event.type == 'abort', 'abort event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          };
+          xhr.upload.onloadend = function (event) {
+            assert.ok(tracker == 3, "correct order");
+            assert.ok(event.type == 'loadend', 'loadend event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+            done();
+          }
+          // using an slc12lqa to test upload against since it needs to connect to start
+          // upload events
+          xhr.open('POST', 'http://localhost:3003/testOPT');
+          xhr.send(new FormData());
+          xhr.abort();
+        });
+      });
+    });
+
+    QUnit.test('test upload:timeout', function (assert) {
+      var done = assert.async();
+      assert.expect(20);
+      generateMultipartFormWithBlob({ firstName: 'Bob', lastName: 'Smith' }).then(function (multipartDataToTest) {
+        var headers = new Headers({ 'Content-Type': 'image/png' });
+        mockFetch.addRequestReply('GET', '/testUpload', {
+          status: 200,
+          statusText: 'OK',
+          headers: headers,
+          body: multipartDataToTest.content
+        });
+        persistenceManager.register({
+          scope: 'http://localhost:3003/testOPT'
+        }).then(function (registration) {
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy();
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+          var tracker = 0;
+          var xhr = new XMLHttpRequest();
+          xhr.upload.onloadstart = function (event) {
+            assert.ok(tracker == 0, "correct order");
+            assert.ok(event.type == 'loadstart', 'loadstart event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          };
+          xhr.upload.onprogress = function (event) {
+            assert.ok(tracker == 1, "correct order");
+            assert.ok(event.type == 'progress', 'progress event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          };
+          xhr.upload.ontimeout = function (event) {
+            assert.ok(tracker == 2, "correct order");
+            assert.ok(event.type == 'timeout', 'timeout event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+          };
+          xhr.upload.onloadend = function (event) {
+            assert.ok(tracker == 3, "correct order");
+            assert.ok(event.type == 'loadend', 'loadend event');
+            assert.ok(event.lengthComputable == false, 'lengthComputable is false');
+            assert.ok(event.loaded == 0, 'loaded == 0');
+            assert.ok(event.total == 0, 'total == 0');
+            tracker++;
+            done();
+          }
+          // using an slc12lqa to test upload against since it needs to connect to start
+          // upload events
+          xhr.open('POST', 'http://localhost:3003/testOPT');
+          xhr.timeout = 1;
+          xhr.send(new FormData());
+        });
+      });
+    });
+
+
+
     var generateMultipartFormWithBlob = function (params, noURL) {
       return new Promise(function(resolve, reject) {
         var saveURL = window.URL;

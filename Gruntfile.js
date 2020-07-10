@@ -341,6 +341,15 @@ module.exports = function (grunt) {
         jarName: 'coverage/JSCover-all.jar',
         javaArgs: '-fs dist/debug coverage/dist/debug --no-instrument=impl/sql-where-parser.min.js --no-instrument=impl/fetch.js --no-instrument=<%= pouchdb_bundle %>'
       }
+    },
+    shell: {
+      start_test_server: {
+        command: 'node ./test/lib/testServer/server.js',
+        options: {
+          stdout: true,
+          async:true,
+        }
+      }
     }
   });
 
@@ -357,6 +366,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-rename');
   grunt.loadNpmTasks('grunt-string-replace');
+  grunt.loadNpmTasks('grunt-shell-spawn');
 
   // Default task.
   grunt.registerTask('build', ['clean:all',
@@ -375,6 +385,7 @@ module.exports = function (grunt) {
                               'string-replace',
                               'copy:dist_bundles_debug',
                               'clean:bundles_debug',
+                              'shell:start_test_server',
                               'qunit',
                               'uglify',
                               'copy:dist_bundles_min',

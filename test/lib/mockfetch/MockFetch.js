@@ -32,6 +32,7 @@ define([], function () {
 
   function MockFetch() {
     this._replies = [];
+    window._fetch = fetch;
     window.fetch = this.fetch.bind(this);
   };
 
@@ -79,7 +80,11 @@ define([], function () {
     }
     var i, response;
     var repliesCount = self._replies.length;
-
+    // calling regular browser fetch when calling against our localhost server
+    // this is to be able to use abortController/timeout
+    if (request.url === "http://localhost:3003/testOPT"){
+      return _fetch(request)
+    }
     for (i = 0; i < repliesCount; i++) {
       if ((request.url.toLowerCase().indexOf(self._replies[i].scope.toLowerCase()) != -1) &&
         (self._replies[i].method == '*' || request.method == self._replies[i].method)) {
