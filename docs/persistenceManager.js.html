@@ -124,6 +124,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      * });
      */
     PersistenceManager.prototype.init = function () {
+      logger.log("Offline Persistence Toolkit PersistenceManager: Initilizing");
       _replaceBrowserApis(this);
       _addBrowserEventListeners(this);
       _openOfflineCache(this);
@@ -353,6 +354,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
       logger.log("Offline Persistence Toolkit PersistenceManager: browserFetch() for Request with url: " + request.url);
       // only do special processing in browser context. In service worker context
       // just call regular fetch.
+      var requestObj = request
       if (_isBrowserContext()) {
         // store the last Request object on the PersistenceManager so that we
         // can detect if a fetch polyfill is causing a XHR request to our
@@ -361,13 +363,12 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
           value: request,
           writable: true
         });
-        var self = this;
         return new Promise(function (resolve, reject) {
           logger.log("Offline Persistence Toolkit PersistenceManager: Calling browser fetch function for Request with url: " + request.url);
           if (request._browserRequest) {
-            request = request._browserRequest;
+            requestObj = request._browserRequest;
           }
-          self._browserFetchFunc.call(window, request).then(function (response) {
+          self._browserFetchFunc.call(window, requestObj).then(function (response) {
             resolve(response);
           }, function (error) {
             reject(error);
@@ -376,9 +377,9 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
         });
       } else {
         if (request._browserRequest) {
-          request = request._browserRequest;
+          requestObj = request._browserRequest;
         }
-        return fetch(request);
+        return fetch(requestObj);
       }
     };
 
@@ -456,63 +457,56 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
     };
 
     function _replaceBrowserApis(persistenceManager) {
-      // renamed from self to persistManger so local self doesn't cover global self
-      var pm = persistenceManager;
       // save off the browser fetch and XHR only in browser context.
       // also add listeners for browser online
       // Don't do it for Service Workers
       if (_isSafari()) {
+        logger.log("Offline Persistence Toolkit PersistenceManager: Replacing Safari Browser APIs");
         // using self to refer to both the "window" and the "self" context
         // of serviceworker
-
-        // request
-        Object.defineProperty(pm, '_browserRequestConstructor', {
+        Object.defineProperty(persistenceManager, '_browserRequestConstructor', {
           value: self.Request,
           writable: false
         });
-        Object.defineProperty(pm, '_persistenceRequestConstructor', {
+        Object.defineProperty(persistenceManager, '_persistenceRequestConstructor', {
           value: persistenceRequest(persistenceManager),
           writable: false
         });
-        self['Request'] = pm._persistenceRequestConstructor;
-        if (!_isBrowserContext()){
+        self['Request'] = persistenceManager._persistenceRequestConstructor;
+        if (!_isBrowserContext()) {
           // replace serviceWorker's fetch with this wrapper to unwrap safari request in sw
-          Object.defineProperty(pm, '_browserFetchFunc', {
+          Object.defineProperty(persistenceManager, '_browserFetchFunc', {
             value: self.fetch,
             writable: false
           });
-          Object.defineProperty(pm, '_serviceWorkerFetch', {
-            value: serviceWorkerFetch(persistenceManager),
-            writable: false
-          });
-          self['fetch'] = pm._serviceWorkerFetch
+          self['fetch'] = serviceWorkerFetch(persistenceManager)
         }
       }
 
       if (_isBrowserContext() &amp;&amp;
-        !pm._browserFetchFunc &amp;&amp;
-        !pm._browserXMLHttpRequest) {
+        !persistenceManager._browserFetchFunc &amp;&amp;
+        !persistenceManager._browserXMLHttpRequest) {
         // browser context
         // _browserFetchFunc is always non-null because we polyfill it
         logger.log("Offline Persistence Toolkit PersistenceManager: Replacing browser APIs");
-        Object.defineProperty(pm, '_browserFetchFunc', {
+        Object.defineProperty(persistenceManager, '_browserFetchFunc', {
           value: window.fetch,
           writable: false
         });
-        Object.defineProperty(pm, '_browserXMLHttpRequest', {
+        Object.defineProperty(persistenceManager, '_browserXMLHttpRequest', {
           value: window.XMLHttpRequest,
           writable: false
         });
         // replace the browser fetch and XHR with our own
         window['fetch'] = persistenceFetch(persistenceManager);
         window['XMLHttpRequest'] = function () {
-          if (pm._browserFetchRequest != null) {
+          if (persistenceManager._browserFetchRequest != null) {
             // this means we got invoked by a fetch polyfill. That means
             // we can just use the browser XHR since the browser doesn't
             // support the Fetch API anyway
-            return new pm._browserXMLHttpRequest();
+            return new persistenceManager._browserXMLHttpRequest();
           }
-          return new PersistenceXMLHttpRequest(pm._browserXMLHttpRequest);
+          return new PersistenceXMLHttpRequest(persistenceManager._browserXMLHttpRequest);
         };
       }
     };
@@ -728,27 +722,63 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
     function persistenceRequest(persistenceManager) {
       function PersistenceRequest(input, init) {
         var self = this;
-        this._browserRequest = new persistenceManager._browserRequestConstructor(input, init);
-        this._input = input;
-        this._init = init;
-        var requestDefineProperty = function(requestProperty) {
+
+        // create two variables to house the input and init vars
+        var requestInput = input;
+        var requestInit = init;
+        logger.log("Offline Persistence Toolkit persistenceRequest: Create New Request");
+        // Check if the input is a Request object
+        if (input._input){
+          logger.log("Offline Persistence Toolkit persistenceRequest: Input is a PersistenceRequest");
+          // we replace the user inputs with a copy of the previous request object's input and init vars
+          requestInput = input._input;
+          requestInit = Object.assign({}, input._init);
+          // if there are any init's for for this request, then those must also be carried over to
+          // the requestInit overwriting any previous entries
+          for (var key in init) {
+            if (init.hasOwnProperty(key)) {
+              requestInit[key]= init[key];
+            }
+          }
+          // the headers and body must be checked for formData instance
+          // if it has both exist, then the headers.get("Content-Type") must be replace
+          // to preserve formData Boundary
+          if (input.headers &amp;&amp;
+            requestInit &amp;&amp;
+            requestInit.body &amp;&amp;
+            requestInit.body instanceof FormData) {
+            // check to see if the header exist before adding, if it does only replace content-type
+            if (requestInit.headers){
+              var contentType = input.headers.get("Content-Type")
+              requestInit.headers.set("Content-Type",contentType );
+            } else {
+              // else replace whole header
+              requestInit.headers = input.headers;
+            }
+          }
+        }
+
+        this._browserRequest = new persistenceManager._browserRequestConstructor(requestInput, requestInit);
+        this._input = requestInput;
+        this._init = requestInit;
+        var requestDefineProperty = function (requestProperty) {
           var propDescriptors = Object.getOwnPropertyDescriptor(self._browserRequest, requestProperty);
 
           if (propDescriptors &amp;&amp;
-              (propDescriptors.writable ||
+            (propDescriptors.writable ||
               propDescriptors.set)) {
             Object.defineProperty(self, requestProperty, {
-              get: function() {
+              get: function () {
                 return self._browserRequest[requestProperty];
               },
-              set: function(value) {
+              set: function (value) {
                 self._browserRequest[requestProperty] = value;
               },
               enumerable: true
             });
           } else {
             Object.defineProperty(self, requestProperty, {
-              get: function() {
+              get: function () {
                 return self._browserRequest[requestProperty];
               },
               enumerable: true
@@ -758,123 +788,139 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
         var property;
         for (property in this._browserRequest) {
           // cannot use typeof on the "body" property as it will result in a not implmented error
-          if (property == "body" || typeof this._browserRequest[property] != "function"){
+          if (property == "body" || typeof this._browserRequest[property] != "function") {
             requestDefineProperty(property);
           }
         }
         var boundary = this.headers.get("Content-Type");
         if (boundary != null &amp;&amp;
-          boundary.indexOf("boundary=") > -1&amp;&amp;
-          boundary.indexOf("form-data") > -1){
+          boundary.indexOf("boundary=") > -1 &amp;&amp;
+          boundary.indexOf("form-data") > -1) {
           boundary = boundary.split("boundary=")
-          this._boundary = "--"+boundary[boundary.length - 1];
+          this._boundary = "--" + boundary[boundary.length - 1];
         }
-        this.arrayBuffer = function() {
-          // need to figure how to return an array buffer for all types
-          try{
-          if (this._init &amp;&amp;
-              this._init.body){
-                if (!(this._init.body instanceof FormData)){
-                  return this._browserRequest.arrayBuffer();
-                }else {
-                  return _formDataToString(this._init.body,this._boundary).then(function(formDataText){
-                    var formDataArrayBuffer = _strToArrayBuffer(formDataText);
-                    return formDataArrayBuffer;
-                  })
-                }
+
+        this.arrayBuffer = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest: Called arrayBuffer()");
+          var self = this;
+          try {
+            if (self._init &amp;&amp;
+              self._init.body) {
+              if (!(self._init.body instanceof FormData)) {
+                return self._browserRequest.arrayBuffer();
+              } else {
+                return _formDataToString(self._init.body, self._boundary).then(function (formDataText) {
+                  var formDataArrayBuffer = _strToArrayBuffer(formDataText);
+                  return formDataArrayBuffer;
+                })
               }
-          return this._browserRequest.arrayBuffer();
-          }catch(e){
+            }
+            return self._browserRequest.arrayBuffer();
+          } catch (e) {
             return Promise.reject(e);
           }
         }
 
-        this.blob = function() {
-          try{
-            if (this._init &amp;&amp;
-                this._init.body){
-                  if (!(this._init.body instanceof FormData)){
-                    return this._browserRequest.blob();
-                  }else {
-                    return _formDataToString(this._init.body,this._boundary).then(function(formDataText){
-                      var formDataBlob = new Blob([formDataText],
-                        {type:this.headers.get("Content-Type")});
-                      return formDataBlob;
-                    })
-                  }
-                }
-            return this._browserRequest.blob();
-            }catch(e){
-              return Promise.reject(e);
+        this.blob = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest: Called blob()");
+          var self = this;
+          try {
+            if (self._init &amp;&amp;
+              self._init.body) {
+              if (!(self._init.body instanceof FormData)) {
+                return self._browserRequest.blob();
+              } else {
+                return _formDataToString(self._init.body, self._boundary).then(function (formDataText) {
+                  var formDataBlob = new Blob([formDataText],
+                    { type: self.headers.get("Content-Type") });
+                  return formDataBlob;
+                })
+              }
             }
-        }
-
-        this.formData = function() {
-          try{
-            if (this._init &amp;&amp;
-                this._init.body){
-                  if (!(this._init.body instanceof FormData)){
-                    return this._browserRequest.formData();
-                  }else {
-                    return Promise.resolve(this._init.body);
-                  }
-                }
-            return this._browserRequest.formData();
-            }catch(e){
-              return Promise.reject(e);
-            }
-        }
-
-        this.json = function() {
-          try{
-            if (this._init &amp;&amp;
-                this._init.body){
-                  if (!(this._init.body instanceof FormData)){
-                    return this._browserRequest.json();
-                  }else {
-                    return Promise.reject(new SyntaxError("Unexpected number in JSON at position 1"));
-                  }
-                }
-            return this._browserRequest.json();
-            }catch(e){
-              return Promise.reject(e);
-            }
-        }
-
-        this.text = function() {
-          try{
-            if (this._init &amp;&amp;
-                this._init.body){
-                  if (!(this._init.body instanceof FormData)){
-                    return this._browserRequest.text();
-                  }else {
-                    return _formDataToString(this._init.body,this._boundary).then(function(formDataText){
-                      return formDataText;
-                    })
-                  }
-                }
-            return this._browserRequest.text();
-            }catch(e){
-              return Promise.reject(e);
-            }
-        }
-
-        this.clone = function() {
-          if (this.headers &amp;&amp;
-              this._init &amp;&amp;
-              this._init.body &amp;&amp;
-              this._init.body instanceof FormData) {
-            this._init.headers = this.headers;
+            return self._browserRequest.blob();
+          } catch (e) {
+            return Promise.reject(e);
           }
-          var clonedRequest = new PersistenceRequest(this._input, this._init);
-          clonedRequest._browserRequest = this._browserRequest.clone();
+        }
+
+        this.formData = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest: Called formData()");
+          var self = this;
+          try {
+            if (self._init &amp;&amp;
+              self._init.body) {
+              if (!(self._init.body instanceof FormData)) {
+                return self._browserRequest.formData();
+              } else {
+                return Promise.resolve(self._init.body);
+              }
+            }
+            return self._browserRequest.formData();
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        }
+
+        this.json = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest: Called json()");
+          var self = this;
+          try {
+            if (self._init &amp;&amp;
+              self._init.body) {
+              if (!(self._init.body instanceof FormData)) {
+                return self._browserRequest.json();
+              } else {
+                return Promise.reject(new SyntaxError("Unexpected number in JSON at position 1"));
+              }
+            }
+            return self._browserRequest.json();
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        }
+
+        this.text = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest: Called text()");
+          var self = this;
+          try {
+            if (self._init &amp;&amp;
+              self._init.body) {
+              if (!(self._init.body instanceof FormData)) {
+                return self._browserRequest.text();
+              } else {
+                return _formDataToString(self._init.body, self._boundary);
+              }
+            }
+            return self._browserRequest.text();
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        }
+
+        this.clone = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest: Called clone()");
+          var self = this;
+          if (self.headers &amp;&amp;
+            self._init &amp;&amp;
+            self._init.body &amp;&amp;
+            self._init.body instanceof FormData) {
+            self._init.headers = self.headers;
+          }
+          var clonedRequest = new PersistenceRequest(self._input, self._init);
+          clonedRequest._browserRequest = self._browserRequest.clone();
           return clonedRequest;
         }
+        this.toString = function () {
+          logger.log("Offline Persistence Toolkit persistenceRequest:requestToString()");
+          if (this._input.url){
+            return this._input.url;
+          } else {
+            return this._input;
+          }
+        }
       };
-
       return PersistenceRequest;
     };
-
     // this is the minimal wrapper version of fetch which we replace the serviceworker
     // version with. We only do this in Safari's serviceworker context to unwrap our
     // wrapped requests so that there are no need to call request._browserRequest
@@ -937,21 +983,26 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
         } else {
           request = new Request(input, init);
         }
-        if (request._browserRequest){
+        logger.log("Offline Persistence Toolkit serviceWorkerFetch:"+request.url);
+        if (request._browserRequest) {
           request = request._browserRequest;
         }
-        return new Promise(function(resolve,reject){
+        return new Promise(function (resolve, reject) {
           persistenceManager._browserFetchFunc.call(self, request).then(function (response) {
             resolve(response);
           }, function (error) {
             reject(error);
-          });})
-    };
-  }
+          });
+        })
+      };
+    }
 
     function _isSafari() {
       // using the same isSafari() check as VB
-      return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      // hybrid apps do not use "safari" in its userAgent on ios
+      var isiOS =  /\((iPad|iPhone)/i.test(navigator.userAgent);
+      return (isSafari || isiOS);
     };
 
     function _strToArrayBuffer(str) {
@@ -961,7 +1012,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
       var enc = new TextEncoder();
       return enc.encode(str).buffer;
     }
-    function _formDataToPromise(value, key,boundary) {
+    function _formDataToPromise(value, key, boundary) {
       return new Promise(function (resolve, reject) {
         var entryText;
         var itemType = value.constructor.name;
@@ -1016,15 +1067,15 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
       })
     }
 
-    function _formDataToString(formData,boundary) {
-      return new Promise(function(resolve,reject){
+    function _formDataToString(formData, boundary) {
+      return new Promise(function (resolve, reject) {
         var promiseArray = [];
         var formDataText = boundary;
         // since fileReader is a promise based API, all formData entries
         // are converted to promise which return string versions of the entry
         // the promise.all then concatinates the strings together.
         formData.forEach(function (value, key) {
-          promiseArray.push(_formDataToPromise(value, key,boundary));
+          promiseArray.push(_formDataToPromise(value, key, boundary));
         })
         Promise.all(promiseArray).then(function (entryText) {
           entryText.forEach(function (entry) {
@@ -1032,7 +1083,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
           })
           formDataText += "--";
           resolve(formDataText);
-        }).catch(function(err){
+        }).catch(function (err) {
           reject(err);
         })
       })
@@ -1541,7 +1592,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
 
 
     <footer>
-        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Jun 26 2020 12:21:08 GMT-0700 (Pacific Daylight Time)<br>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Sep 04 2020 16:20:31 GMT-0700 (Pacific Daylight Time)<br>
         <span class="product-docs-footer">Copyright © 2017, 2020
         Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.<span>
     </footer>
