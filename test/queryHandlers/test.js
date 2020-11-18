@@ -143,7 +143,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       });
       QUnit.test('getOracleRestQueryHandler', function (assert) {
         var done = assert.async();
-        assert.expect(84);
+        assert.expect(96);
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
           body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300})
@@ -254,6 +254,38 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
               return response.json();
             }).then(function (responseData) {
               assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=DepartmentName%20LIKE%20%27BB%25%27&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'BB', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=DepartmentName%20LIKE%20%27aDmInIsTrAtIoN%25%27&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'Administration', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=DepartmentName%20LIKE%20%27rAtIoN%25%27&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'Administration', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=DepartmentName%20LIKE%20%27aDmInIs%25%27&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 1 && responseData.items[0].DepartmentName == 'Administration', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=DepartmentName%20LIKE%20%27aD%25%27&offset=0&limit=10");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              assert.ok(responseData.items.length == 2 , 'Returned the correct department');
+              assert.ok(responseData.items[0].DepartmentName == 'Administration' || responseData.items[1].DepartmentName == 'Administration', 'Returned the correct department');
+              assert.ok(responseData.items[1].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[0].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
               return fetch("/testOracleRestQuery?q=DepartmentId%20BETWEEN%2010%20AND%201001&offset=0&limit=10");
             }).then(function (response) {
               assert.ok(true, 'Received Response when offline');

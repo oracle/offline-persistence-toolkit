@@ -329,9 +329,9 @@ define(['./persistenceManager', './persistenceStoreManager', './persistenceUtils
                   };
                   break;
                 case 'LIKE':
-                  rhsOp = rhsOp.replace('%', '.+');
+                  rhsOp = rhsOp.replace(/%/g, '.*');
                   returnExp[lhsOp] = {
-                    $regex: rhsOp
+                    $regex: RegExp(rhsOp,'i')
                   };
                   break;
                 case 'BETWEEN':
