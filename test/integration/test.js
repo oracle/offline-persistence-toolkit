@@ -11,7 +11,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
     'use strict';
     logger.option('level',  logger.LEVEL_LOG);
     QUnit.module('persist/integration', {
-      afterEach: function (assert) {
+      beforeEach: function (assert) {
         var done = assert.async();
         persistenceManager.forceOffline(false);
         persistenceStoreManager.openStore('syncLog').then(function (store) {
@@ -26,6 +26,22 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           return store.delete();
         }).then(function () {
           return persistenceStoreManager.openStore('Departments');
+        }).then(function (store) {
+          if (store) {
+            return store.delete();
+          } else {
+            return Promise.resolve();
+          }
+        }).then(function () {
+          return persistenceStoreManager.openStore('DepartmentsWQ');
+        }).then(function (store) {
+          if (store) {
+            return store.delete();
+          } else {
+            return Promise.resolve();
+          }
+        }).then(function () {
+          return persistenceStoreManager.openStore('DepartmentsIC');
         }).then(function (store) {
           if (store) {
             return store.delete();
@@ -131,7 +147,269 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
         });
       });
 
-/*
+      QUnit.test('Integration - server side deletion', function (assert) {
+        var done = assert.async();
+        mockFetch.addRequestReply('GET', '/testServerDeletion', {
+          status: 200,
+          body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'AA', LocationId: 200, ManagerId: 300},
+                                {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
+                                {DepartmentId: 10, DepartmentName: 'CC', LocationId: 200, ManagerId: 300}]),
+          headers: {'ETag': 'XYZ123'}
+        }, function () {
+          assert.ok(true, 'Mock Fetch received Request when online');
+        });
+
+        persistenceManager.register({
+          scope: '/testServerDeletion'
+        }).then(function (registration) {
+          var options = {
+            jsonProcessor: {
+              shredder: simpleJsonShredding.getShredder('Departments', 'DepartmentId'),
+              unshredder: simpleJsonShredding.getUnshredder()
+            },
+            queryHandler: queryHandlers.getSimpleQueryHandler('Departments'),
+            fetchStrategy: fetchStrategies.getCacheIfOfflineStrategy({
+              backgroundFetch: 'disabled'
+            })
+          };
+          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+            var store;
+            fetch('/testServerDeletion').then(function (response) {
+              assert.ok(true, 'Received Response when online');
+              return persistenceStoreManager.openStore('Departments');
+            }).then(function (pstore) {
+              store = pstore;
+              return store.findByKey(1001);
+            }).then(function (data) {
+              assert.ok(data.DepartmentName == 'AA', 'Found DepartmentId 1001 in localStore');
+              return store.findByKey(556);
+            }).then(function (data) {
+              assert.ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
+              return store.findByKey(10);
+            }).then(function (data) {
+              assert.ok(data.DepartmentName == 'CC', 'Found DepartmentId 10 in localStore');
+              //remove a row from server, and add a new etag value on the response
+              mockFetch.clearAllRequestReplies();
+              mockFetch.addRequestReply('GET', '/testServerDeletion', {
+                status: 200,
+                body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'AA', LocationId: 200, ManagerId: 300},
+                                      {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300}]),
+                headers: {'ETag': 'ABC123'}
+              }, function () {
+                assert.ok(true, 'Mock Fetch received Request when online');
+              });
+              return fetch('/testServerDeletion');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var rows = JSON.parse(payload);
+              assert.ok(rows.length === 2, 'Should only get 2 rows back when online');
+              return store.findByKey(10);
+            }).then(function(data) {
+              assert.ok(data == null, 'DepartmentId 10 should have been deleted in localStore');
+              persistenceManager.forceOffline(true);
+              return fetch('/testServerDeletion');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var rows = JSON.parse(payload);
+              assert.ok(rows.length === 2, 'Should only get 2 rows back when offline');
+              done();
+            });
+          });
+        });
+
+        QUnit.test('Integration - server side deletion with query parameters', function (assert) {
+          var done = assert.async();
+          mockFetch.addRequestReply('GET', '/testParameterServerDeletion?offset=0&limit=25', {
+            status: 200,
+            body: JSON.stringify({
+              hasMore: false,
+              items: [{DepartmentId: 1001, DepartmentName: 'AA', LocationId: 200, ManagerId: 300},
+                      {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
+                      {DepartmentId: 10, DepartmentName: 'CC', LocationId: 200, ManagerId: 300}]
+            }),
+            headers: {'X-ORACLE-DMS-ECID': 'XYZ123'}
+          }, function () {
+            assert.ok(true, 'Mock Fetch received Request when online');
+          });
+    
+          persistenceManager.register({
+            scope: '/testParameterServerDeletion'
+          }).then(function (registration) {
+            var options = {
+              jsonProcessor: {
+                shredder: oracleRestJsonShredding.getShredder('DepartmentsWQ', 'DepartmentId'),
+                unshredder: oracleRestJsonShredding.getUnshredder()
+              },
+              queryHandler: queryHandlers.getOracleRestQueryHandler('DepartmentsWQ'),
+              fetchStrategy: fetchStrategies.getCacheIfOfflineStrategy({
+                backgroundFetch: 'disabled'
+              })
+            };
+            var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
+            registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+              var store;
+              fetch('/testParameterServerDeletion?offset=0&limit=25').then(function (response) {
+                assert.ok(true, 'Received Response when online');
+                return persistenceStoreManager.openStore('DepartmentsWQ');
+              }).then(function (pstore) {
+                store = pstore;
+                return store.findByKey(1001);
+              }).then(function (data) {
+                assert.ok(data.DepartmentName == 'AA', 'Found DepartmentId 1001 in localStore');
+                return store.findByKey(556);
+              }).then(function (data) {
+                assert.ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
+                return store.findByKey(10);
+              }).then(function (data) {
+                assert.ok(data.DepartmentName == 'CC', 'Found DepartmentId 10 in localStore');
+                //remove a row from server, and add a new etag value on the response
+                mockFetch.clearAllRequestReplies();
+                mockFetch.addRequestReply('GET', '/testParameterServerDeletion?offset=0&limit=25', {
+                  status: 200,
+                  body: JSON.stringify({
+                    hasMore: false,
+                    items: [{DepartmentId: 1001, DepartmentName: 'AA', LocationId: 200, ManagerId: 300},
+                            {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300}]
+                  }),
+                  headers: {'X-ORACLE-DMS-ECID': 'ABC123'}
+                }, function () {
+                  assert.ok(true, 'Mock Fetch received Request when online');
+                });
+              return fetch('/testParameterServerDeletion?offset=0&limit=25');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var rows = JSON.parse(payload).items;
+              assert.ok(rows.length === 2, 'Should only get 2 rows back when online');
+              return store.findByKey(10);
+            }).then(function(data) {
+              assert.ok(data == null, 'DepartmentId 10 should have been deleted in localStore');
+              persistenceManager.forceOffline(true);
+              return fetch('/testParameterServerDeletion?offset=0&limit=25');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var rows = JSON.parse(payload).items;
+              assert.ok(rows.length === 2, 'Should only get 2 rows back when offline');
+              done();
+            });
+          });
+        });
+
+        QUnit.test('Integration - server side deletion with incomplete collection', function (assert) {
+          var done = assert.async();
+          mockFetch.addRequestReply('GET', '/testIncompleteServerDeletion?LocationId=200', {
+            status: 200,
+            body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'AA', LocationId: 200, ManagerId: 300},
+                      {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300},
+                      {DepartmentId: 10, DepartmentName: 'CC', LocationId: 200, ManagerId: 300}]),
+            headers: {'Etag': 'XYZ123'}
+          }, function () {
+            assert.ok(true, 'Mock Fetch received Request when online');
+          });
+
+          persistenceManager.register({
+            scope: '/testIncompleteServerDeletion'
+          }).then(function (registration) {
+            var locationDataMapping = {};
+            locationDataMapping.mapFields = function(item) {
+              var mappedItem = {};
+              mappedItem.data = {};
+              Object.keys(item.data).forEach(function(field) {
+                if (field == 'LocationId') {
+                  mappedItem.data[field] = parseInt(item.data[field]);
+                } else {
+                  mappedItem.data[field] = item.data[field];
+                }
+              });
+              mappedItem.metadata = item.metadata;
+              return mappedItem;
+            };
+            locationDataMapping.unmapFields = function(item) {
+              var unmappedItem = {};
+              unmappedItem.data = {};
+              Object.keys(item.data).forEach(function(field) {
+                if (field == 'LocationId') {
+                  unmappedItem.data[field] = item.data[field].toString();
+                } else {
+                  unmappedItem.data[field] = item.data[field];
+                }
+              });
+              unmappedItem.metadata = item.metadata;
+              return unmappedItem;
+            };
+            locationDataMapping.mapFilterCriterion = function(filterCriterion) {
+              if (filterCriterion && filterCriterion.attribute == 'LocationId') {
+                filterCriterion.value = parseInt(filterCriterion.value);
+              }
+              return filterCriterion;
+            };
+            var options = {
+              jsonProcessor: {
+                shredder: simpleJsonShredding.getShredder('DepartmentsIC', 'DepartmentId', locationDataMapping),
+                unshredder: simpleJsonShredding.getUnshredder(locationDataMapping)
+              },
+              queryHandler: queryHandlers.getSimpleQueryHandler('DepartmentsIC', null, locationDataMapping),
+              fetchStrategy: fetchStrategies.getCacheIfOfflineStrategy({
+                backgroundFetch: 'disabled'
+              })
+            };          var defaultTestResponseProxy = defaultResponseProxy.getResponseProxy(options);
+          registration.addEventListener('fetch', defaultTestResponseProxy.getFetchEventListener());
+            var store;
+            fetch('/testIncompleteServerDeletion?LocationId=200').then(function (response) {
+              assert.ok(true, 'Received Response when online');
+              return persistenceStoreManager.openStore('DepartmentsIC');
+            }).then(function (pstore) {
+              store = pstore;
+              return store.findByKey(1001);
+            }).then(function (data) {
+              assert.ok(data.DepartmentName == 'AA', 'Found DepartmentId 1001 in localStore');
+              return store.findByKey(556);
+            }).then(function (data) {
+              assert.ok(data.DepartmentName == 'BB', 'Found DepartmentId 556 in localStore');
+              return store.findByKey(10);
+            }).then(function (data) {
+              assert.ok(data.DepartmentName == 'CC', 'Found DepartmentId 10 in localStore');
+              //remove a row from server, and add a new etag value on the response
+              mockFetch.clearAllRequestReplies();
+              mockFetch.addRequestReply('GET', '/testIncompleteServerDeletion?LocationId=200', {
+                status: 200,
+                body: JSON.stringify([{DepartmentId: 1001, DepartmentName: 'AA', LocationId: 200, ManagerId: 300},
+                          {DepartmentId: 556, DepartmentName: 'BB', LocationId: 200, ManagerId: 300}]),
+                headers: {'Etag': 'ABC123'}
+              }, function () {
+                assert.ok(true, 'Mock Fetch received Request when online');
+              });
+              return fetch('/testIncompleteServerDeletion?LocationId=200');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var rows = JSON.parse(payload);
+              assert.ok(rows.length === 2, 'Should only get 2 rows back when online');
+              return store.findByKey(10);
+            }).then(function(data) {
+              assert.ok(data.DepartmentName == 'CC', 'Should still found DepartmentId 10 in localStore');
+              persistenceManager.forceOffline(true);
+              return fetch('/testIncompleteServerDeletion?LocationId=200');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var rows = JSON.parse(payload);
+              assert.ok(rows.length === 3, 'Should still only get 3 rows back when offline.');
+              return fetch('/testIncompleteServerDeletion/10');
+            }).then(function(response) {
+              return response.text();
+            }).then(function(payload) {
+              var data = JSON.parse(payload);
+              assert.ok(data.DepartmentName == 'CC', 'Should still get stale department response back when offline');
+              done();
+            });
+          });
+        });
+
       QUnit.test('Integration', function (assert) {
         var done = assert.async();
         // the order of the following addRequestReply is important for the test,
@@ -233,7 +511,7 @@ define(['persist/persistenceManager', 'persist/persistenceUtils',
           });
         });
       });
-*/
+
       QUnit.test('Conflict Resolution', function(assert) {
         var done = assert.async();
         mockFetch.addRequestReply('GET', '/testConflict/1001', {

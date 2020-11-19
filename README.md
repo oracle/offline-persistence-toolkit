@@ -1,4 +1,4 @@
-# offline-persistence-toolkit 1.5.1 #
+# offline-persistence-toolkit 1.5.2 #
 
 offline-persistence-toolkit is a client-side JavaScript library that provides caching and offline support at the HTTP request layer. This support is transparent to the user and is done through the Fetch API and an XHR adapter. HTTP requests made while the client device is offline are captured for replay when connection to the server is restored. Additional capabilities include a persistent storage layer, synchronization manager, binary data support and various configuration APIs for customizing the default behavior. This framework can be used in both ServiceWorker and non-ServiceWorker contexts within web and hybrid mobile apps.
 
@@ -58,16 +58,16 @@ If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the 
 ```javascript
   requirejs.config({
     paths: {
-      'persist' : 'js/libs/persist/v1.5.1/min'
+      'persist' : 'js/libs/persist/v1.5.2/min'
 
       // Other path mappings here
  }
 ```
-For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.5.1/min'` entry to the list of paths.
+For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.5.2/min'` entry to the list of paths.
 
 You can choose the name of the paths prefix. That is, you can use a different value to the ‘persist’ value shown in the examples.
 
-It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.5.1/min'`.
+It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.5.2/min'`.
 
 Versions of the toolkit are also available on CDN under the latest JET release. e.g.
 
@@ -91,7 +91,7 @@ And again, if you are using RequireJS, you will need to map paths for these pack
     paths: {
       'pouchdb': 'js/libs/pouchdb-7.0.0',
       'pouchfind': 'js/libs/pouchdb.find',
-      'persist' : 'js/libs/persist/v1.5.1/min'
+      'persist' : 'js/libs/persist/v1.5.2/min'
 
       // Other path mappings here
  }
@@ -304,9 +304,24 @@ The simpleJsonShredding implementation assumes that the response payload is eith
 
 As the structure of response payloads can vary from endpoint to endpoint, applications can also implement their own custom shredders and unshredders to meet their own needs.
 
+If the backend resource exposed through a collection endpoint allows delete, there are always race conditions where
+rows are deleted behind the scenes. If the resource is cached and shredded on the client, it is possible that even 
+though a row is deleted at the backend, it can still exist on the client. If queryHandler is configured to support 
+querying the shredded client data, that row that does not exist on server will be served from client cache. Application
+needs to accept that staleness is a possibility. There is one scenario that Offline Persistence Toolkit can help dealing 
+with staleness is when a returned collection from server is known to be complete. A complete collection response contains
+all rows of the resources, thus any client side rows that are not in the list will be removed from the shredded store. 
+A complete collection response is a collection response that is either one of the following:
 
-
-
+1. It is a response that is served to a request which does not contain any query parameters
+2. It is a response that is served to a request which only contains offset or limit query parameters where offset is 0 
+   and the response contains less rows than the specified limit when limit is bigger than 0.
+   
+In order for Offline Persistence Toolkit to figure our the offset and limit of the request, queryHandler can
+have an optional method normalizeQueryParameter which takes a url and returns a structure as defined in 
+[NormalizedQuery](https://oracle.github.io/offline-persistence-toolkit/NormalizedQuery.html "NormalizedQuery").
+The two out-of-box queryHandlers support normalizeQueryParameter. Any custom queryHandler that would like to
+leverage this feature needs to implement normalizeQueryParameter. 
 
 
 ## Modifications: PUT and DELETE ##

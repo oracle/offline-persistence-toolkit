@@ -29,7 +29,7 @@
 
 
 <nav id="nav" data-current-item="none">
-    <h2 id="navIndex"><a href="index.html">Index</a></h2><h3>Classes</h3><ul class="subList"><li id="navItem0"><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li id="navItem1"><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li id="navItem2"><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li id="navItem3"><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li id="navItem4"><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li id="navItem5"><a href="OfflineCache.html">OfflineCache</a></li><li id="navItem6"><a href="PersistenceManager.html">PersistenceManager</a></li><li id="navItem7"><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li id="navItem8"><a href="PersistenceStore.html">PersistenceStore</a></li><li id="navItem9"><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li id="navItem10"><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li id="navItem11"><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li id="navItem12"><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li id="navItem13"><a href="cacheStrategies.html">cacheStrategies</a></li><li id="navItem14"><a href="fetchStrategies.html">fetchStrategies</a></li><li id="navItem15"><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li id="navItem16"><a href="persistenceUtils.html">persistenceUtils</a></li><li id="navItem17"><a href="queryHandlers.html">queryHandlers</a></li><li id="navItem18"><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li id="navItem19"><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul class="subList"><li id="navItem20"><a href="AttributeFilter.html">AttributeFilter</a></li><li id="navItem21"><a href="CompoundFilter.html">CompoundFilter</a></li><li id="navItem22"><a href="DataMapping.html">DataMapping</a></li><li id="navItem23"><a href="Item.html">Item</a></li><li id="navItem24"><a href="ItemMetadata.html">ItemMetadata</a></li></ul>
+    <h2 id="navIndex"><a href="index.html">Index</a></h2><h3>Classes</h3><ul class="subList"><li id="navItem0"><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li id="navItem1"><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li id="navItem2"><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li id="navItem3"><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li id="navItem4"><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li id="navItem5"><a href="OfflineCache.html">OfflineCache</a></li><li id="navItem6"><a href="PersistenceManager.html">PersistenceManager</a></li><li id="navItem7"><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li id="navItem8"><a href="PersistenceStore.html">PersistenceStore</a></li><li id="navItem9"><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li id="navItem10"><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li id="navItem11"><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li id="navItem12"><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li id="navItem13"><a href="cacheStrategies.html">cacheStrategies</a></li><li id="navItem14"><a href="fetchStrategies.html">fetchStrategies</a></li><li id="navItem15"><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li id="navItem16"><a href="persistenceUtils.html">persistenceUtils</a></li><li id="navItem17"><a href="queryHandlers.html">queryHandlers</a></li><li id="navItem18"><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li id="navItem19"><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul class="subList"><li id="navItem20"><a href="AttributeFilter.html">AttributeFilter</a></li><li id="navItem21"><a href="CompoundFilter.html">CompoundFilter</a></li><li id="navItem22"><a href="DataMapping.html">DataMapping</a></li><li id="navItem23"><a href="Item.html">Item</a></li><li id="navItem24"><a href="ItemMetadata.html">ItemMetadata</a></li><li id="navItem25"><a href="NormalizedQuery.html">NormalizedQuery</a></li></ul>
 </nav>
 
 <div id="main">
@@ -460,7 +460,9 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
       // save off the browser fetch and XHR only in browser context.
       // also add listeners for browser online
       // Don't do it for Service Workers
-      if (_isSafari()) {
+      if (_isSafari() &amp;&amp;
+        !persistenceManager._browserRequestConstructor &amp;&amp;
+        !persistenceManager._persistenceRequestConstructor) {
         logger.log("Offline Persistence Toolkit PersistenceManager: Replacing Safari Browser APIs");
         // using self to refer to both the "window" and the "self" context
         // of serviceworker
@@ -473,7 +475,8 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
           writable: false
         });
         self['Request'] = persistenceManager._persistenceRequestConstructor;
-        if (!_isBrowserContext()) {
+        if (!_isBrowserContext() &amp;&amp; 
+          !persistenceManager._browserFetchFunc) {
           // replace serviceWorker's fetch with this wrapper to unwrap safari request in sw
           Object.defineProperty(persistenceManager, '_browserFetchFunc', {
             value: self.fetch,
@@ -1378,19 +1381,6 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
      */
 
     /**
-     * Bulk operation of add.
-     * @method
-     * @name upsertAll
-     * @memberof OfflineCache
-     * @param {Array} requests An array of Request
-     * @return {Promise} Returns a promise when all the requests in the array are handled.
-     * @example
-     * OfflineCache.upsertAll([request1,request2,request3]).then(function(){
-     * // Your Code here
-     * });
-     */
-
-    /**
      * Find the first response in this Cache object that match the request with the options.
      * @method
      * @name match
@@ -1592,7 +1582,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
 
 
     <footer>
-        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Fri Sep 04 2020 16:20:31 GMT-0700 (Pacific Daylight Time)<br>
+        Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Nov 19 2020 08:42:13 GMT-0800 (PST)<br>
         <span class="product-docs-footer">Copyright © 2017, 2020
         Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.<span>
     </footer>

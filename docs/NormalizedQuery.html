@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: PersistenceStoreFactory</title>
+    <title>Interface: NormalizedQuery</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -28,12 +28,12 @@
 <body>
 
 
-<nav id="nav" data-current-item="navItem9">
+<nav id="nav" data-current-item="navItem25">
     <h2 id="navIndex"><a href="index.html">Index</a></h2><h3>Classes</h3><ul class="subList"><li id="navItem0"><a href="ArrayPersistenceStoreFactory.html">ArrayPersistenceStoreFactory</a></li><li id="navItem1"><a href="ConfigurablePouchDBStoreFactory.html">ConfigurablePouchDBStoreFactory</a></li><li id="navItem2"><a href="DefaultResponseProxy.html">DefaultResponseProxy</a></li><li id="navItem3"><a href="FileSystemPersistenceStoreFactory.html">FileSystemPersistenceStoreFactory</a></li><li id="navItem4"><a href="LocalPersistenceStoreFactory.html">LocalPersistenceStoreFactory</a></li><li id="navItem5"><a href="OfflineCache.html">OfflineCache</a></li><li id="navItem6"><a href="PersistenceManager.html">PersistenceManager</a></li><li id="navItem7"><a href="PersistenceRegistration.html">PersistenceRegistration</a></li><li id="navItem8"><a href="PersistenceStore.html">PersistenceStore</a></li><li id="navItem9"><a href="PersistenceStoreFactory.html">PersistenceStoreFactory</a></li><li id="navItem10"><a href="PersistenceStoreManager.html">PersistenceStoreManager</a></li><li id="navItem11"><a href="PersistenceSyncManager.html">PersistenceSyncManager</a></li><li id="navItem12"><a href="PouchDBPersistenceStoreFactory.html">PouchDBPersistenceStoreFactory</a></li><li id="navItem13"><a href="cacheStrategies.html">cacheStrategies</a></li><li id="navItem14"><a href="fetchStrategies.html">fetchStrategies</a></li><li id="navItem15"><a href="oracleRestJsonShredding.html">oracleRestJsonShredding</a></li><li id="navItem16"><a href="persistenceUtils.html">persistenceUtils</a></li><li id="navItem17"><a href="queryHandlers.html">queryHandlers</a></li><li id="navItem18"><a href="simpleBinaryDataShredding.html">simpleBinaryDataShredding</a></li><li id="navItem19"><a href="simpleJsonShredding.html">simpleJsonShredding</a></li></ul><h3>Interfaces</h3><ul class="subList"><li id="navItem20"><a href="AttributeFilter.html">AttributeFilter</a></li><li id="navItem21"><a href="CompoundFilter.html">CompoundFilter</a></li><li id="navItem22"><a href="DataMapping.html">DataMapping</a></li><li id="navItem23"><a href="Item.html">Item</a></li><li id="navItem24"><a href="ItemMetadata.html">ItemMetadata</a></li><li id="navItem25"><a href="NormalizedQuery.html">NormalizedQuery</a></li></ul>
 </nav>
 
 <div id="main">
-    <h1 class="page-title">Class: PersistenceStoreFactory</h1>
+    <h1 class="page-title">Interface: NormalizedQuery</h1>
 
     
     <p class="product-docs-header">
@@ -54,19 +54,85 @@
     
 
     
-
-    
-
-    
     <div class="quick-nav-section1">
-        <h3><a href="#methods-section">Methods</a></h3>
-        <ul class="subList">
+        <h3> <a href="#members-section">Fields</a></h3>
+        <ul class="optionsSubList">
             
-                <li><a href="#createPersistenceStore">createPersistenceStore</a></li>
+            
+            
+                
+                
+
+                
+                
+                
+                    
+                    
+                                <li><div><a href="#limit">limit</a></div>
+                            
+                
+                
+                
+            
+                
+                
+                    
+                    </li>
+                
+
+                
+                
+                
+                    
+                    
+                                <li><div><a href="#offset">offset</a></div>
+                            
+                
+                
+                
+            
+                
+                
+                    
+                    </li>
+                
+
+                
+                
+                
+                    <li><div><a href="#searchCriteria">searchCriteria</a></div>
+                
+                
+                
+                    
+                    
+                
             
         </ul>
+        <script type="text/javascript" >
+        var innerSubLists = document.getElementsByClassName('optionsInnerSubList');
+        for (var i=0; i<innerSubLists.length; i++) {
+            innerSubLists[i].parentNode.onclick=function(event) {
+                event.stopPropagation();
+                // Only interpret the click event if the <a> element is the target and do nothing if click occurred elsewhere on the div
+                if (event.target.parentNode == this.firstChild.firstChild) {
+                    // toggle only the clicked sub properties list and not any nested ones
+                    var subProperties = this.getElementsByClassName('optionsInnerSubList');
+                    subProperties[0].style.display = (subProperties[0].style.display=='block' ? 'none' : 'block');
+                }
+            }
+        }
+        </script>
         
+        
+        
+        
+
     </div>
+    
+
+    
+
     
     
 </section>
@@ -76,7 +142,7 @@
   
   
     <h2>
-    PersistenceStoreFactory
+    NormalizedQuery
     
     
     </h2>
@@ -92,12 +158,10 @@
   
 
   
-    <div class="class-description">Contract for a PersistenceStoreFactory that provides a factory
-method to create a PersisteneStore instance with the name and options. The
-options is the same as the one used in
-persistenceStoreManager.openStore. A default factory is provided
-that implements this contract. Customers can register custom store factory
-for creating persistence stores of their choice.</div>
+    <div class="class-description">Interface for normalized query structure. Various REST endpoints support
+           different syntax for querying resources. Normalizing the query syntax 
+           enables Oracle Persistence Toolkit to perform certain functionalities 
+           including client side shredded data cleanup.</div>
   
 </header>
 
@@ -108,26 +172,8 @@ for creating persistence stores of their choice.</div>
 
     
         
-<dt>
         
-    
-    
         
-    
-
-    
-</dt>
-<dd>
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
   <dl class="details">
     
 
@@ -160,16 +206,8 @@ for creating persistence stores of their choice.</div>
     
 </dl>
 
-    
-    
-    
-    
-    
-    
-    
-    
-</dd>
 
+        
     
     </div>
 
@@ -182,192 +220,33 @@ for creating persistence stores of their choice.</div>
     
 
     
-
-    
-
-    
-    
-    
-
-    
-
-    
         
-        <h3 id="methods-section" class="subsection-title">
-            Methods
-            <a class="bookmarkable-link" title="Bookmarkable Link" href="#methods-section"></a>
+        <h3 id="members-section" class="subsection-title">
+            Fields
+            <a class="bookmarkable-link" title="Bookmarkable Link" href="#members-section"></a>
         </h3>
 
         <dl>
             
                 
 <dt>
-        
     
+    <h4 id="limit" class="name">
         
-      <h4 id="createPersistenceStore" class="name">
-        <span class="type-signature"></span>createPersistenceStore<span class="signature">(name, <span class="optional">options</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="PersistenceStore.html">PersistenceStore</a>>}</span>
-        <a class="bookmarkable-link" title="Bookmarkable Link" href="#createPersistenceStore"></a>
-      </h4>
+        <span class="type-signature"></span>limit<span class="type-signature"> :number</span>
+        <a class="bookmarkable-link" title="Bookmarkable Link" href="#limit"></a>
+    </h4>
     
-        
     
 
     
 </dt>
 <dd>
     
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		        
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-            
-            <td class="type">
-            
-                
-      <span class="param-type">string</span>
-    
-
-            
-            </td>
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-                                                           
-            <td class="description last">The name to be associated with the store.
-            </td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-            
-            <td class="type">
-            
-                
-      <span class="param-type">object</span>
-    
-
-            
-            </td>
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                                                           
-            <td class="description last">The configratuion options to be applied to the store.
-            
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		        
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>version</code></td>
-            
-            
-            <td class="type">
-            
-                
-      <span class="param-type">string</span>
-    
-
-            
-            </td>
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                                                           
-            <td class="description last">The version of the store.
-            </td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-            </td>
-        </tr>
-	
-	
-	</tbody>
-</table>
+    <div class="description">
+        The number of rows to be requested from the current query. Can be -1 or
+any integer. -1 indicates no limit.
+    </div>
     
     
     
@@ -405,40 +284,145 @@ for creating persistence stores of their choice.</div>
 
     
     
-    
-    
-    
-    
-        <h5>Returns:</h5>
-        
-                
-<div class="param-desc">
-    returns a Promise that is resolved to a PersistenceStore
-                  instance.
-</div>
 
-
-                
-    <dl>
-      <dt>
-        Type
-      </dt>
-      <dd>
-        
-      <span class="param-type">Promise.&lt;<a href="PersistenceStore.html">PersistenceStore</a>></span>
     
-
-      </dd>
-    </dl>
- 
-
-            
     
     
 </dd>
+            
+                
+<dt>
+    
+    <h4 id="offset" class="name">
+        
+        <span class="type-signature"></span>offset<span class="type-signature"> :int</span>
+        <a class="bookmarkable-link" title="Bookmarkable Link" href="#offset"></a>
+    </h4>
+    
+    
 
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The offset to be requested from the current query.
+    </div>
+    
+    
+    
+  <dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+    
+    
+</dd>
+            
+                
+<dt>
+    
+    <h4 id="searchCriteria" class="name">
+        
+        <span class="type-signature"></span>searchCriteria<span class="type-signature"> :object</span>
+        <a class="bookmarkable-link" title="Bookmarkable Link" href="#searchCriteria"></a>
+    </h4>
+    
+    
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The search criteria to be included in the current query.
+    </div>
+    
+    
+    
+  <dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+    
+    
+</dd>
             
         </dl>
+    
+
+    
+
+    
+    
+    
+
+    
+
     
 
     

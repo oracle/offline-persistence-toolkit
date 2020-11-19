@@ -517,7 +517,7 @@ define(["./defaultCacheHandler", "../persistenceStoreManager", "../persistenceUt
           storePromises.push(cacheStore.upsert(requestResponsePair.key,
                                                requestResponsePair.metadata,
                                                requestResponsePair.value));
-          storePromises.push(cacheHandler.cacheShreddedData(shreddedPayload));
+          storePromises.push(cacheHandler.cacheShreddedData(shreddedPayload, requestResponsePair.metadata));
 
           return self._updateShreddedStoreNames(shreddedPayload.map(function(entry) {
             return entry.name;
