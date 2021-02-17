@@ -30,6 +30,26 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       }
     });
 
+    var arrayUtil = {
+      compareArray : function(array1, array2) {
+        if (!array2)
+          return false;
+
+        if (array1.length != array2.length)
+          return false;
+
+        for (var i = 0, l=array1.length; i < l; i++) {
+          if (array1[i] instanceof Array && array2[i] instanceof Array) {
+            if (!array1[i].equals(array2[i]))
+              return false;
+            }
+            else if (array1[i] != array2[i]) { 
+              return false;
+            }
+        }
+        return true;
+      }
+    }
     var versionedLocalPersistenceStoreFactory = (function () {
       return {
         'createPersistenceStore': function (name, options) {
@@ -143,7 +163,7 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
       });
       QUnit.test('getOracleRestQueryHandler', function (assert) {
         var done = assert.async();
-        assert.expect(96);
+        assert.expect(108);
         mockFetch.addRequestReply('GET', '/testOracleRestQuery/556', {
           status: 200,
           body: JSON.stringify({DepartmentId: 556, DepartmentName: 'BB', establishedDate: '2010-01-01T08:30:40Z', LocationId: 200, ManagerId: 300})
@@ -390,10 +410,74 @@ define(['persist/persistenceManager', 'persist/defaultResponseProxy', 'persist/q
             }).then(function (response) {
               assert.ok(true, 'Received Response when offline');
               return response.json();
-            }).then(function (responseData) {
+            }).then(function(responseData){
               assert.ok(responseData.items.length == 2, 'Returned the correct departments');
               assert.ok(responseData.items[0].DepartmentName == 'BB' || responseData.items[1].DepartmentName == 'BB', 'Returned the correct department');
               assert.ok(responseData.items[1].DepartmentName == 'ADFPM 1001 neverending' || responseData.items[0].DepartmentName == 'ADFPM 1001 neverending', 'Returned the correct department');
+              return fetch("/testOracleRestQuery?q=LocationId=200&orderBy=DepartmentName:desc");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              var items = responseData.items;
+              var departmentNameArray = items.map(function(item) {
+                return item.DepartmentName;
+              });
+              assert.ok(responseData.items.length == 3, 'Returned the correct departments - sorting');
+              assert.ok(
+                arrayUtil.compareArray(
+                  departmentNameArray.slice().sort().reverse(), departmentNameArray
+                ), 
+                'Returned the data in sorted order - descending'
+              );
+              return fetch("/testOracleRestQuery?q=LocationId=200&orderBy=DepartmentName:asc,DepartmentId:desc");
+            }).then(function (response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function(responseData) {
+              var items = responseData.items;
+              var departmentNameArray = items.map(function(item) {
+                return item.DepartmentName;
+              });
+              assert.ok(responseData.items.length == 3, 'Returned the correct departments - sorting');
+              assert.ok(
+                arrayUtil.compareArray(
+                  departmentNameArray.slice().sort(), departmentNameArray
+                ), 
+                'Returned the data in sorted order - ascending'
+              );
+              return fetch("/testOracleRestQuery?q=LocationId=200&orderBy=ManagerId:asc,DepartmentName:desc");
+            }).then(function(response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function(responseData) {
+              var items = responseData.items;
+              var departmentNameArray = items.map(function(item) {
+                return item.DepartmentName;
+              });
+              assert.ok(responseData.items.length == 3, 'Returned the correct departments - sorting');
+              assert.ok(
+                arrayUtil.compareArray(
+                  departmentNameArray.slice().sort().reverse(), departmentNameArray
+                ), 
+                'Returned the data in sorted order - multiple sorting'
+              );
+              return fetch("/testOracleRestQuery?q=lastModified IS NULL&orderBy=ManagerId:asc,DepartmentName:desc");
+            }).then(function(response) {
+              assert.ok(true, 'Received Response when offline');
+              return response.json();
+            }).then(function (responseData) {
+              var items = responseData.items;
+              var departmentNameArray = items.map(function(item) {
+                return item.DepartmentName;
+              });
+              assert.ok(responseData.items.length == 2, 'Returned the correct departments - sorting');
+              assert.ok(
+                arrayUtil.compareArray(
+                  departmentNameArray.slice().sort().reverse(), departmentNameArray
+                ), 
+                'Returned the data in sorted order - multiple sorting with filter'
+              );
               return registration.unregister();
             }).then(function (unregistered) {
               assert.ok(unregistered == true, 'unregistered scope');
