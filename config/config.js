@@ -4,7 +4,7 @@ requirejs.config({
   paths: {
     'promise': 'persist/es6-promise.min',
     'fetch' : 'persist/fetch',
-    'pouchdb' : 'persist/pouchdb-browser-7.0.0'
+    'pouchdb' : 'persist/pouchdb-browser-7.2.2'
   },
   // Shim configurations for modules that do not expose AMD
   shim: {

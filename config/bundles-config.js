@@ -17,7 +17,7 @@
       'persist/offline-persistence-toolkit-pouchdbstore-{pkg.version}': [
         'persist/PersistenceStore',
         'persist/impl/storageUtils',
-        'persist/pouchdb-browser-7.0.0',
+        'persist/pouchdb-browser-7.2.2',
         'persist/impl/pouchDBPersistenceStore',
         'persist/pouchDBPersistenceStoreFactory',
         'persist/configurablePouchDBStoreFactory',

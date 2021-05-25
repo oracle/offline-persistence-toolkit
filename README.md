@@ -1,4 +1,4 @@
-# offline-persistence-toolkit 1.5.3 #
+# offline-persistence-toolkit 1.5.4 #
 
 offline-persistence-toolkit is a client-side JavaScript library that provides caching and offline support at the HTTP request layer. This support is transparent to the user and is done through the Fetch API and an XHR adapter. HTTP requests made while the client device is offline are captured for replay when connection to the server is restored. Additional capabilities include a persistent storage layer, synchronization manager, binary data support and various configuration APIs for customizing the default behavior. This framework can be used in both ServiceWorker and non-ServiceWorker contexts within web and hybrid mobile apps.
 
@@ -58,16 +58,16 @@ If your app uses [RequireJS](http://www.requirejs.org/ "RequireJS"), update the 
 ```javascript
   requirejs.config({
     paths: {
-      'persist' : 'js/libs/persist/v1.5.3/min'
+      'persist' : 'js/libs/persist/v1.5.4/min'
 
       // Other path mappings here
  }
 ```
-For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.5.3/min'` entry to the list of paths.
+For Oracle JET apps, also open `appDir/src/js/main-release-paths.json` and add the `'persist' : 'js/libs/persist/v1.5.4/min'` entry to the list of paths.
 
 You can choose the name of the paths prefix. That is, you can use a different value to the ‘persist’ value shown in the examples.
 
-It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.5.3/min'`.
+It is recommended to add the version number as a convention in your application build step such as `'persist' : 'js/libs/persist/v1.5.4/min'`.
 
 Versions of the toolkit are also available on CDN under the latest JET release. e.g.
 
@@ -79,7 +79,7 @@ https://static.oracle.com/cdn/jet/v6.2.0/3rdparty/opt/min
 
 The toolkit makes heavy use of the [Promise API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise API").  If you are targeting environments that do not support the Promise API, you will need to polyfill this feature.  We recommend the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise "es6-promise polyfill").
 
-The toolkit does not have a dependency on a specific client-side storage solution, but does include a PouchDB adapter.  If you plan to use PouchDB for your persistent store, you will need to install the following PouchDB packages (This version of the toolkit is certified with version 7.0.0 of pouchdb and requires apps to use this version):
+The toolkit does not have a dependency on a specific client-side storage solution, but does include a PouchDB adapter.  If you plan to use PouchDB for your persistent store, you will need to install the following PouchDB packages (This version of the toolkit is certified with version 7.2.2 of pouchdb and requires apps to use this version):
 
     npm install pouchdb pouchdb-find
 
@@ -89,9 +89,9 @@ And again, if you are using RequireJS, you will need to map paths for these pack
 
  requirejs.config({
     paths: {
-      'pouchdb': 'js/libs/pouchdb-7.0.0',
+      'pouchdb': 'js/libs/pouchdb-7.2.2',
       'pouchfind': 'js/libs/pouchdb.find',
-      'persist' : 'js/libs/persist/v1.5.3/min'
+      'persist' : 'js/libs/persist/v1.5.4/min'
 
       // Other path mappings here
  }
@@ -434,7 +434,7 @@ logger.option('level',  logger.LEVEL_LOG);
 ```
 
 ## Offline Toolkit In Action ##
-Please check out the [FixItFast sample app](http://www.oracle.com/webfolder/technetwork/jet/globalExamples-App-FixItFast-Demo.html "FixItFast sample app") to see the Offline Persistence Toolkit in action.
+Please check out the [FixItFast sample app](http://www.oracle.com/webfolder/technetwork/jet/public_samples/FixItFast-Redwood/public_html/index.html "FixItFast sample app") to see the Offline Persistence Toolkit in action.
 
 ## Contributing ##
 This is an open source project maintained by Oracle Corp. Pull Requests are currently not being accepted. See [CONTRIBUTING](https://github.com/oracle/offline-persistence-toolkit/tree/master/CONTRIBUTING.md "CONTRIBUTING") for details.
