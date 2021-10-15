@@ -76,7 +76,8 @@ define(['./impl/logger'], function (logger) {
   function _derivePayloadType(xhr, response) {
     var contentType = response.headers.get('Content-Type');
     var responseType = xhr.responseType;
-    if (_isTextPayload(response.headers)) {
+    var isSVG = contentType && contentType.indexOf('image/svg+xml') !== -1;
+    if (_isTextPayload(response.headers) || isSVG) {
       return "text";
     } else if (isCachedResponse(response) || responseType === 'blob') {
       return "blob";

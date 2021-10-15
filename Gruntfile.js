@@ -1,5 +1,47 @@
 /*global module:false*/
 module.exports = function (grunt) {
+  var fs = require('fs');
+  var path = require('path');
+
+  var karmaSetup = {
+    optSourceFolder : 'src/',
+    karmaTestFolder : 'test/karma-mocha-tests/',
+    karmaPreProcessorFiles : {},
+    karmaPreProcessorExcludedFiles : ['src/impl/fetch.js'],
+    karmaTestFiles : [],
+    testTasks : []
+  };
+
+  var helper = {
+    fetchFilesFromDirectory : function(directory, callback) {
+      fs.readdirSync(directory).forEach(file => {
+        var fullPath = path.join(directory, file);
+        if (fs.lstatSync(fullPath).isDirectory()) {
+          this.fetchFilesFromDirectory(fullPath, callback);
+         } else {
+          callback(fullPath, file);
+         }  
+      });
+    }
+  }
+
+  var generateKarmaPreProcessorFiles = function(file) {
+    if(!karmaSetup.karmaPreProcessorExcludedFiles.includes(file)) {
+      let _filePath = file.replace("src","dist/debug");
+      karmaSetup.karmaPreProcessorFiles[_filePath] = ['coverage'];
+    }
+  };
+
+  var setKarmaTestFiles = function(fileFullPath, fileName) {
+    var testFileData = {
+      testFile : null,
+      coverageFile : null
+    };
+    testFileData.testFile = fileFullPath;
+    testFileData.coverageFile = fileName.replace('.js','.json');
+    karmaSetup.karmaTestFiles.push(testFileData);
+  };
+
   // Project configuration.
   grunt.initConfig({
     // Metadata.
@@ -17,7 +59,9 @@ module.exports = function (grunt) {
       node_modules: 'node_modules',
       temp: 'temp',
       docs: 'docs',
-      config: 'config'
+      config: 'config',
+      karma_coverage: 'temp/coverage',
+      coverage_report: 'coverage'
     },
     banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
       '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -25,9 +69,9 @@ module.exports = function (grunt) {
       '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
       ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
     copyRightBanner: '/**\n' +
-        ' * Copyright (c) 2017, Oracle and/or its affiliates.\n' +
-        ' * All rights reserved.\n' +
-        ' */\n',
+      ' * Copyright (c) 2017, Oracle and/or its affiliates.\n' +
+      ' * All rights reserved.\n' +
+      ' */\n',
     watch: {
       gruntfile: {
         files: '<%= jshint.gruntfile.src %>'
@@ -41,7 +85,9 @@ module.exports = function (grunt) {
         '<%= paths.docs %>',
         '<%= paths.temp %>'],
       bundles_debug: '<%= paths.dist_bundles_debug %>',
-      bundles_min: '<%= paths.dist_bundles_min %>'
+      bundles: '<%= paths.dist_bundles %>',
+      bundles_min: '<%= paths.dist_bundles_min %>',
+      karmaCoverage: '<%= paths.karma_coverage %>'
     },
     browserify: {
       pouchDB_browser_bundle: {
@@ -201,10 +247,6 @@ module.exports = function (grunt) {
           {
             src: '<%= paths.dist_bundles_debug %>/persist/defaultResponseProxy.js',
             dest: '<%= paths.dist_bundles_debug %>/persist/offline-persistence-toolkit-responseproxy-<%= pkg.version %>.js'
-          },
-          {
-            src: 'coverage/dist/debug/require-config-coverage.js',
-            dest: 'coverage/dist/debug/bundles-config.js'
           }
         ]
       }
@@ -268,36 +310,6 @@ module.exports = function (grunt) {
           }
         ]
       },
-      config_coverage: {
-        files: [
-          {
-            expand: true,
-            cwd: 'config',
-            src: 'require-config-coverage.js',
-            dest: 'coverage/dist/debug'
-          }
-        ]
-      },
-      test_coverage: {
-        files: [
-          {
-            expand: true,
-            cwd: 'test',
-            src: '**',
-            dest: 'coverage/test'
-          }
-        ]
-      },
-      lib_coverage: {
-        files: [
-          {
-            expand: true,
-            cwd: 'lib',
-            src: '**',
-            dest: 'coverage/lib'
-          }
-        ]
-      },
       temp_debug: {
         files: [
           {
@@ -337,7 +349,7 @@ module.exports = function (grunt) {
             dest: '<%= paths.dist_min %>'
           }
         ]
-      },
+      }
     },
     jsdoc: {
       dist: {
@@ -389,29 +401,16 @@ module.exports = function (grunt) {
         }]
       }
     },
-    qunit: {
-      files: ['test/**/*.html'],
-      options: {
-        puppeteer: {
-          headless: true,
-          args: ['--disable-web-security']
-        }
-      }
-    },
-    run_java: {
-      jscover: {
-        command: 'java',
-        jarName: 'coverage/JSCover-all.jar',
-        javaArgs: '-fs dist/debug coverage/dist/debug --no-instrument=impl/sql-where-parser.min.js --no-instrument=impl/fetch.js --no-instrument=<%= pouchdb_bundle %>'
-      }
-    },
     shell: {
       start_test_server: {
         command: 'node ./test/lib/testServer/server.js',
         options: {
           stdout: true,
-          async: true,
+          async:true,
         }
+      },
+      karma_coverage_report: {
+        command: 'node_modules/nyc/bin/nyc.js -t <%= paths.karma_coverage %>/**/ report --reporter=html --report-dir=<%= coverage_report %>'
       }
     },
     usebanner:{
@@ -430,9 +429,19 @@ module.exports = function (grunt) {
            "!<%= paths.dist_min %>/**/fetch.js"],
         }
       }
+    },
+    karma: {
+      unit: {
+        configFile: 'karma.conf.js',
+        fileToTest: '',
+        karmaPreProcessorFiles: karmaSetup.karmaPreProcessorFiles,
+        browser: 'ChromeHeadless',
+        singleRun: true,
+        coverageDir: '<%= paths.karma_coverage %>'
+      }
     }
   });
-
+  
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -441,13 +450,12 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-jsdoc');
   grunt.loadNpmTasks('grunt-terser');
   grunt.loadNpmTasks('gruntify-eslint');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
-  grunt.loadNpmTasks('grunt-run-java');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-rename');
   grunt.loadNpmTasks('grunt-string-replace');
   grunt.loadNpmTasks('grunt-shell-spawn');
   grunt.loadNpmTasks('grunt-banner');
+  grunt.loadNpmTasks('grunt-karma');
 
   // Default task.
   grunt.registerTask('build', ['clean:all',
@@ -455,16 +463,12 @@ module.exports = function (grunt) {
                               'eslint',
                               'copy:dist_debug',
                               'copy:dist_ext_lib',
-                              'copy:config_coverage',
-                              'copy:test_coverage',
-                              'copy:lib_coverage',
                               'copy:temp_debug',
                               'terser:minifyMinForBundleWithComments',
                               'terser:minifyMinForBundleWithoutComments',
                               'copy:temp_min',
                               'requirejs:compileBundles_min',
                               'requirejs:compileBundles_debug',
-                              'run_java',
                               'rename',
                               'string-replace',
                               'copy:dist_bundles_debug',
@@ -473,9 +477,65 @@ module.exports = function (grunt) {
                               'clean:bundles_debug',
                               'clean:bundles_min',
                               'usebanner',
-                              'shell:start_test_server',
-                              'qunit',
+                              'run-karma-mocha',
                               'jsdoc',
                               'copy:oracle_logo'
-  ]);
+                              ]);
+
+  function buildKarmaMochaTestTasks() {
+    karmaSetup.testTasks.push('clean:karmaCoverage');
+    karmaSetup.testTasks.push('shell:start_test_server');
+    karmaSetup.karmaTestFiles.forEach((file, index) => {
+      var taskName = 'run-karma-mocha-test-'+ (index+1);
+      karmaSetup.testTasks.push(taskName);
+      grunt.task.registerTask(taskName, function() {
+        grunt.config.set('karma.unit.fileToTest', file.testFile);
+        grunt.config.set('karma.unit.coverageFile', file.coverageFile);
+        grunt.task.run('karma');
+      });
+    })
+    karmaSetup.testTasks.push('shell:karma_coverage_report'); // Task to generate coverage report
+  }
+
+  function runTargetTestFiles(testFileParam) {
+    karmaSetup.karmaTestFiles = [];
+    var testFiles = testFileParam.split(',');
+    testFiles.forEach(file => {
+      var fileName = file+'.js',
+          filePath = karmaSetup.karmaTestFolder + fileName;
+      if(fs.existsSync(filePath)) {
+        setKarmaTestFiles(filePath, fileName);
+      }
+      else {
+        grunt.fail.warn(`No test file named ${fileName} exists in karma test directory`)
+      }
+    })
+  }
+
+
+  grunt.task.registerTask('run-karma-mocha', function() {
+    helper.fetchFilesFromDirectory(karmaSetup.karmaTestFolder, setKarmaTestFiles);
+    helper.fetchFilesFromDirectory(karmaSetup.optSourceFolder, generateKarmaPreProcessorFiles); // Generate Preprocessors for Karma
+
+    if(grunt.option('test')) {
+      var testFileParam = grunt.option('test');
+      if(typeof testFileParam === 'string')
+        runTargetTestFiles(testFileParam);
+      else 
+        grunt.fail.warn("No test file provided as input!!");
+    }
+    if(grunt.option('browser')) {
+      var browser = grunt.option('browser');
+      grunt.config.set('karma.unit.browser', browser);
+    }
+    if(typeof grunt.option('singleRun') === 'boolean')
+      grunt.config.set('karma.unit.singleRun', grunt.option('singleRun'));
+
+    buildKarmaMochaTestTasks(); // Generates batch of karma mocha tests
+    grunt.task.run(karmaSetup.testTasks);
+  });
+
+  grunt.task.registerTask('run-karma-coverage', function() {
+    grunt.task.run('run-karma-mocha');
+  });
 };

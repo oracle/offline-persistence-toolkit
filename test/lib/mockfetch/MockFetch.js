@@ -30,10 +30,11 @@ define([], function () {
     }(window.navigator));
   }
 
-  function MockFetch() {
+  function MockFetch(whiteListedURL) {
     this._replies = [];
     window._fetch = fetch;
     window.fetch = this.fetch.bind(this);
+    this._whiteListedURL =  whiteListedURL instanceof Array ? whiteListedURL : [];
   };
 
   /**
@@ -82,9 +83,10 @@ define([], function () {
     var repliesCount = self._replies.length;
     // calling regular browser fetch when calling against our localhost server
     // this is to be able to use abortController/timeout
-    if (request.url === "http://localhost:3003/testOPT"){
-      return _fetch(request)
+    if(this._whiteListedURL.indexOf(request.url) !== -1) {
+      return _fetch(request);
     }
+
     for (i = 0; i < repliesCount; i++) {
       if ((request.url.toLowerCase().indexOf(self._replies[i].scope.toLowerCase()) != -1) &&
         (self._replies[i].method == '*' || request.method == self._replies[i].method)) {
