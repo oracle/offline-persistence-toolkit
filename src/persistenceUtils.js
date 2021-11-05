@@ -97,8 +97,7 @@ define(['./impl/logger'], function (logger) {
     // the response is considered text type when contentType value is of
     // pattern text/ or application/*json .
     if (contentType &&
-        (contentType.match(/.*text\/.*/) ||
-         contentType.match(/.*application\/.*json.*/))) {
+        (contentType.match(/.*text\/.*/))) {
       return true;
     }
     return false;
