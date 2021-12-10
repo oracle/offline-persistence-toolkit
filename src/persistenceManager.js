@@ -1072,7 +1072,7 @@ define(['./impl/PersistenceXMLHttpRequest', './impl/PersistenceSyncManager', './
     function _formDataToPromiseArryBuffer(value, key, boundary) {
       return new Promise(function (resolve, reject) {
         var enc = new TextEncoder();
-        var endingBuffer =  enc.encode('\r\n' +boundary).buffer; //endingBuffer does not change
+        var endingBuffer =  enc.encode('\r\n' +boundary).buffer; // endingBuffer does not change
         var itemType = value.constructor.name;
         switch (itemType) {
           case "File":

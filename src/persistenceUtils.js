@@ -90,16 +90,25 @@ define(['./impl/logger'], function (logger) {
     }
   }
 
-  function _isTextPayload(headers) {
+  function _isTextPayload(headers, isAppJsonText) {
 
     var contentType = headers.get('Content-Type');
 
     // the response is considered text type when contentType value is of
     // pattern text/ or application/*json .
-    if (contentType &&
+    if (isAppJsonText) {
+      if (contentType &&
+        (contentType.match(/.*text\/.*/) || 
+        contentType.match(/.*application\/.*json.*/))) {
+        return true;
+      }
+    } else {
+      if (contentType &&
         (contentType.match(/.*text\/.*/))) {
-      return true;
+        return true;
+      }
     }
+    
     return false;
   };
 
@@ -196,7 +205,7 @@ define(['./impl/logger'], function (logger) {
     }
 
     if ((source instanceof Request) ||
-        _isTextPayload(source.headers)) {
+        _isTextPayload(source.headers, true)) {
       return source.text().then(function (text) {
         targetObj.body.text = text;
         return targetObj;
