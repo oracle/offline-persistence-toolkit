@@ -153,6 +153,19 @@ The Offline Persistence Toolkit follows a similar pattern.  Each endpoint of int
 
 ```
 
+The scope value can also be a regular expression as shown below
+
+```javascript
+
+  persistenceManager.init().then(function() {
+    persistenceManager.register({scope: /employees\?data=true&accessible=true/})
+  ));
+
+
+```
+Using regular expression for scope value helps in a scenario where you want to honor special character like "?" in URL endpoints.
+
+
 The persistenceManager.register() call returns a Promise that resolves to a PersistenceRegistration instance.  Once resolved, the application can add event listeners to handle fetch requests for the scope:
 
 ```javascript
