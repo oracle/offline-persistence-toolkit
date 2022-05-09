@@ -71,11 +71,11 @@ It is recommended to add the version number as a convention in your application 
 
 Versions of the toolkit are also available on CDN under the latest JET release. e.g.
 
-https://static.oracle.com/cdn/jet/v6.2.0/3rdparty/opt/debug
+https://static.oracle.com/cdn/jet/12.1.0/3rdparty/persist/debug
 
 or
 
-https://static.oracle.com/cdn/jet/v6.2.0/3rdparty/opt/min
+https://static.oracle.com/cdn/jet/12.1.0/3rdparty/persist/min
 
 The toolkit makes heavy use of the [Promise API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise API").  If you are targeting environments that do not support the Promise API, you will need to polyfill this feature.  We recommend the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise "es6-promise polyfill").
 
