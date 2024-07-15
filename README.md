@@ -452,5 +452,9 @@ Please check out the [FixItFast sample app](http://www.oracle.com/webfolder/tech
 ## Contributing ##
 This is an open source project maintained by Oracle Corp. Pull Requests are currently not being accepted. See [CONTRIBUTING](https://github.com/oracle/offline-persistence-toolkit/tree/master/CONTRIBUTING.md "CONTRIBUTING") for details.
 
+## Security
+
+Please consult the [security guide](./SECURITY.md) for our responsible security vulnerability disclosure process
+
 ## License ##
 Copyright (c) 2017 Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.
