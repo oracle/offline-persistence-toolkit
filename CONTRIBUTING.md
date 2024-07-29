@@ -1,6 +1,6 @@
 # Contributing to offline-persistence-toolkit
 
-*Copyright (c) 2017 Oracle and/or its affiliates
+*Copyright (c) 2017, 2024 Oracle and/or its affiliates
 The Universal Permissive License (UPL), Version 1.0*
 
 **Pull requests are currently not being accepted for this project.**  
