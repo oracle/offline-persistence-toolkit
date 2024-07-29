@@ -457,4 +457,4 @@ This is an open source project maintained by Oracle Corp. Pull Requests are curr
 Please consult the [security guide](./SECURITY.md) for our responsible security vulnerability disclosure process
 
 ## License ##
-Copyright (c) 2017 Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates The Universal Permissive License (UPL), Version 1.0.
